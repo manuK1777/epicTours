@@ -1,0 +1,77 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit Venue' : 'Add Venue' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="venueForm" class="venue-form">
+    <mat-form-field appearance="fill">
+      <mat-label>Venue Name</mat-label>
+      <input matInput formControlName="name" />
+      <ng-container>
+        @if (venueForm.get('name')?.hasError('required')) {
+          <mat-error>Name is required</mat-error>
+        }
+      </ng-container>
+      <ng-container>
+        @if (venueForm.get('name')?.hasError('minlength')) {
+          <mat-error>Name must be at least 2 characters</mat-error>
+        }
+      </ng-container>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Category</mat-label>
+      <input matInput formControlName="category" />
+      @if (venueForm.get('category')?.hasError('required')) {
+        <mat-error>Category is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Latitude</mat-label>
+      <input matInput type="number" formControlName="latitude" />
+      <ng-container>
+        @if (venueForm.get('latitude')?.hasError('required')) {
+          <mat-error>Latitude is required</mat-error>
+        }
+      </ng-container>
+      <ng-container>
+        @if (venueForm.get('latitude')?.hasError('min')) {
+          <mat-error>Minimum value is -90</mat-error>
+        }
+      </ng-container>
+      <ng-container>
+        @if (venueForm.get('latitude')?.hasError('max')) {
+          <mat-error>Maximum value is 90</mat-error>
+        }
+      </ng-container>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Longitude</mat-label>
+      <input matInput type="number" formControlName="longitude" />
+      <ng-container>
+        @if (venueForm.get('longitude')?.hasError('required')) {
+          <mat-error>Longitude is required</mat-error>
+        }
+      </ng-container>
+      <ng-container>
+        @if (venueForm.get('longitude')?.hasError('min')) {
+          <mat-error>Minimum value is -180</mat-error>
+        }
+      </ng-container>
+      <ng-container>
+        @if (venueForm.get('longitude')?.hasError('max')) {
+          <mat-error>Maximum value is 180</mat-error>
+        }
+
+      </ng-container>
+    </mat-form-field>
+
+    <!-- <mat-form-field appearance="fill">
+      <mat-label>category</mat-label>
+      <textarea matInput formControlName="category"></textarea>
+    </mat-form-field> -->
+    
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="save()">{{ isEditMode ? 'Update' : 'Add' }}</button>
+</mat-dialog-actions>

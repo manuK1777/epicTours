@@ -1,0 +1,31 @@
+// table {
+//     width: 100%;
+//   }
+  
+  .mat-elevation-z8 {
+    margin: 1rem 0;
+  }
+  
+  button {
+    margin: 0 4px;
+  }
+
+  .table-container {
+    width: 100%;
+    overflow-x: auto; 
+  }
+
+  table {
+    width: 100%; 
+    min-width: 600px; 
+  }
+  
+  .mat-cell, .mat-header-cell {
+    white-space: nowrap; 
+  }
+  
+  .mat-icon-button {
+    min-width: 36px; 
+  }
+
+  

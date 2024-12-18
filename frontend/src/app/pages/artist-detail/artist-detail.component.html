@@ -1,0 +1,57 @@
+<mat-grid-list cols="6" rowHeight="200px">
+
+  @for (tile of tiles; track tile) {
+
+  <mat-grid-tile [colspan]="tile.cols" [rowspan]="tile.rows" [style.background]="tile.color"
+    class="custom-tile mat-elevation-z2">
+  
+    <ng-container [ngSwitch]="tile.type">
+
+      <div *ngSwitchCase="'text'" class="tile-text">{{ tile.text }}</div>
+
+      <div *ngSwitchCase="'image'" class="tile-header">
+          <h1 class="mat-h1">{{ tile.text }}</h1>
+        <img [src]="tile.imageUrl" class="cust-image" alt="Tile image"
+          [style.visibility]="tile.imageUrl ? 'visible' : 'hidden'" />
+      </div>
+
+      <div *ngSwitchCase="'button'" mat-raised-button color="primary">
+        <div class="fab-menu">
+
+          <input type="file" #fileInput (change)="onFileSelected($event)" hidden
+            accept="image/jpeg, image/jpg, image/png, image/webp" />
+
+          <button mat-stroked-button class="mat-elevation-z4"
+            aria-label="view artist information" (click)="openArtistInfoModal()"><mat-icon>list</mat-icon>
+            Info
+          </button>
+
+          <button mat-stroked-button class="mat-elevation-z4" aria-label="view staff"><mat-icon>group</mat-icon>
+            Group
+          </button>
+          <button mat-stroked-button class="mat-elevation-z4" aria-label="view tech staff"><mat-icon>group</mat-icon>
+            Crew
+          </button>
+
+          <button mat-stroked-button color="primary" class="mat-elevation-z4" aria-label="Edit Info"
+            (click)="openEditArtistModal()">
+            <mat-icon>edit</mat-icon>Edit Artist
+          </button>
+
+          <button mat-stroked-button color="warn" class="mat-elevation-z4" aria-label="Delete Artist"
+            (click)="deleteArtist()">
+            <mat-icon>delete</mat-icon>Delete Artist
+          </button>
+        </div>
+      </div>
+
+    </ng-container>
+  </mat-grid-tile>
+  }
+
+</mat-grid-list>
+
+<button mat-stroked-button class="cust-btn mat-elevation-z4" color="primary" aria-label="Select Image"
+  (click)="navigateToArtistList()">
+  <mat-icon>arrow_back</mat-icon>Artists list
+</button>

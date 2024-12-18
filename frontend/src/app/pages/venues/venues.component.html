@@ -1,0 +1,27 @@
+<app-toolbar
+  [categories]="categoriesSignal()"
+  [selectedCategories]="selectedCategoriesSignal()"
+  (filterChange)="updateSelectedCategories($event)"
+  (filterChange)="refreshVenues()"
+  (addVenue)="addVenue($event)"
+  (switchView)="switchView($event)"
+></app-toolbar>
+
+<ng-container *ngIf="activeViewSignal() === 'map'; else tableView">
+  <app-map
+    [venues]="venuesSignal()"
+    (editVenue)="editVenue($event.id, $event.updatedVenue)"
+    (deleteVenue)="deleteVenue($event)"
+  ></app-map>
+</ng-container>
+
+<ng-template #tableView>
+  <app-venues-table class="venues-table-content"
+    [venues]="venuesSignal()"
+    (editVenue)="editVenue($event.id, $event.updatedVenue)"
+    (deleteVenue)="deleteVenue($event)"
+  ></app-venues-table>
+</ng-template>
+
+  
+  

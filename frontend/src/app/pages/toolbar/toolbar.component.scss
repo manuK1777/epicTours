@@ -1,0 +1,23 @@
+.toolbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  
+    .toolbar-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+  
+      .chip-container {
+        display: flex;
+        max-width: 300px;
+        overflow-x: auto;
+      }
+    }
+  }
+
+  .filters-box {
+    margin-top: 18px;
+  }
+
+  

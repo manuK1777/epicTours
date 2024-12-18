@@ -1,0 +1,55 @@
+// @use '@angular/material' as mat;
+
+mat-grid-list {
+    margin: 20px;
+}
+
+mat-grid-tile {
+    border: 1px solid #ccc;
+}
+
+.mat-h1{
+    font-size: 1.6rem;
+    margin-top: 0;
+    margin-bottom: 3px;    
+  }
+
+  .fab-menu {
+    display: flex;
+    flex-direction: column; 
+  //  align-items: flex-start; 
+    gap: 19px; 
+}
+
+mat-mini-fab {
+    padding-right: 2rem;
+}
+
+.cust-image {
+        width: auto;
+        height: 140px;
+        object-fit: contain;
+        max-width: 100%; 
+        display: block;
+        margin: auto;
+}
+
+.cust-btn {
+    margin-left: 16px;
+}
+
+.cust-icon {
+    margin-right: 6px;
+
+}
+
+.mat-mdc-card > .mat-mdc-card-content {
+    padding: 0px;
+}
+
+.cust-icon {
+   
+    margin: auto;
+    font-size: 1rem;
+}
+

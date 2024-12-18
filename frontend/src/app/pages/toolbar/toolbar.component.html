@@ -1,0 +1,54 @@
+<mat-toolbar class="toolbar-container">
+    <div>
+      <!-- View Toggle -->
+      <button mat-icon-button [color]="activeView === 'map' ? 'accent' : ''" (click)="changeView('map')">
+        <mat-icon>location_on</mat-icon>
+      </button>
+      <button mat-icon-button [color]="activeView === 'table' ? 'accent' : ''" (click)="changeView('table')">
+        <mat-icon>lists</mat-icon>
+      </button>
+    </div>
+  
+    <div class="toolbar-actions">
+      <!-- Add Venue Button -->
+      <button mat-raised-button color="accent" (click)="openAddVenueDialog()">
+        <mat-icon>add</mat-icon> Add Venue
+      </button>
+
+      @if (activeView !== 'table') {
+        <button mat-raised-button color="accent" (click)="changeView('table')">
+          <mat-icon>add</mat-icon> Edit Venues
+        </button>
+      }
+
+      <!-- Filters -->
+      <mat-form-field appearance="fill" class="filters-box">
+        <mat-label>Category Filters</mat-label>
+        <mat-select
+          [(value)]="selectedCategories"
+          multiple
+          (selectionChange)="onCategoryChange()"
+        >
+          <!-- Always Present "All Venues" Option -->
+          <!-- <mat-option
+            (click)="selectAllVenues()" 
+          >
+           
+          </mat-option> -->
+    
+          <!-- Dynamic Categories -->
+          @for (category of categories; track category; let i = $index) {
+            <mat-option [value]="category">
+              {{ category }}
+            </mat-option>
+          }
+
+        </mat-select>
+      </mat-form-field>
+
+    </div>
+  </mat-toolbar>
+
+
+  
+  

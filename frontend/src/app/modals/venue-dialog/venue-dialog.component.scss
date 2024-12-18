@@ -1,0 +1,19 @@
+.venue-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  mat-dialog-content {
+    overflow: hidden; /* Prevents unnecessary scrollbars */
+  }
+  
+  mat-form-field {
+    width: 100%;
+  }
+
+  mat-dialog-actions {
+    align-items: end;
+    justify-content: end;
+    margin-right: 1rem;
+  }
