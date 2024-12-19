@@ -44,9 +44,19 @@ export class ToolbarComponent {
     });
   
     dialogRef.afterClosed().subscribe((result) => {
-      console.log('Dialog closed with result:', result); 
+      console.log('Dialog closed with result:', result);
       if (result?.action === 'add' && result.venue) {
-        this.addVenue.emit(result.venue);
+        const venue = result.venue;
+        // Check if coordinates are valid numbers
+        if (typeof venue.latitude === 'number' && 
+            typeof venue.longitude === 'number' && 
+            !isNaN(venue.latitude) && 
+            !isNaN(venue.longitude)) {
+          console.log('Emitting venue:', venue);
+          this.addVenue.emit(venue);
+        } else {
+          console.error('Invalid coordinates:', venue);
+        }
       }
     });
   }

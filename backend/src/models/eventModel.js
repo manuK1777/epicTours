@@ -2,6 +2,11 @@ import { DataTypes } from 'sequelize';
 import { sequelize } from '../db.js';
 
 const Event = sequelize.define('Event', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
   title: {
     type: DataTypes.STRING(100),
     allowNull: false,
@@ -28,6 +33,12 @@ const Event = sequelize.define('Event', {
   timestamps: true, 
   updatedAt: 'updated_at',
   createdAt: 'created_at',
+  indexes: [
+    {
+      unique: true,
+      fields: ['title', 'start_time', 'end_time'], 
+    },
+  ],
 });
 
 export default Event;

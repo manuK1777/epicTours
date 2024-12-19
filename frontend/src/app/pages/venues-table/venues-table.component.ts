@@ -21,9 +21,9 @@ export class VenuesTableComponent implements OnChanges {
   @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator;
 
   editingVenueId: number | null = null;
-  editedVenue: Location = { name: '', category: '', latitude: 0, longitude: 0 }; 
+  editedVenue: Location = { name: '', category: '', address: '', latitude: 0, longitude: 0, contact_id: 0 }; 
 
-  displayedColumns: string[] = ['name', 'category', 'latitude', 'longitude', 'actions'];
+  displayedColumns: string[] = ['name', 'category', 'address', 'latitude', 'longitude', 'contact', 'actions'];
   dataSource = new MatTableDataSource<Location>(this.venues);
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -59,7 +59,7 @@ export class VenuesTableComponent implements OnChanges {
 
   cancelEdit(): void {
     this.editingVenueId = null;
-    this.editedVenue = { name: '', category: '', latitude: 0, longitude: 0 };
+    this.editedVenue = { name: '', category: '', address: '', latitude: 0, longitude: 0, contact_id: 0 };
   }
 
   onDelete(id: number): void {

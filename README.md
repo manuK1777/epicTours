@@ -1,6 +1,6 @@
-# S8-Inprocode
+# epicTours
 
-S8-Inprocode is a full-stack web exercise built with Angular 18 (frontend), Node.js (backend), Sequelize, and MySQL. The application allows users to manage events and locations with a calendar interface a map, and displays the data also in charts.
+EpicTours is a full-stack web exercise built with Angular 18 (frontend), Node.js (backend), Sequelize, and MySQL. The application allows users to manage events and locations with a calendar interface a map, and displays the data also in charts.
 
 ## Table of Contents
 1. [Requirements](#requirements)

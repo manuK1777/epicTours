@@ -23,7 +23,18 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="fill">
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Address</mat-label>
+      <input matInput formControlName="address" (blur)="geocodeAddress()">
+      <mat-error *ngIf="venueForm.get('address')?.hasError('required')">
+        Address is required
+      </mat-error>
+      <mat-error *ngIf="venueForm.get('address')?.hasError('geocoding')">
+        {{ venueForm.get('address')?.getError('geocoding') }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- <mat-form-field appearance="fill">
       <mat-label>Latitude</mat-label>
       <input matInput type="number" formControlName="latitude" />
       <ng-container>
@@ -62,7 +73,7 @@
         }
 
       </ng-container>
-    </mat-form-field>
+    </mat-form-field> -->
 
     <!-- <mat-form-field appearance="fill">
       <mat-label>category</mat-label>

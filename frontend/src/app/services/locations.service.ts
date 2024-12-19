@@ -29,7 +29,14 @@ export class LocationsService {
   // Add a new location
   addLocation(newLocation: Location): Observable<Location> {
     console.log('Sending new venue to API:', newLocation);
-    return this.http.post<Location>(this.apiUrl, newLocation);
+    return this.http.post<Location>(this.apiUrl, {
+      name: newLocation.name,
+      category: newLocation.category,
+      address: newLocation.address, 
+      latitude: newLocation.latitude,
+      longitude: newLocation.longitude,
+      contact_id: newLocation.contact_id
+    });
   }
 
   // Update an existing location
@@ -56,5 +63,3 @@ export class LocationsService {
   }
   
 }
-
-

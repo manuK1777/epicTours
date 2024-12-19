@@ -56,16 +56,38 @@ export const createLocation = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, category, latitude, longitude, contact_id } = req.body;
+    console.log('Received location data:', req.body);
+
+    const { name, category, address, latitude, longitude, contact_id } = req.body;
+
+    if (!address) {
+      return res.status(400).json({ 
+        error: 'Address is required',
+        details: 'The address field cannot be empty'
+      });
+    }
+
+    // Validate coordinates are numbers
+    const lat = parseFloat(latitude);
+    const lng = parseFloat(longitude);
+
+    if (isNaN(lat) || isNaN(lng)) {
+      return res.status(400).json({ 
+        error: 'Invalid coordinates',
+        details: { latitude, longitude }
+      });
+    }
 
     const newLocation = await Location.create({
       name,
       category,
-      latitude,
-      longitude,
-      category,
-      contact_id: contact_id || null, // Allow optional contact association
+      address,
+      latitude: lat,
+      longitude: lng,
+      contact_id: contact_id || null,
     });
+
+    console.log('Created location:', newLocation.toJSON());
 
     res.status(201).json({
       code: 1,
@@ -73,8 +95,11 @@ export const createLocation = async (req, res) => {
       data: newLocation,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to create location' });
+    console.error('Error creating location:', error);
+    res.status(500).json({ 
+      error: 'Failed to create location',
+      details: error.message 
+    });
   }
 };
 
@@ -87,7 +112,7 @@ export const updateLocation = async (req, res) => {
     }
 
     const { id } = req.params;
-    const { name, category, latitude, longitude, contact_id } = req.body;
+    const { name, category, address, latitude, longitude, contact_id } = req.body;
 
     const location = await Location.findByPk(id);
     if (!location) {
@@ -97,9 +122,9 @@ export const updateLocation = async (req, res) => {
     await location.update({
       name: name || location.name,
       category: category || location.category,
+      address: address || location.address,
       latitude: latitude || location.latitude,
       longitude: longitude || location.longitude,
-      category: category || location.category,
       contact_id: contact_id || location.contact_id,
     });
 
@@ -177,5 +202,3 @@ export const getLocationsByCategories = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch locations' });
   }
 };
-
-
