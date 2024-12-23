@@ -2,19 +2,16 @@ import { DataTypes } from "sequelize";
 import { sequelize } from '../db.js';
 
 const Contact = sequelize.define("Contact", {
+    id: {
+        type: DataTypes.INTEGER(8).UNSIGNED,
+        primaryKey: true,
+        autoIncrement: true,
+    },
     email: {
         type: DataTypes.STRING,
         allowNull: true,
     },
     phone: {
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
-    website: {
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
-    socialMedia: {
         type: DataTypes.STRING,
         allowNull: true,
     },
