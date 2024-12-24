@@ -1,32 +1,41 @@
-import { Router } from 'express';
+import express from 'express';
 import { 
   getAllArtists, 
   getArtistById, 
   createArtist, 
   updateArtist, 
   deleteArtist,
-  deleteArtistImage, 
+  deleteArtistImage,
+  addVenueToArtist,
+  removeVenueFromArtist
 } from '../controllers/artistsController.js';
-import { artistValidator } from '../validations/artist.Validation.js'; 
-import { idValidator } from '../validations/generic.Validation.js'; 
-import { validate } from "../middlewares/validate.js";
-import { uploadFileMiddleware } from '../middlewares/upload.js'; 
+import { validateArtistId } from '../middleware/validators.js';
+import upload from '../middleware/upload.js';
 
+const router = express.Router();
 
-const router = Router();
+// Get all artists
+router.get('/', getAllArtists);
 
-//Routes for managing artists WITHOUT AUTHENTIFICATION
-router.get('/', getAllArtists); // Get all artists
-router.get('/:id', idValidator, validate, getArtistById); 
-router.post('/', uploadFileMiddleware, artistValidator, validate, createArtist 
-);
-router.put('/:id', uploadFileMiddleware, (req, res, next) => {
-  next();
-}, idValidator, artistValidator, validate, updateArtist);
-router.delete('/:id', validate, idValidator, validate, deleteArtist); 
-router.delete('/:id/file', validate, idValidator, validate, deleteArtistImage); // Ensure this matches the intended endpoint
+// Get artist by ID
+router.get('/:id', validateArtistId, getArtistById);
 
+// Create new artist
+router.post('/', upload.single('file'), createArtist);
+
+// Update artist
+router.put('/:id', validateArtistId, upload.single('file'), updateArtist);
+
+// Delete artist
+router.delete('/:id', validateArtistId, deleteArtist);
+
+// Delete artist image
+router.delete('/:id/image', validateArtistId, deleteArtistImage);
+
+// Add venue to artist
+router.post('/:artistId/venues/:venueId', addVenueToArtist);
+
+// Remove venue from artist
+router.delete('/:artistId/venues/:venueId', removeVenueFromArtist);
 
 export default router;
-
-

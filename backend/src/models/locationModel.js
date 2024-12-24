@@ -1,13 +1,12 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from '../db.js';
-import Contact from './contactModel.js';
 
 const Location = sequelize.define("Location", {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
-      },
+    },
     name: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -27,30 +26,11 @@ const Location = sequelize.define("Location", {
     longitude: {
         type: DataTypes.DECIMAL(11, 8),
         allowNull: false,
-    },
-    contact_id: { 
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-            model: Contact,
-            key: "id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "SET NULL",
-    },
-},
-{
+    }
+}, {
     timestamps: true,
     updatedAt: 'updated_at',
-    createdAt: 'created_at',
-    indexes: [
-        {
-          unique: true,
-          fields: ['latitude', 'longitude'], 
-        },
-      ],
+    createdAt: 'created_at'
 });
-
-Location.belongsTo(Contact, { foreignKey: "contact_id", as: "contact" });
 
 export default Location;

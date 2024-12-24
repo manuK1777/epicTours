@@ -1,35 +1,40 @@
 import express from 'express';
-import { eventValidator } from '../validations/event.Validation.js';
-import { validate } from '../middlewares/validate.js';
-import { idValidator } from '../validations/generic.Validation.js';
-import {
-  getAllEvents,
-  getEventById,
-  createEvent,
-  updateEvent,
+import { 
+  getAllEvents, 
+  getEventById, 
+  createEvent, 
+  updateEvent, 
   deleteEvent,
   getChartData,
-  // getEventsByCategory,
-  // getEventsOverTime,
+  addArtistToEvent,
+  removeArtistFromEvent
 } from '../controllers/eventController.js';
+import { validateEventId } from '../middleware/validators.js';
 
 const router = express.Router();
 
+// Get all events
 router.get('/', getAllEvents);
 
+// Get chart data
 router.get('/chart-data', getChartData);
 
-// router.get('/categories', getEventsByCategory);
-// router.get('/timeline', getEventsOverTime);
+// Get event by ID
+router.get('/:id', validateEventId, getEventById);
 
-router.get('/:id', idValidator, validate, getEventById);
+// Create new event
+router.post('/', createEvent);
 
-router.post('/', eventValidator, validate, createEvent);
+// Update event
+router.put('/:id', validateEventId, updateEvent);
 
-router.put('/:id', idValidator, eventValidator, validate, updateEvent);
+// Delete event
+router.delete('/:id', validateEventId, deleteEvent);
 
-router.delete('/:id', idValidator, validate, deleteEvent);
+// Add artist to event
+router.post('/:eventId/artists/:artistId', addArtistToEvent);
 
-
+// Remove artist from event
+router.delete('/:eventId/artists/:artistId', removeArtistFromEvent);
 
 export default router;

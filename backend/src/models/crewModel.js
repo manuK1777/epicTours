@@ -7,7 +7,19 @@ const Crew = sequelize.define('Crew', {
       primaryKey: true,
       autoIncrement: true,
     },
+    artist_id: {
+      type: DataTypes.INTEGER(8).UNSIGNED,
+      allowNull: true,
+      references: {
+        model: 'Artists',
+        key: 'id'
+      }
+    },
     name: {
+      type: DataTypes.STRING(100),
+      allowNull: false
+    },
+    role: {
       type: DataTypes.STRING(100),
       allowNull: false
     },
@@ -21,14 +33,13 @@ const Crew = sequelize.define('Crew', {
     },
     file: {
       type: DataTypes.STRING(30),
-      allowNull: true,
-    },
+      allowNull: true
+    }
   },
   {
-   // indexes: [{ unique: true, fields: ['title'] }],
-    timestamps: true, // Activa la creación automática de createdAt y updatedAt
+    timestamps: true,
     updatedAt: 'updated_at',
     createdAt: 'created_at'
   });
 
-  export default Crew;
+export default Crew;

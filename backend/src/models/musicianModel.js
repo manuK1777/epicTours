@@ -7,7 +7,19 @@ const Musician = sequelize.define('Musician', {
       primaryKey: true,
       autoIncrement: true,
     },
+    artist_id: {
+      type: DataTypes.INTEGER(8).UNSIGNED,
+      allowNull: true,
+      references: {
+        model: 'Artists',
+        key: 'id'
+      }
+    },
     name: {
+      type: DataTypes.STRING(100),
+      allowNull: false
+    },
+    instrument: {
       type: DataTypes.STRING(100),
       allowNull: false
     },
@@ -21,14 +33,13 @@ const Musician = sequelize.define('Musician', {
     },
     file: {
       type: DataTypes.STRING(30),
-      allowNull: true,
-    },
+      allowNull: true
+    }
   },
   {
-   // indexes: [{ unique: true, fields: ['title'] }],
-    timestamps: true, // Activa la creación automática de createdAt y updatedAt
+    timestamps: true,
     updatedAt: 'updated_at',
     createdAt: 'created_at'
   });
 
-  export default Musician;
+export default Musician;

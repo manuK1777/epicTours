@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../db.js';
-import User from './userModel.js';
 
 const Artist = sequelize.define('Artist', {
   id: {
@@ -9,7 +8,8 @@ const Artist = sequelize.define('Artist', {
     autoIncrement: true,
   },
   user_id: {
-    type: DataTypes.INTEGER(8).UNSIGNED
+    type: DataTypes.INTEGER(8).UNSIGNED,
+    allowNull: true
   },
   name: {
     type: DataTypes.STRING(100),
@@ -37,15 +37,9 @@ const Artist = sequelize.define('Artist', {
   },
 },
 {
- // indexes: [{ unique: true, fields: ['title'] }],
-  timestamps: true, // Activa la creación automática de createdAt y updatedAt
+  timestamps: true,
   updatedAt: 'updated_at',
   createdAt: 'created_at'
 });
-User.hasMany(Artist, { foreignKey: 'user_id' });
-Artist.belongsTo(User, { foreignKey: 'user_id' });
-//Ten en cuenta que hasMany solo establece la relación desde el modelo principal hacia el secundario.
-//En algunos casos, eso puede ser suficiente si no necesitas navegar desde el secundario hacia el principal.
-//Sin embargo, si necesitas la relación inversa(por ejemplo, obtener el usuario al que pertenece un libro), entonces necesitarás belongsTo.
 
 export default Artist;

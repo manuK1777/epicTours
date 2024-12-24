@@ -7,6 +7,14 @@ const Contact = sequelize.define("Contact", {
         primaryKey: true,
         autoIncrement: true,
     },
+    venue_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'Locations',
+            key: 'id'
+        }
+    },
     email: {
         type: DataTypes.STRING,
         allowNull: true,

@@ -1,91 +1,71 @@
-import Location from './models/locationModel.js';
-import Events from './models/eventModel.js';
-import Artist from './models/artistModel.js';
+import { User, Artist, Location, Event, Contact, Musician, Crew } from './models/index.js';
+import { sequelize } from './db.js';
+import bcrypt from 'bcrypt';
 
-/**
- * Utility function to insert records if they don't already exist in the database.
- * @param {Object} Model - Sequelize model
- * @param {Array} data - Array of data to be inserted
- * @param {Array} uniqueFields - Fields that define uniqueness for the records
- */
-const insertIfNotExists = async (Model, data, uniqueFields) => {
-  for (const item of data) {
-    const whereClause = uniqueFields.reduce((acc, field) => {
-      acc[field] = item[field];
-      return acc;
-    }, {});
-
-    const existingRecord = await Model.findOne({ where: whereClause });
-    if (!existingRecord) {
-      await Model.create(item);
-    }
-  }
-};
-
-const insertInitialUserData = async () => {
+const insertInitialData = async () => {
   try {
-    // Artists Data
-    const artistData = [
+    // 1. Create Users
+    const users = await User.bulkCreate([
       {
-        id: 1,
+        username: 'admin',
+        email: 'admin@epictours.com',
+        password: await bcrypt.hash('admin123', 10),
+        role: 'admin',
+      },
+      {
+        username: 'manager1',
+        email: 'manager1@epictours.com',
+        password: await bcrypt.hash('manager123', 10),
+        role: 'manager',
+      }
+    ], { returning: true });
+
+    // 2. Create Artists (with user_id)
+    const kiss = await Artist.create({
         name: 'Kiss',
         email: 'kiss@example.com',
         contact: 'Gene Simmons',
         phone: '1234567890',
         webPage: 'https://kissonline.com',
         file: 'file-1733425970024.jpg',
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-      {
-        id: 2,
+        user_id: users[0].id
+    });
+
+    const motleyCrue = await Artist.create({
         name: 'Motley Crüe',
         email: 'motleycrue@example.com',
         contact: 'Nikki Sixx',
         phone: '0987654321',
         webPage: 'https://motleycrue.com',
         file: 'file-1733419702838.jpeg',
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-      {
-        id: 3,
+        user_id: users[1].id
+    });
+
+    const twistedSister = await Artist.create({
         name: 'Twisted Sister',
         email: 'twistedsister@example.com',
         contact: 'Petra',
         phone: '1122334455',
-        webPage: null, 
+        webPage: null,
         file: 'file-1734468978943.jpeg',
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-    ];
+        user_id: users[1].id
+    });
 
-    // Use bulkCreate with ignoreDuplicates for artists
-    await Artist.bulkCreate(artistData, { ignoreDuplicates: true });
-
-    // Locations Data
-    const locationData = [
+    // 3. Create Locations/Venues
+    const locations = await Location.bulkCreate([
       {
-        name: 'Blue Note',
+        name: 'Blue Note NY',
         category: 'Jazz Club',
         address: '131 W 3rd St, New York, NY 10012, USA',
         latitude: 40.73068,
         longitude: -74.00049,
       },
       {
-        name: 'Blue Note',
+        name: 'Blue Note Tokyo',
         category: 'Jazz Club',
         address: '6-3-16 Minami-Aoyama, Minato City, Tokyo 107-0062, Japan',
         latitude: 35.66492,
         longitude: 139.72548,
-      },
-      {
-        name: 'Blue Note',
-        category: 'Jazz Club',
-        address: 'Via Pietro Borsieri, 37, 20159 Milano MI, Italy',
-        latitude: 45.48962,
-        longitude: 9.18287,
       },
       {
         name: 'Nova Jazz Cava',
@@ -100,84 +80,165 @@ const insertInitialUserData = async () => {
         address: 'Pl. Reial, 17, Barcelona',
         latitude: 41.37971,
         longitude: 2.17519,
-      },
-      {
-        name: 'La Nau',
-        category: 'Sala Rock',
-        address: 'Carrer d\'Àlaba, 30, Barcelona',
-        latitude: 41.39447,
-        longitude: 2.19708,
-      },
-      {
-        name: 'Kursaal Manresa',
-        category: 'Auditori',
-        address: 'Passeig de Pere III, 35, Manresa',
-        latitude: 41.72812,
-        longitude: 1.82288,
       }
-    ];
-    await insertIfNotExists(Location, locationData, ['name', 'address', 'latitude', 'longitude']);
+    ], { returning: true });
 
-    // Events Data
-    const eventsData = [
+    // 4. Create Contacts for Venues
+    await Contact.bulkCreate([
       {
-        title: 'Omuamua Jazz Trio',
-        category: 'Jazz',
-        start_time: '2024-12-18T20:00:00',
-        end_time: '2024-12-18T23:00:00',
-        color: '#FF5733',
+        venue_id: locations[0].id,
+        email: 'info@bluenote.net',
+        phone: '+1 212-475-8592'
       },
       {
-        title: 'Omuamua Jazz Trio',
-        category: 'Jazz',
-        start_time: '2024-12-25T20:00:00',
-        end_time: '2024-12-25T23:00:00',
-        color: '#FF5733',
+        venue_id: locations[1].id,
+        email: 'info@bluenote.jp',
+        phone: '+81 3-5485-0088'
       },
       {
-        title: 'Los Pungas',
-        category: 'Cumbia-Metal',
+        venue_id: locations[2].id,
+        email: 'info@novajazzcava.com',
+        phone: '+34 937 893 590'
+      }
+    ]);
+
+    // 5. Create Musicians for Artists
+    await Musician.bulkCreate([
+      {
+        name: 'Paul Stanley',
+        instrument: 'Guitar/Vocals',
+        email: 'paul@kiss.com',
+        phone: '+1 555-0101',
+        file: 'paul-stanley.jpg',
+        artist_id: kiss.id
+      },
+      {
+        name: 'Gene Simmons',
+        instrument: 'Bass/Vocals',
+        email: 'gene@kiss.com',
+        phone: '+1 555-0102',
+        file: 'gene-simmons.jpg',
+        artist_id: kiss.id
+      },
+      {
+        name: 'Vince Neil',
+        instrument: 'Vocals',
+        email: 'vince@motleycrue.com',
+        phone: '+1 555-0201',
+        file: 'vince-neil.jpg',
+        artist_id: motleyCrue.id
+      },
+      {
+        name: 'Mick Mars',
+        instrument: 'Guitar',
+        email: 'mick@motleycrue.com',
+        phone: '+1 555-0202',
+        file: 'mick-mars.jpg',
+        artist_id: motleyCrue.id
+      }
+    ]);
+
+    // 6. Create Crew Members for Artists
+    await Crew.bulkCreate([
+      {
+        name: 'John Doe',
+        role: 'Sound Engineer',
+        email: 'john@kisstechnical.com',
+        phone: '+1 555-1001',
+        file: 'john-doe.jpg',
+        artist_id: kiss.id
+      },
+      {
+        name: 'Jane Smith',
+        role: 'Light Technician',
+        email: 'jane@kisstechnical.com',
+        phone: '+1 555-1002',
+        file: 'jane-smith.jpg',
+        artist_id: kiss.id
+      },
+      {
+        name: 'Mike Johnson',
+        role: 'Stage Manager',
+        email: 'mike@motleycruetechnical.com',
+        phone: '+1 555-2001',
+        file: 'mike-johnson.jpg',
+        artist_id: motleyCrue.id
+      }
+    ]);
+
+    // 7. Create Events (with venue_id)
+    const events = await Event.bulkCreate([
+      {
+        title: 'Kiss Farewell Tour',
+        category: 'Rock',
         start_time: '2024-12-25T19:00:00',
-        end_time: '2024-12-25T22:00:00',
-        color: '#C70039',
+        end_time: '2024-12-25T23:00:00',
+        venue_id: locations[0].id,
+        color: '#FF5733'
       },
       {
-        title: 'Dj-Chot',
-        category: 'techno havaneras',
-        start_time: '2024-12-31T22:00:00',
-        end_time: '2025-01-01T23:55:00',
-        color: '#FFC300',
-      },
-      {
-        title: 'Papos Blues',
-        category: 'Blues',
-        start_time: '2025-01-10T20:00:00',
-        end_time: '2025-01-10T23:00:00',
-        color: '#DAF7A6',
-      },
-      {
-        title: 'Catalonia Music Awards',
-        category: 'Blues',
-        start_time: '2025-01-25T19:00:00',
-        end_time: '2025-01-25T23:00:00',
-        color: '#581845',
+        title: 'Motley Crüe Reunion',
+        category: 'Rock',
+        start_time: '2024-12-31T20:00:00',
+        end_time: '2025-01-01T01:00:00',
+        venue_id: locations[1].id,
+        color: '#C70039'
       },
       {
         title: 'Rock Legends Night',
         category: 'Rock',
-        start_time: '2025-02-10T20:00:00',
-        end_time: '2025-02-10T23:30:00',
-        color: '#900C3F',
+        start_time: '2025-01-15T20:00:00',
+        end_time: '2025-01-15T23:30:00',
+        venue_id: locations[2].id,
+        color: '#900C3F'
+      }
+    ], { returning: true });
+
+    // 8. Create Event-Artist Relationships
+    await events[0].setArtists([kiss]); 
+    await events[1].setArtists([motleyCrue]); 
+    await events[2].setArtists([kiss, motleyCrue, twistedSister]); 
+
+    // 9. Create Artist-Venue Relationships (preferred venues for artists)
+    // Using the through table directly since we have a many-to-many relationship
+    await sequelize.models.ArtistVenues.bulkCreate([
+      {
+        artist_id: kiss.id,
+        venue_id: locations[0].id,
+        created_at: new Date(),
+        updated_at: new Date()
       },
       {
-        title: 'Pepito y los Jazzers',
-        category: 'Jazz',
-        start_time: '2025-02-28T19:00:00',
-        end_time: '2025-02-28T21:00:00',
-        color: '#2ECC71',
+        artist_id: kiss.id,
+        venue_id: locations[2].id,
+        created_at: new Date(),
+        updated_at: new Date()
       },
-    ];
-    await insertIfNotExists(Events, eventsData, ['title', 'start_time', 'end_time', 'category']);
+      {
+        artist_id: motleyCrue.id,
+        venue_id: locations[1].id,
+        created_at: new Date(),
+        updated_at: new Date()
+      },
+      {
+        artist_id: motleyCrue.id,
+        venue_id: locations[2].id,
+        created_at: new Date(),
+        updated_at: new Date()
+      },
+      {
+        artist_id: twistedSister.id,
+        venue_id: locations[2].id,
+        created_at: new Date(),
+        updated_at: new Date()
+      },
+      {
+        artist_id: twistedSister.id,
+        venue_id: locations[3].id,
+        created_at: new Date(),
+        updated_at: new Date()
+      }
+    ]);
 
     console.log('Initial data setup completed successfully.');
   } catch (error) {
@@ -186,4 +247,4 @@ const insertInitialUserData = async () => {
   }
 };
 
-export { insertInitialUserData };
+export { insertInitialData };

@@ -7,6 +7,14 @@ const Event = sequelize.define('Event', {
     primaryKey: true,
     autoIncrement: true,
   },
+  venue_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'Locations',
+      key: 'id'
+    }
+  },
   title: {
     type: DataTypes.STRING(100),
     allowNull: false,
