@@ -9,7 +9,7 @@ import { MatListModule } from '@angular/material/list';
 import { CreateArtistComponent } from '../../modals/create-artist/create-artist.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../../modals/confirmation-dialog/confirmation-dialog.component';
-import { artist } from '../../models/artist.model';
+import { Artist } from '../../models/artist.model';
 import { MatSnackBar} from '@angular/material/snack-bar';
 import { MaterialModule } from '../../material.module';
 import { OpenModalArtistInfoService } from 'src/app/services/open-modal-artist-info.service';
@@ -131,7 +131,7 @@ export class ArtistDetailComponent implements OnInit {
     });
   }
 
-  editArtist(id: number, artist: artist): void {
+  editArtist(id: number, artist: Artist): void {
     console.log('Artist object:', artist);
 
     const formData = new FormData();
@@ -192,7 +192,7 @@ export class ArtistDetailComponent implements OnInit {
     });
   }
   
-  getArtistForEdit(): artist {
+  getArtistForEdit(): Artist {
     const imageTile = this.tiles.find(tile => tile.type === 'image');
     const file = imageTile?.imageUrl?.replace('http://localhost:3000/uploads/', '');
   

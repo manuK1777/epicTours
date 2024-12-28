@@ -45,13 +45,17 @@ const initializeDatabase = async () => {
     await sequelize.authenticate();
     console.log('Database connection has been established successfully.');
     
-    // Force sync to drop and recreate all tables
-    await sequelize.sync({ force: true });
+    // Sync without force to preserve existing data
+    await sequelize.sync({ alter: true });
     console.log('Database synchronized successfully');
     
-    // Insert initial data
-    await insertInitialData();
-    console.log('Initial data inserted successfully');
+    // Only insert initial data if tables are empty
+    const { User } = sequelize.models;
+    const userCount = await User.count();
+    if (userCount === 0) {
+      await insertInitialData();
+      console.log('Initial data inserted successfully');
+    }
   } catch (error) {
     console.error('Unable to connect to the database:', error);
     throw error;

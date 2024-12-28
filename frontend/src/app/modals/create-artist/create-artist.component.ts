@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { HttpClient } from '@angular/common/http';
 import { ArtistsService } from '../../services/artists.service';
 import { MatDialogModule } from '@angular/material/dialog';
-import { artist } from '../../models/artist.model';
+import { Artist } from '../../models/artist.model';
 import { Router } from '@angular/router';
 import { MaterialModule } from 'src/app/material.module';
 import { CommonModule } from '@angular/common';
@@ -40,11 +40,11 @@ export class CreateArtistComponent implements OnInit {
     private http: HttpClient,
     private artistsService: ArtistsService,
     private router: Router,
-    @Inject(MAT_DIALOG_DATA) public data: { artist?: artist } | null,
+    @Inject(MAT_DIALOG_DATA) public data: { artist?: Artist } | null,
   ) {}
 
   ngOnInit(): void {
-    const artist: Partial<artist> = this.data?.artist || {};
+    const artist: Partial<Artist> = this.data?.artist || {};
   
     // Initialize form with existing artist data or empty values
     this.artistForm = this.fb.group({

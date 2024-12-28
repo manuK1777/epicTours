@@ -8,7 +8,7 @@ import { Location } from '../models/location.model';
 })
 export class LocationsService {
 
-  private apiUrl = 'http://localhost:3000/locations'; // Base URL for locations API
+  private apiUrl = 'http://localhost:3000/api/locations'; // Base URL for locations API
 
   constructor(private http: HttpClient) { }
 
@@ -35,7 +35,7 @@ export class LocationsService {
       address: newLocation.address, 
       latitude: newLocation.latitude,
       longitude: newLocation.longitude,
-      contact_id: newLocation.contact_id
+      contacts: newLocation.contacts
     });
   }
 
