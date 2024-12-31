@@ -1,4 +1,3 @@
-import { validationResult } from 'express-validator';
 import Artist from '../models/artistModel.js';
 import Event from '../models/eventModel.js';
 import Location from '../models/locationModel.js';
@@ -8,17 +7,13 @@ import User from '../models/userModel.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { handleResponse, handleError } from '../utils/responseHelper.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const getAllArtists = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const artists = await Artist.findAll({
       include: [
         {
@@ -46,19 +41,14 @@ export const getAllArtists = async (req, res) => {
       ]
     });
 
-    const artistsWithfile = artists.map((artist) => ({
+    const artistsWithFile = artists.map((artist) => ({
       ...artist.toJSON(),
       file: artist.file || null,
     }));
 
-    res.status(200).json({
-      code: 1,
-      message: 'Artists List',
-      data: artistsWithfile,
-    });
+    handleResponse(res, 200, 'Artists retrieved successfully', artistsWithFile);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve artists' });
+    handleError(res, error);
   }
 };
 
@@ -93,27 +83,17 @@ export const getArtistById = async (req, res) => {
     });
 
     if (!artist) {
-      return res.status(404).json({ code: -6, message: 'Artist not found' });
+      return handleResponse(res, 404, 'Artist not found');
     }
 
-    res.status(200).json({
-      code: 1,
-      message: 'Artist Detail',
-      data: artist,
-    });
+    handleResponse(res, 200, 'Artist retrieved successfully', artist);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve artist' });
+    handleError(res, error);
   }
 };
 
 export const createArtist = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { name, email, webPage, contact, phone } = req.body;
     const file = req.file ? req.file.filename : null;
 
@@ -126,120 +106,90 @@ export const createArtist = async (req, res) => {
       file,
     });
 
-    res.status(201).json({
-      code: 1,
-      message: 'Artist Added Successfully',
-      data: newArtist,
-    });
+    handleResponse(res, 201, 'Artist created successfully', newArtist);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to create artist' });
+    handleError(res, error);
   }
 };
 
 export const updateArtist = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { id } = req.params;
     const { name, email, webPage, contact, phone } = req.body;
     const file = req.file ? req.file.filename : null;
 
     const artist = await Artist.findByPk(id);
     if (!artist) {
-      return res.status(404).json({ code: -3, message: 'Artist not found' });
+      return handleResponse(res, 404, 'Artist not found');
     }
 
-    artist.name = name || artist.name;
-    artist.email = email || artist.email;
-    artist.contact = contact || artist.contact;
-    artist.phone = phone || artist.phone;
-    artist.webPage = webPage || artist.webPage;
-    
-    if (file) artist.file = file;
+    if (file && artist.file) {
+      const oldFilePath = path.join(__dirname, '../uploads', artist.file);
+      if (fs.existsSync(oldFilePath)) {
+        fs.unlinkSync(oldFilePath);
+      }
+    }
 
-    await artist.save();
-
-    res.status(200).json({
-      code: 1,
-      message: 'Artist Updated Successfully',
-      data: artist,
+    await artist.update({
+      name: name || artist.name,
+      email: email || artist.email,
+      contact: contact || artist.contact,
+      phone: phone || artist.phone,
+      webPage: webPage || artist.webPage,
+      file: file || artist.file,
     });
+
+    handleResponse(res, 200, 'Artist updated successfully', artist);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to update artist' });
+    handleError(res, error);
   }
 };
 
 export const deleteArtist = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { id } = req.params;
     const artist = await Artist.findByPk(id);
+
     if (!artist) {
-      return res.status(404).json({ code: -3, message: 'Artist not found' });
+      return handleResponse(res, 404, 'Artist not found');
     }
 
-    // Remove associated file if exists
     if (artist.file) {
       const filePath = path.join(__dirname, '../uploads', artist.file);
-      console.log('File path to delete:', filePath);
-
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
     }
 
     await artist.destroy();
-
-    res.status(200).json({
-      code: 1,
-      message: 'Artist Deleted Successfully',
-    });
+    handleResponse(res, 200, 'Artist deleted successfully');
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to delete artist' });
+    handleError(res, error);
   }
 };
 
-// Delete Artist Image
 export const deleteArtistImage = async (req, res) => {
-  console.log('File deletion request:', req.params);
-  
   try {
     const { id } = req.params;
-
     const artist = await Artist.findByPk(id);
+
     if (!artist) {
-      return res.status(404).json({ code: -3, message: 'Artist not found' });
+      return handleResponse(res, 404, 'Artist not found');
     }
 
-    // Remove file from disk if exists
-    if (artist.file) {
-      const filePath = path.join(__dirname, '../uploads', artist.file);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+    if (!artist.file) {
+      return handleResponse(res, 404, 'No image found for this artist');
     }
 
-    // Update artist to remove file reference
-    artist.file = null;
-    await artist.save();
+    const filePath = path.join(__dirname, '../uploads', artist.file);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
 
-    res.status(200).json({
-      code: 1,
-      message: 'file deleted successfully',
-    });
+    await artist.update({ file: null });
+    handleResponse(res, 200, 'Artist image deleted successfully');
   } catch (error) {
-    console.error('Error deleting file:', error);
-    res.status(500).json({ error: 'Failed to delete file' });
+    handleError(res, error);
   }
 };
 
@@ -249,20 +199,19 @@ export const addVenueToArtist = async (req, res) => {
     
     const artist = await Artist.findByPk(artistId);
     if (!artist) {
-      return res.status(404).json({ code: 0, message: 'Artist not found' });
+      return handleResponse(res, 404, 'Artist not found');
     }
 
     const venue = await Location.findByPk(venueId);
     if (!venue) {
-      return res.status(404).json({ code: 0, message: 'Venue not found' });
+      return handleResponse(res, 404, 'Venue not found');
     }
 
     await artist.addVenue(venue);
     
-    res.status(200).json({ code: 1, message: 'Venue added to artist successfully' });
+    handleResponse(res, 200, 'Venue added to artist successfully');
   } catch (error) {
-    console.error('Error adding venue to artist:', error);
-    res.status(500).json({ code: 0, message: 'Error adding venue to artist' });
+    handleError(res, error);
   }
 };
 
@@ -272,19 +221,18 @@ export const removeVenueFromArtist = async (req, res) => {
     
     const artist = await Artist.findByPk(artistId);
     if (!artist) {
-      return res.status(404).json({ code: 0, message: 'Artist not found' });
+      return handleResponse(res, 404, 'Artist not found');
     }
 
     const venue = await Location.findByPk(venueId);
     if (!venue) {
-      return res.status(404).json({ code: 0, message: 'Venue not found' });
+      return handleResponse(res, 404, 'Venue not found');
     }
 
     await artist.removeVenue(venue);
     
-    res.status(200).json({ code: 1, message: 'Venue removed from artist successfully' });
+    handleResponse(res, 200, 'Venue removed from artist successfully');
   } catch (error) {
-    console.error('Error removing venue from artist:', error);
-    res.status(500).json({ code: 0, message: 'Error removing venue from artist' });
+    handleError(res, error);
   }
 };

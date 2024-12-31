@@ -7,9 +7,13 @@ const Artist = sequelize.define('Artist', {
     primaryKey: true,
     autoIncrement: true,
   },
-  user_id: {
+  user_id: {  
     type: DataTypes.INTEGER(8).UNSIGNED,
-    allowNull: true
+    allowNull: true,
+    references: {
+      model: 'Users',
+      key: 'id'
+    }
   },
   name: {
     type: DataTypes.STRING(100),

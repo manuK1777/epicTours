@@ -13,6 +13,11 @@ import { Artist } from '../../models/artist.model';
 import { MatSnackBar} from '@angular/material/snack-bar';
 import { MaterialModule } from '../../material.module';
 import { OpenModalArtistInfoService } from 'src/app/services/open-modal-artist-info.service';
+import { OpenModalMusCrewService } from 'src/app/services/open-modal-mus-crew.service';
+import { MusicianService } from 'src/app/services/musician.service';
+import { Musician } from 'src/app/models/musician.model';
+import { CrewService } from 'src/app/services/crew.service';
+import { Crew } from 'src/app/models/crew.model';
 
 export interface Tile {
   color: string;
@@ -51,19 +56,29 @@ export class ArtistDetailComponent implements OnInit {
   tiles: Tile[] = [];
   selectedFile: File | null = null; 
 
+  musicians: Musician[] = [];
+  crew: Crew[] = [];
+  isLoadingMusicians = false;
+  isLoadingCrew = false;
+
   constructor(
     private route: ActivatedRoute, 
     private router: Router,
     private artistsService: ArtistsService,
+    private musicianService: MusicianService,
+    private crewService: CrewService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private openModalArtistInfoService: OpenModalArtistInfoService,
+    private openModalMusCrewService: OpenModalMusCrewService,
   ) {}
   
 
   ngOnInit(): void {
     this.id = Number(this.route.snapshot.paramMap.get('id'));
     this.loadArtistDetails(this.id);
+    this.loadMusicianDetails(this.id);
+    this.loadCrewDetails(this.id);    
   }
 
   loadArtistDetails(id: number): void {
@@ -94,6 +109,47 @@ export class ArtistDetailComponent implements OnInit {
       error: (error) => {
         console.error('Failed to load artist details:', error);
       },
+    });
+  }
+
+  loadMusicianDetails(artistId: number): void {
+    this.isLoadingMusicians = true;
+    this.musicianService.getMusiciansByArtist(artistId).subscribe({
+      next: (musicians) => {
+        this.musicians = musicians;
+        console.log(this.musicians);
+        
+        this.isLoadingMusicians = false;
+      },
+      error: (error) => {
+        console.error('Failed to load musicians:', error);
+        this.isLoadingMusicians = false;
+        this.snackBar.open('Error loading musicians', 'Close', {
+          duration: 3000,
+          panelClass: ['snack-bar-error']
+        }
+      );
+      }
+    });
+  }
+
+  loadCrewDetails(artistId: number): void {
+    this.isLoadingCrew = true;
+    this.crewService.getCrewByArtist(artistId).subscribe({
+      next: (crew) => {
+        this.crew = crew;
+        console.log(this.crew);
+        
+        this.isLoadingCrew = false;
+      },
+      error: (error) => {
+        console.error('Failed to load crew:', error);
+        this.isLoadingCrew = false;
+        this.snackBar.open('Error loading crew', 'Close', {
+          duration: 3000,
+          panelClass: ['snack-bar-error']
+        });
+      }
     });
   }
   
@@ -155,10 +211,16 @@ export class ArtistDetailComponent implements OnInit {
       },
     });
   }
+
+  openStaffModal(event: Event, options: { group: boolean, artistId: number }): void {
+    const modalData = {
+      ...options
+    };
+    this.openModalMusCrewService.openMusCrewModal(event, modalData);
+  }
    
   openEditArtistModal(): void {
     const artist = this.getArtistForEdit();
-    console.log('Opening edit modal with artist:', artist);
   
     const dialogRef = this.dialog.open(CreateArtistComponent, {
       width: '600px',
@@ -257,4 +319,3 @@ openArtistInfoModal() {
   const dialogRef = this.openModalArtistInfoService.openArtistInfoComponent(artistData); 
 }
 }
-

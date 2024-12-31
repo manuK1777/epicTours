@@ -1,282 +1,204 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
 import RecoveryToken from '../models/recoveryTokenModel.js';
-import sendEmail from "../utils/email/sendEmail.js";
-import { validationResult } from 'express-validator';
+import sendEmail from '../utils/email/sendEmail.js';
 import { serialize } from 'cookie';
-// Creación de funciones personalizadas
-import { esPar, contraseniasCoinciden } from '../utils/utils.js';
+import { handleResponse, handleError } from '../utils/responseHelper.js';
 
-const clietURL = process.env.CLIENT_URL;
+const clientURL = process.env.CLIENT_URL;
 
 export const register = async (req, res) => {
   try {
-
-    const errors = validationResult(req);
-
-    // Si hay errores de validación, responde con un estado 400 Bad Request
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-   
     const { email, password, name, surname } = req.body;
-    // Verificar si ya existe un usuario con el mismo correo electrónico
-    const existingUser = await User.findOne({ where: { email }});
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({
-        code: -2,
-        message: 'Ya existe un usuario con el mismo correo electrónico'
-      });
+      return handleResponse(res, 400, 'Ya existe un usuario con el mismo correo electrónico');
     }
-    // Crear un nuevo usuario
+
+    // Create new user
     const hashedPassword = await bcrypt.hash(password, Number(process.env.BCRYPT_SALT));
     const newUser = new User({ email, password: hashedPassword, name, surname, status: 1 });
     await newUser.save();
 
-    // Generar un token de acceso y lo guardo en un token seguro (httpOnly)
-    const accessToken = jwt.sign({ id_user: newUser.id_user, name: newUser.name }, process.env.JWT_SECRET);
-    const token = serialize('token', accessToken, {
+    // Generate JWT token
+    const token = serialize('token', jwt.sign(
+      { id: newUser.id_user },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    ), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 60 * 24 * 30,
+      maxAge: 60 * 60 * 24, // 24 hours
       path: '/',
     });
+
     res.setHeader('Set-Cookie', token);
 
-    // Enviar una respuesta al cliente
-    res.status(200).json({
-      code: 1,
-      message: 'Usuario registrado correctamente',
+    handleResponse(res, 200, 'Usuario registrado correctamente', {
+      user: {
+        name: newUser.name,
+        surname: newUser.surname,
+        email: newUser.email
+      }
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      code: -100,
-      message: 'Ha ocurrido un error al registrar el usuario',
-      error: error,
-    });
+    handleError(res, error);
   }
 };
 
 export const login = async (req, res) => {
   try {
-    const errors = validationResult(req);
-
-    // If there are validation errors, respond with a 400 Bad Request status
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { email, password } = req.body;
-    
-    // Verificar si el correo electrónico y la contraseña son correctos
+
+    // Check if user exists
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(401).json({
-        code: -25,
-        message: 'user No exist'
-      });
+      return handleResponse(res, 401, 'Usuario no existe');
     }
 
+    // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({
-        code: -5,
-        message: 'Credenciales incorrectas'
-      });
+      return handleResponse(res, 401, 'Credenciales incorrectas');
     }
 
-    // Generar un token de acceso y lo guardo en un token seguro (httpOnly)
-    const accessToken = jwt.sign({ id_user: user.id_user, name: user.name }, process.env.JWT_SECRET);
-    const token = serialize('token', accessToken, {
+    // Generate JWT token
+    const token = serialize('token', jwt.sign(
+      { id: user.id_user },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    ), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 60 * 24 * 30,
+      maxAge: 60 * 60 * 24, // 24 hours
       path: '/',
     });
+
     res.setHeader('Set-Cookie', token);
 
-    // Enviar una respuesta al cliente
-    res.status(200).json({
-      code: 1,
-      message: 'Login OK',
-      data: {
-        user: {
-          name: user.name,
-          surname: user.surname,
-          email: user.email
-        } 
+    handleResponse(res, 200, 'Login OK', {
+      user: {
+        name: user.name,
+        surname: user.surname,
+        email: user.email
       }
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      code: -100,
-      message: 'Ha ocurrido un error al iniciar sesión',
-      error: error
-    });
+    handleError(res, error);
   }
 };
 
-export const forgotPassword = async (req, res) => {
+export const requestPasswordReset = async (req, res) => {
   try {
-    const errors = validationResult(req);
-
-    // If there are validation errors, respond with a 400 Bad Request status
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { email } = req.body;
 
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(404).json({
-        code: -8,
-        message: 'Email does not exist'
-      });
+      return handleResponse(res, 404, 'Email does not exist');
     }
 
-    let resetToken = crypto.randomBytes(32).toString("hex");
+    let resetToken = crypto.randomBytes(32).toString('hex');
+    const hash = await bcrypt.hash(resetToken, Number(process.env.BCRYPT_SALT));
 
-    await new RecoveryToken({
+    await RecoveryToken.create({
       user_id: user.id_user,
-      token: resetToken,
-      created_at: Date.now(),
-    }).save();
-
-    const link = `${clietURL}/change-password?token=${resetToken}&id=${user.id_user}`;
-
-    await sendEmail(
-      user.email,
-      "Password Reset Request",
-      {
-        name: user.name,
-        link: link,
-      },
-      "email/template/requestResetPassword.handlebars"
-    ).then(response => {
-      console.log("Resultado del envío del correo:", response);
-      res.status(200).json({
-        code: 100,
-        message: 'Send Email OK',
-        data: {
-          token: resetToken,
-          link: link
-        }
-      });
-
-    },error => {
-      console.error (error)
-      res.status(200).json({
-        code: -80,
-        message: 'Send Email KO',
-        data: {error}
-      });
-    })
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      code: -100,
-      message: 'Ha ocurrido un error al actualizar el usuario',
-      error: error
+      token: hash,
+      status: 1
     });
+
+    const link = `${clientURL}/passwordReset?token=${resetToken}&id=${user.id_user}`;
+
+    sendEmail(
+      user.email,
+      'Password Reset Request',
+      { name: user.name, link: link },
+      'email/template/requestResetPassword.handlebars'
+    ).then(() => {
+      handleResponse(res, 200, 'Send Email OK', {
+        token: resetToken,
+        link: link
+      });
+    }, error => {
+      console.error(error);
+      handleResponse(res, 500, 'Send Email KO', { error });
+    });
+  } catch (error) {
+    handleError(res, error);
   }
 };
 
-export const changePassword = async (req, res) => {
+export const resetPassword = async (req, res) => {
   try {
-    const errors = validationResult(req);
-
-    // If there are validation errors, respond with a 400 Bad Request status
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { token, password } = req.body;
 
-    //Reviso si el Token existe
-    let token_row = await RecoveryToken.findOne({ where: { token } });
-    if (!token_row) {
-      return res.status(404).json({
-        code: -3,
-        message: 'Token Incorrecto'
-      });
-    } 
-
-    // Buscar un usuario por su ID en la base de datos
-    const user = await User.findOne({ where: { id_user: token_row.user_id } });
-    if (!user) {
-      return res.status(404).json({
-        code: -10,
-        message: 'Usuario no encontrado'
-      });
+    // Check if token exists
+    const tokenRecord = await RecoveryToken.findOne({ where: { token } });
+    if (!tokenRecord) {
+      return handleResponse(res, 404, 'Token Incorrecto');
     }
 
+    // Find user
+    const user = await User.findOne({ where: { id_user: tokenRecord.user_id } });
+    if (!user) {
+      return handleResponse(res, 404, 'Usuario no encontrado');
+    }
 
-    // Actualizar la contraseña del usuario
+    // Update password
     user.password = await bcrypt.hash(password, Number(process.env.BCRYPT_SALT));
     await user.save();
-    //Elimino el token
-    await RecoveryToken.destroy({
-      where: {
-        user_id: token_row.user_id
-      }
-    })
 
-    // Generar un token de acceso y lo guardo en un token seguro (httpOnly)
-    const accessToken = jwt.sign({ id_user: user.id_user, name: user.name }, process.env.JWT_SECRET);
-    const token_jwt = serialize('token', accessToken, {
+    // Delete used token
+    await RecoveryToken.update(
+      { status: 0 },
+      { where: { user_id: user.id_user } }
+    );
+
+    // Generate new JWT token
+    const token_jwt = serialize('token', jwt.sign(
+      { id: user.id_user },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    ), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 60 * 24 * 30,
+      maxAge: 60 * 60 * 24, // 24 hours
       path: '/',
     });
+
     res.setHeader('Set-Cookie', token_jwt);
 
-    // Enviar una respuesta al cliente
-    res.status(200).json({
-      code: 1,
-      message: 'User Detail',
-      data: {
-        user: {
-          name: user.name,
-          surname: user.surname,
-          email: user.email
-        } 
+    handleResponse(res, 200, 'Password reset successful', {
+      user: {
+        name: user.name,
+        surname: user.surname,
+        email: user.email
       }
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      code: -100,
-      message: 'Ha ocurrido un error al actualizar el usuario',
-      error: error
-    });
+    handleError(res, error);
   }
 };
 
 export const logout = async (req, res) => {
+  try {
+    const token = serialize('token', null, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: -1,
+      path: '/',
+    });
+    res.setHeader('Set-Cookie', token);
 
-  const { cookies } = req;
-  const jwt = cookies.token;
-
-  const token = serialize('token', null, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: -1,
-    path: '/',
-  });
-  res.setHeader('Set-Cookie', token);
-  res.status(200).json({
-    code: 0,
-    message: 'Logged out - Delete Token',
-  });
-}
+    handleResponse(res, 200, 'Logged out successfully');
+  } catch (error) {
+    handleError(res, error);
+  }
+};

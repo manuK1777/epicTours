@@ -26,10 +26,10 @@
             Info
           </button>
 
-          <button mat-stroked-button class="mat-elevation-z4" aria-label="view staff"><mat-icon>group</mat-icon>
+          <button mat-stroked-button class="mat-elevation-z4" aria-label="view staff" (click)="openStaffModal($event, {group: true, artistId: id})"><mat-icon>group</mat-icon>
             Group
           </button>
-          <button mat-stroked-button class="mat-elevation-z4" aria-label="view tech staff"><mat-icon>group</mat-icon>
+          <button mat-stroked-button class="mat-elevation-z4" aria-label="view tech staff" (click)="openStaffModal($event, {group: false, artistId: id})"><mat-icon>group</mat-icon>
             Crew
           </button>
 

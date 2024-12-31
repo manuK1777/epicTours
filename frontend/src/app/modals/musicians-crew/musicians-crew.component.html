@@ -1,0 +1,120 @@
+<div class="container">
+  <h2>{{ data.group ? 'Musicians' : 'Crew Members' }}</h2>
+
+  <!-- Add/Edit Form
+  <div class="form-container" *ngIf="editingId !== undefined || editedItem">
+    <mat-form-field>
+      <mat-label>Name</mat-label>
+      <input matInput [(ngModel)]="editedItem.name" placeholder="Enter name">
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>{{ data.group ? 'Instrument' : 'Role' }}</mat-label>
+      <input matInput [(ngModel)]="editedItem.position" 
+             [placeholder]="'Enter ' + (data.group ? 'instrument' : 'role')">
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Email</mat-label>
+      <input matInput [(ngModel)]="editedItem.email" placeholder="Enter email">
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Phone</mat-label>
+      <input matInput [(ngModel)]="editedItem.phone" placeholder="Enter phone">
+    </mat-form-field>
+
+    <div class="file-input">
+      <input type="file" (change)="onFileSelected($event)" #fileInput>
+      <button mat-button color="primary" (click)="fileInput.click()">
+        Choose File
+      </button>
+      <span *ngIf="selectedFile">{{ selectedFile.name }}</span>
+    </div>
+
+    <div class="button-container">
+      <button mat-raised-button color="primary" (click)="saveItem()">
+        {{ editingId ? 'Update' : 'Add' }}
+      </button>
+      <button mat-button (click)="cancelEdit()">Cancel</button>
+    </div>
+  </div>
+
+  <button mat-raised-button color="primary" (click)="startEditing({})" *ngIf="editingId === undefined">
+    Add {{ data.group ? 'Musician' : 'Crew Member' }}
+  </button> -->
+
+  <!-- Table -->
+  <div class="table-container" [@tableAnimation]>
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let item">{{ item?.name || '' }}</td>
+      </ng-container>
+
+      <!-- Role/Instrument Column -->
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef>{{ data.group ? 'Instrument' : 'Role' }}</th>
+        <td mat-cell *matCellDef="let item">{{ data.group ? item?.instrument : item?.role || '' }}</td>
+      </ng-container>
+
+      <!-- Email Column -->
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>Email</th>
+        <td mat-cell *matCellDef="let item">{{ item?.email || '' }}</td>
+      </ng-container>
+
+      <!-- Phone Column -->
+      <ng-container matColumnDef="phone">
+        <th mat-header-cell *matHeaderCellDef>Phone</th>
+        <td mat-cell *matCellDef="let item">{{ item?.phone || '' }}</td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let item">
+          <button mat-mini-fab color="accent" 
+                  (click)="showActionsForId = showActionsForId === item.id ? null : item.id"
+                  *ngIf="showActionsForId !== item.id">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          
+          <ng-container *ngIf="showActionsForId === item.id">
+            <button mat-mini-fab color="primary" (click)="startEditing(item)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-mini-fab color="warn" (click)="deleteItem(item.id)">
+              <mat-icon>delete</mat-icon>
+            </button>
+            <button mat-mini-fab (click)="showActionsForId = null">
+              <mat-icon>close</mat-icon>
+            </button>
+          </ng-container>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <!-- No data row -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="5">No data available</td>
+      </tr>
+    </table>
+  </div>
+
+  <mat-paginator [pageSize]="5" 
+                 [pageSizeOptions]="[5, 10, 25]"
+                 showFirstLastButtons>
+  </mat-paginator>
+
+  <div class="button-container">
+    <button mat-stroked-button color="accent" (click)="switchView()">
+      Show {{ data.group ? 'Crew' : 'Musicians' }}
+    </button>
+    <button mat-button (click)="close()">Close</button>
+  </div>
+
+</div>

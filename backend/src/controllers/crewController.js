@@ -1,67 +1,42 @@
-import { validationResult } from 'express-validator';
 import Crew from '../models/crewModel.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { handleResponse, handleError } from '../utils/responseHelper.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const getAllCrewMembers = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const crewMembers = await Crew.findAll();
     const crewMembersWithFile = crewMembers.map((crew) => ({
       ...crew.toJSON(),
       file: crew.file || null,
     }));
 
-    res.status(200).json({
-      code: 1,
-      message: 'Crew Members List',
-      data: crewMembersWithFile,
-    });
+    handleResponse(res, 200, 'Crew members retrieved successfully', crewMembersWithFile);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve crew members' });
+    handleError(res, error);
   }
 };
 
 export const getCrewMemberById = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { id } = req.params;
     const crewMember = await Crew.findByPk(id);
     if (!crewMember) {
-      return res.status(404).json({ code: -6, message: 'Crew member not found' });
+      return handleResponse(res, 404, 'Crew member not found');
     }
 
-    res.status(200).json({
-      code: 1,
-      message: 'Crew Member Detail',
-      data: crewMember,
-    });
+    handleResponse(res, 200, 'Crew member retrieved successfully', crewMember);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve crew member' });
+    handleError(res, error);
   }
 };
 
 export const createCrewMember = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { name, email, phone } = req.body;
     const file = req.file ? req.file.filename : null;
 
@@ -72,31 +47,21 @@ export const createCrewMember = async (req, res) => {
       file,
     });
 
-    res.status(201).json({
-      code: 1,
-      message: 'Crew Member Added Successfully',
-      data: newCrewMember,
-    });
+    handleResponse(res, 201, 'Crew member created successfully', newCrewMember);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to create crew member' });
+    handleError(res, error);
   }
 };
 
 export const updateCrewMember = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { id } = req.params;
     const { name, email, phone } = req.body;
     const file = req.file ? req.file.filename : null;
 
     const crewMember = await Crew.findByPk(id);
     if (!crewMember) {
-      return res.status(404).json({ code: -3, message: 'Crew member not found' });
+      return handleResponse(res, 404, 'Crew member not found');
     }
 
     // If there's a new file and an existing file, delete the old one
@@ -114,29 +79,19 @@ export const updateCrewMember = async (req, res) => {
       file: file || crewMember.file,
     });
 
-    res.status(200).json({
-      code: 1,
-      message: 'Crew Member Updated Successfully',
-      data: crewMember,
-    });
+    handleResponse(res, 200, 'Crew member updated successfully', crewMember);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to update crew member' });
+    handleError(res, error);
   }
 };
 
 export const deleteCrewMember = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { id } = req.params;
     const crewMember = await Crew.findByPk(id);
 
     if (!crewMember) {
-      return res.status(404).json({ code: -3, message: 'Crew member not found' });
+      return handleResponse(res, 404, 'Crew member not found');
     }
 
     // Delete associated file if it exists
@@ -149,32 +104,23 @@ export const deleteCrewMember = async (req, res) => {
 
     await crewMember.destroy();
 
-    res.status(200).json({
-      code: 1,
-      message: 'Crew Member Deleted Successfully',
-    });
+    handleResponse(res, 200, 'Crew member deleted successfully');
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to delete crew member' });
+    handleError(res, error);
   }
 };
 
 export const deleteCrewMemberImage = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { id } = req.params;
     const crewMember = await Crew.findByPk(id);
 
     if (!crewMember) {
-      return res.status(404).json({ code: -3, message: 'Crew member not found' });
+      return handleResponse(res, 404, 'Crew member not found');
     }
 
     if (!crewMember.file) {
-      return res.status(404).json({ code: -3, message: 'No image found for this crew member' });
+      return handleResponse(res, 404, 'No image found for this crew member');
     }
 
     const filePath = path.join(__dirname, '../../uploads', crewMember.file);
@@ -184,12 +130,21 @@ export const deleteCrewMemberImage = async (req, res) => {
 
     await crewMember.update({ file: null });
 
-    res.status(200).json({
-      code: 1,
-      message: 'Crew Member Image Deleted Successfully',
-    });
+    handleResponse(res, 200, 'Crew member image deleted successfully');
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to delete crew member image' });
+    handleError(res, error);
+  }
+};
+
+export const getCrewMembersByArtist = async (req, res) => {
+  try {
+    const { artistId } = req.params;
+    const crewMembers = await Crew.findAll({
+      where: { artist_id: artistId }
+    });
+
+    handleResponse(res, 200, 'Crew members retrieved successfully', crewMembers);
+  } catch (error) {
+    handleError(res, error);
   }
 };

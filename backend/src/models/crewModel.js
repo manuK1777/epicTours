@@ -12,7 +12,7 @@ const Crew = sequelize.define('Crew', {
       allowNull: true,
       references: {
         model: 'Artists',
-        key: 'id'
+        key: 'id'  // Always reference 'id' as it's the primary key
       }
     },
     name: {

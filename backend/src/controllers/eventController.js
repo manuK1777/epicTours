@@ -3,6 +3,7 @@ import Event from '../models/eventModel.js';
 import Artist from '../models/artistModel.js';
 import Location from '../models/locationModel.js';
 import { sequelize } from '../db.js';
+import { handleResponse, handleError } from '../utils/responseHelper.js';
 
 export const getAllEvents = async (req, res) => {
   try {
@@ -20,10 +21,10 @@ export const getAllEvents = async (req, res) => {
         }
       ]
     });
-    res.status(200).json({ code: 1, message: 'Events retrieved successfully', data: events });
+
+    handleResponse(res, 200, 'Events retrieved successfully', events);
   } catch (error) {
-    console.error('Error fetching events:', error);
-    res.status(500).json({ code: 0, message: 'Error fetching events' });
+    handleError(res, error);
   }
 };
 
@@ -47,17 +48,12 @@ export const getChartData = async (req, res) => {
       group: [sequelize.fn('DATE_FORMAT', sequelize.col('start_time'), '%Y-%m')],
     });
 
-    res.status(200).json({
-      code: 1,
-      message: 'Chart data retrieved successfully',
-      data: {
-        eventsByCategory,
-        eventsOverTime,
-      },
+    handleResponse(res, 200, 'Chart data retrieved successfully', {
+      eventsByCategory,
+      eventsOverTime,
     });
   } catch (error) {
-    console.error('Error fetching chart data:', error);
-    res.status(500).json({ code: 0, message: 'Error fetching chart data' });
+    handleError(res, error);
   }
 };
 
@@ -80,13 +76,12 @@ export const getEventById = async (req, res) => {
     });
     
     if (!event) {
-      return res.status(404).json({ code: 0, message: 'Event not found' });
+      return handleResponse(res, 404, 'Event not found');
     }
     
-    res.status(200).json({ code: 1, message: 'Event retrieved successfully', data: event });
+    handleResponse(res, 200, 'Event retrieved successfully', event);
   } catch (error) {
-    console.error('Error fetching event:', error);
-    res.status(500).json({ code: 0, message: 'Error fetching event' });
+    handleError(res, error);
   }
 };
 
@@ -121,10 +116,9 @@ export const createEvent = async (req, res) => {
       ]
     });
 
-    res.status(201).json({ code: 1, message: 'Event created successfully', data: eventWithRelations });
+    handleResponse(res, 201, 'Event created successfully', eventWithRelations);
   } catch (error) {
-    console.error('Error creating event:', error);
-    res.status(500).json({ code: 0, message: 'Error creating event' });
+    handleError(res, error);
   }
 };
 
@@ -133,7 +127,7 @@ export const updateEvent = async (req, res) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({ code: 0, message: 'Validation errors', errors: errors.array() });
+    return handleResponse(res, 400, 'Validation errors', errors.array());
   }
 
   try {
@@ -142,7 +136,7 @@ export const updateEvent = async (req, res) => {
 
     const event = await Event.findByPk(id);
     if (!event) {
-      return res.status(404).json({ code: 0, message: 'Event not found' });
+      return handleResponse(res, 404, 'Event not found');
     }
 
     await event.update({
@@ -153,10 +147,9 @@ export const updateEvent = async (req, res) => {
       color,
     });
 
-    res.status(200).json({ code: 1, message: 'Event updated successfully', data: event });
+    handleResponse(res, 200, 'Event updated successfully', event);
   } catch (error) {
-    console.error('Error updating event:', error);
-    res.status(500).json({ code: 0, message: 'Error updating event' });
+    handleError(res, error);
   }
 };
 
@@ -166,14 +159,13 @@ export const deleteEvent = async (req, res) => {
 
     const event = await Event.findByPk(id);
     if (!event) {
-      return res.status(404).json({ code: 0, message: 'Event not found' });
+      return handleResponse(res, 404, 'Event not found');
     }
 
     await event.destroy();
-    res.status(200).json({ code: 1, message: 'Event deleted successfully' });
+    handleResponse(res, 200, 'Event deleted successfully');
   } catch (error) {
-    console.error('Error deleting event:', error);
-    res.status(500).json({ code: 0, message: 'Error deleting event' });
+    handleError(res, error);
   }
 };
 
@@ -183,20 +175,19 @@ export const addArtistToEvent = async (req, res) => {
     
     const event = await Event.findByPk(eventId);
     if (!event) {
-      return res.status(404).json({ code: 0, message: 'Event not found' });
+      return handleResponse(res, 404, 'Event not found');
     }
 
     const artist = await Artist.findByPk(artistId);
     if (!artist) {
-      return res.status(404).json({ code: 0, message: 'Artist not found' });
+      return handleResponse(res, 404, 'Artist not found');
     }
 
     await event.addArtist(artist);
     
-    res.status(200).json({ code: 1, message: 'Artist added to event successfully' });
+    handleResponse(res, 200, 'Artist added to event successfully');
   } catch (error) {
-    console.error('Error adding artist to event:', error);
-    res.status(500).json({ code: 0, message: 'Error adding artist to event' });
+    handleError(res, error);
   }
 };
 
@@ -206,19 +197,18 @@ export const removeArtistFromEvent = async (req, res) => {
     
     const event = await Event.findByPk(eventId);
     if (!event) {
-      return res.status(404).json({ code: 0, message: 'Event not found' });
+      return handleResponse(res, 404, 'Event not found');
     }
 
     const artist = await Artist.findByPk(artistId);
     if (!artist) {
-      return res.status(404).json({ code: 0, message: 'Artist not found' });
+      return handleResponse(res, 404, 'Artist not found');
     }
 
     await event.removeArtist(artist);
     
-    res.status(200).json({ code: 1, message: 'Artist removed from event successfully' });
+    handleResponse(res, 200, 'Artist removed from event successfully');
   } catch (error) {
-    console.error('Error removing artist from event:', error);
-    res.status(500).json({ code: 0, message: 'Error removing artist from event' });
+    handleError(res, error);
   }
 };

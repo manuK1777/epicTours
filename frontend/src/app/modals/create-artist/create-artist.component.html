@@ -47,8 +47,9 @@
         accept="image/jpeg, image/jpg, image/png, image/webp" />
       
       @if (previewUrl && previewUrl !== 'no image') {
-      <button mat-mini-fab color="warn" class="cust-delete-btn" aria-label="Delete Image" (click)="onDeleteImage()">
+      <button mat-stroked-button color="warn" class="cust-delete-btn" aria-label="Delete Image" (click)="onDeleteImage()">
         <mat-icon class="delete-icon">delete</mat-icon>
+        Delete Image
       </button>
       }
     </div>
@@ -62,7 +63,7 @@
 
     <div class="actions">
       <button mat-button (click)="onCancel()">Cancel</button>
-      <button mat-raised-button color="primary" (click)="onSave()" [disabled]="artistForm.invalid">
+      <button mat-stroked-button color="primary" (click)="onSave()" [disabled]="artistForm.invalid">
         {{ data?.artist ? 'Save Changes' : 'Create Artist' }}
       </button>
     </div>

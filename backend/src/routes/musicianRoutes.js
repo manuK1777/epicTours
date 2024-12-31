@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { 
   getAllMusicians,
   getMusicianById,
+  getMusiciansByArtist,
   createMusician,
   updateMusician,
   deleteMusician,
@@ -16,10 +17,11 @@ const router = Router();
 
 //Routes for managing musicians WITHOUT AUTHENTIFICATION
 router.get('/', getAllMusicians); // Get all musicians
-router.get('/:id', idValidator, validate, getMusicianById);
+router.get('/artist/:artistId', idValidator('artistId'), validate, getMusiciansByArtist);
+router.get('/:id', idValidator('id'), validate, getMusicianById);
 router.post('/', uploadFileMiddleware, musicianValidator, validate, createMusician);
-router.put('/:id', uploadFileMiddleware, idValidator, musicianValidator, validate, updateMusician);
-router.delete('/:id', idValidator, validate, deleteMusician);
-router.delete('/:id/file', idValidator, validate, deleteMusicianImage);
+router.put('/:id', uploadFileMiddleware, idValidator('id'), musicianValidator, validate, updateMusician);
+router.delete('/:id', idValidator('id'), validate, deleteMusician);
+router.delete('/:id/file', idValidator('id'), validate, deleteMusicianImage);
 
 export default router;

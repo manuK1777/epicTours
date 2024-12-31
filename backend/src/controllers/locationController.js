@@ -1,81 +1,54 @@
-import { validationResult } from 'express-validator';
 import Location from '../models/locationModel.js';
-import Contact from '../models/contactModel.js'; // Assuming related model
+import Contact from '../models/contactModel.js';
+import { handleResponse, handleError } from '../utils/responseHelper.js';
+import { Op } from 'sequelize';
 
 // Get All Locations
 export const getAllLocations = async (req, res) => {
   try {
     const locations = await Location.findAll({
-      include: { model: Contact, as: 'contact' }, // Include associated contacts
+      include: { model: Contact, as: 'contact' }
     });
 
-    res.status(200).json({
-      code: 1,
-      message: 'Locations retrieved successfully',
-      data: locations,
-    });
+    handleResponse(res, 200, 'Locations retrieved successfully', locations);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch locations' });
+    handleError(res, error);
   }
 };
 
 // Get Location by ID
 export const getLocationById = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { id } = req.params;
     const location = await Location.findByPk(id, {
-      include: { model: Contact, as: 'contact' }, // Include associated contacts
+      include: { model: Contact, as: 'contact' }
     });
 
     if (!location) {
-      return res.status(404).json({ code: -6, message: 'Location not found' });
+      return handleResponse(res, 404, 'Location not found');
     }
 
-    res.status(200).json({
-      code: 1,
-      message: 'Location detail retrieved successfully',
-      data: location,
-    });
+    handleResponse(res, 200, 'Location retrieved successfully', location);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch location' });
+    handleError(res, error);
   }
 };
 
 // Create New Location
 export const createLocation = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    console.log('Received location data:', req.body);
-
     const { name, category, address, latitude, longitude, contact_id } = req.body;
 
+    // Basic validation for required fields
     if (!address) {
-      return res.status(400).json({ 
-        error: 'Address is required',
-        details: 'The address field cannot be empty'
-      });
+      return handleResponse(res, 400, 'Address is required');
     }
 
-    // Validate coordinates are numbers
+    // Validate coordinates
     const lat = parseFloat(latitude);
     const lng = parseFloat(longitude);
-
     if (isNaN(lat) || isNaN(lng)) {
-      return res.status(400).json({ 
-        error: 'Invalid coordinates',
-        details: { latitude, longitude }
-      });
+      return handleResponse(res, 400, 'Invalid coordinates', { latitude, longitude });
     }
 
     const newLocation = await Location.create({
@@ -87,36 +60,21 @@ export const createLocation = async (req, res) => {
       contact_id: contact_id || null,
     });
 
-    console.log('Created location:', newLocation.toJSON());
-
-    res.status(201).json({
-      code: 1,
-      message: 'Location created successfully',
-      data: newLocation,
-    });
+    handleResponse(res, 201, 'Location created successfully', newLocation);
   } catch (error) {
-    console.error('Error creating location:', error);
-    res.status(500).json({ 
-      error: 'Failed to create location',
-      details: error.message 
-    });
+    handleError(res, error);
   }
 };
 
 // Update Existing Location
 export const updateLocation = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { id } = req.params;
     const { name, category, address, latitude, longitude, contact_id } = req.body;
 
     const location = await Location.findByPk(id);
     if (!location) {
-      return res.status(404).json({ code: -3, message: 'Location not found' });
+      return handleResponse(res, 404, 'Location not found');
     }
 
     await location.update({
@@ -128,41 +86,26 @@ export const updateLocation = async (req, res) => {
       contact_id: contact_id || location.contact_id,
     });
 
-    res.status(200).json({
-      code: 1,
-      message: 'Location updated successfully',
-      data: location,
-    });
+    handleResponse(res, 200, 'Location updated successfully', location);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to update location' });
+    handleError(res, error);
   }
 };
 
 // Delete Location
 export const deleteLocation = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { id } = req.params;
     const location = await Location.findByPk(id);
 
     if (!location) {
-      return res.status(404).json({ code: -3, message: 'Location not found' });
+      return handleResponse(res, 404, 'Location not found');
     }
 
     await location.destroy();
-
-    res.status(200).json({
-      code: 1,
-      message: 'Location deleted successfully',
-    });
+    handleResponse(res, 200, 'Location deleted successfully');
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to delete location' });
+    handleError(res, error);
   }
 };
 
@@ -171,34 +114,30 @@ export const getCategories = async (req, res) => {
   try {
     const categories = await Location.findAll({
       attributes: ['category'],
-      group: ['category'], 
+      group: ['category'],
     });
 
-    res.status(200).json(categories.map((c) => c.category));
+    handleResponse(res, 200, 'Categories retrieved successfully', categories.map((c) => c.category));
   } catch (error) {
-    console.error('Error fetching categories:', error);
-    res.status(500).json({ error: 'Failed to fetch categories' });
+    handleError(res, error);
   }
 };
 
-import { Op } from 'sequelize'; // Use Sequelize.Op instead of Sequelize directly
-
 export const getLocationsByCategories = async (req, res) => {
   try {
-    const { categories } = req.query; // Example: ?categories=Jazz,Rock
+    const { categories } = req.query;
     const categoryArray = categories ? categories.split(',') : [];
 
     const locations = await Location.findAll({
       where: {
         category: {
-          [Op.in]: categoryArray, // Use Op.in for filtering
+          [Op.in]: categoryArray,
         },
       },
     });
 
-    res.status(200).json(locations);
+    handleResponse(res, 200, 'Locations retrieved successfully', locations);
   } catch (error) {
-    console.error('Error fetching locations by categories:', error);
-    res.status(500).json({ error: 'Failed to fetch locations' });
+    handleError(res, error);
   }
 };

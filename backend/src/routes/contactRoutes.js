@@ -12,10 +12,11 @@ import { idValidator } from "../validations/generic.Validation.js";
 
 const router = Router();
 
-router.get("/", getAllContacts); // Get all contacts
-router.get("/:id", idValidator, validate, getContactById); // Get a contact by ID
-router.post("/", contactValidator, validate, createContact); // Create a new contact
-router.put("/:id", contactValidator, validate, updateContact); // Update an existing contact
-router.delete("/:id", idValidator, validate, deleteContact); // Delete a contact
+// Routes for managing contacts
+router.get("/", getAllContacts);
+router.get("/:id", idValidator('id'), validate, getContactById);
+router.post("/", contactValidator, validate, createContact);
+router.put("/:id", idValidator('id'), contactValidator, validate, updateContact);
+router.delete("/:id", idValidator('id'), validate, deleteContact);
 
 export default router;

@@ -2,8 +2,7 @@ import User from '../models/userModel.js';
 import { validationResult } from 'express-validator';
 import fs from 'fs';
 import path from 'path';
-//https://www.bezkoder.com/node-js-express-file-upload/
-
+import { handleResponse, handleError } from '../utils/responseHelper.js';
 
 export const getUser = async (req, res) => {
   try {
@@ -19,31 +18,18 @@ export const getUser = async (req, res) => {
       "updated_at": req.user.updated_at
     };
 
-    // Enviar una respuesta al cliente
-    res.status(200).json({
-      code: 1,
-      message: 'User Detail',
-      data: user_data 
-    });
+    handleResponse(res, 200, 'User Detail', user_data);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      code: -100,
-      message: 'An error occurred while obtaining the USER'
-    });
+    handleError(res, error);
   }
 };
 
 export const uploadfile = async (req, res) => {
   try {
     const rutaArchivo = "./src/uploads/"; // Ruta completa al archivo que deseas eliminar
-    //await uploadFile(req, res);
 
     if (req.file == undefined) {
-      return res.status(400).json({
-        code: -101,
-        message: 'Please upload a file!'
-      });
+      return handleResponse(res, 400, 'Please upload a file!');
     }
 
     //Si el usuario tiene foto, se la eliminamos
@@ -52,21 +38,11 @@ export const uploadfile = async (req, res) => {
       fs.access(rutaArchivo + req.user.file, fs.constants.F_OK, (err) => {
         if (err) {
           console.log('The file does not exist or cannot be accessed');
-          /*res.status(400).json({
-            code: -102,
-            message: 'The file does not exist or cannot be accessed',
-            error: err
-          });*/
         } else {
           // Eliminar el archivo
           fs.unlink(rutaArchivo + req.user.file, (err) => {
             if (err) {
-              console.error('Error al eliminar el archivo', err);
-              return res.status(500).json({
-                code: -103,
-                message: 'Error deleting file',
-                error: err
-              });
+              return handleError(res, err);
             }
             console.log('El archivo ha sido eliminado correctamente.');
           });
@@ -78,22 +54,13 @@ export const uploadfile = async (req, res) => {
     //Actualizo la imagen del usuario
     console.log("Guardo la imagen: " + req.file.filename + " en el id de usuario: " + req.user.id_user);
     await User.update({ file: req.file.filename }, { where: { id_user: req.user.id_user } })
-    return res.status(200).json({
-      code: 1,
-      message: "Uploaded the file successfully: " + req.file.originalname,
-    });
-
+    handleResponse(res, 200, "Uploaded the file successfully: " + req.file.originalname);
   } catch (err) {
 
     if (err.code == "LIMIT_FILE_SIZE") {
-      return res.status(500).send({
-        message: "File size cannot be larger than 2MB!",
-      });
+      return handleResponse(res, 500, "File size cannot be larger than 2MB!");
     }
 
-    res.status(500).send({
-      message: `Could not upload the file: ${req.file.originalname}. ${err}`,
-      error: `${err}`
-    });
+    handleError(res, err);
   }
 };
