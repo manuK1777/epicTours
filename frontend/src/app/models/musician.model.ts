@@ -1,7 +1,7 @@
 export interface Musician {
   id?: number;
-  artist_id?: number;
-  name?: string;
+  artist_id?: number;  
+  name: string;  
   instrument?: string;
   email?: string;
   phone?: string;

@@ -1,32 +1,3 @@
-// :host {
-//   display: block;
-// }
-
-// ::ng-deep .custom-dialog-container {
-//   .mat-dialog-container {
-//     padding: 24px;
-//     border-radius: 4px;
-//     box-sizing: border-box;
-//     overflow: auto;
-//     outline: 0;
-//     width: 100%;
-//     height: 100%;
-//     min-height: inherit;
-//     max-height: inherit;
-//   }
-// }
-
-// // Ensure no hover effects remain
-// .mat-dialog-container:hover {
-//   background: inherit;
-// }
-
-// // Remove any lingering overlay effects
-// ::ng-deep .cdk-overlay-backdrop {
-//   &.cdk-overlay-backdrop-showing {
-//     opacity: 0.6;
-//   }
-// }
 
 h2 {
   transition: all 0.3s ease-in-out;
@@ -37,11 +8,17 @@ h2 {
 }
 
 .table-container {
-  margin-top: 20px;
-  overflow: auto;
-  max-height: 400px;
-  width: 600px;
-  transition: all 0.3s ease-in-out;
+  width: 100%;
+  margin: 16px 0;
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+  }
+
+  .mat-mdc-row:hover {
+    background-color: #f5f5f5;
+  }
 }
 
 ::ng-deep .mat-mdc-dialog-container {
@@ -58,6 +35,26 @@ table {
 
 .mat-column-phone {
   min-width: 120px;
+}
+
+.mat-column-name {
+  max-width: 110.469px;
+}
+
+.mat-column-instrument .mat-column-role {
+  max-width: 101.250px;
+}
+
+.mat-column-email {
+  max-width: 120.281px;
+}
+
+.mat-column-phone {
+  max-width: 104px;
+}
+
+.mat-column-actions {
+  max-width: 100px;
 }
 
 .mat-mdc-row {
@@ -95,21 +92,47 @@ button[mat-icon-button] {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  min-width: 600px;
+  
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 16px;
+
+    h3 {
+      margin: 0;
+      color: #1976d2;
+    }
+
+    mat-form-field {
+      width: 100%;
+    }
+
+    .file-input {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      input[type="file"] {
+        display: none;
+      }
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 8px;
+    }
+  }
 }
 
-.form-container {
+.actions-container {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 20px;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-  margin-bottom: 20px;
-}
-
-.button-container {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 16px;
   gap: 16px;
@@ -146,8 +169,13 @@ table {
   padding: 0 16px 16px;
 }
 
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 
-
-// ::ng-deep .mat-mdc-dialog-surface {
-//   width: 600px;
-// }
+  h2 {
+    margin: 0;
+  }
+}

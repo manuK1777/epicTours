@@ -57,16 +57,20 @@ export const getMusiciansByArtist = async (req, res) => {
 
 export const createMusician = async (req, res) => {
   try {
-    const { name, role, email, artist_id } = req.body;
+    const { name, instrument, email, phone, artist_id } = req.body;
     const file = req.file ? req.file.filename : null;
 
-    const newMusician = await Musician.create({
-      name,
-      role,
-      email,
-      artist_id,
-      file,
-    });
+    // Only include fields that are provided and not empty
+    const musicianData = {
+      name,  // Required
+      artist_id,  // Required
+      instrument: instrument || null,  // Convert empty string to null
+      email: email || null,  // Convert empty string to null
+      phone: phone || null,  // Convert empty string to null
+      ...(file && { file })
+    };
+
+    const newMusician = await Musician.create(musicianData);
 
     handleResponse(res, 201, 'Musician created successfully', newMusician);
   } catch (error) {
@@ -77,7 +81,7 @@ export const createMusician = async (req, res) => {
 export const updateMusician = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, role, email, artist_id } = req.body;
+    const { name, instrument, email, phone, artist_id } = req.body;
     const file = req.file ? req.file.filename : null;
 
     const musician = await Musician.findByPk(id);
@@ -93,13 +97,17 @@ export const updateMusician = async (req, res) => {
       }
     }
 
-    await musician.update({
-      name: name || musician.name,
-      role: role || musician.role,
-      email: email || musician.email,
-      artist_id: artist_id || musician.artist_id,
-      file: file || musician.file,
-    });
+    // Only update fields that are provided
+    const updates = {
+      ...(name && { name }),
+      ...(instrument && { instrument }),
+      ...(email && { email }),
+      ...(phone && { phone }),
+      ...(artist_id && { artist_id }),
+      ...(file && { file })
+    };
+
+    await musician.update(updates);
 
     handleResponse(res, 200, 'Musician updated successfully', musician);
   } catch (error) {

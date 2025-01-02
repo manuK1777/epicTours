@@ -1,4 +1,22 @@
 mat-dialog-content {
     margin-top: 12px;
 }
-  
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.close-button {
+  margin-right: 12px;
+}
+
+table {
+  width: 100%;
+}

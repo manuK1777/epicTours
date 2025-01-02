@@ -50,7 +50,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 export class MusiciansCrewComponent implements OnInit {
   items: (Musician | Crew)[] = [];
   editingId?: number;
-  editedItem: any = {};
+  editedItem: any = null;
   selectedFile?: File;
   displayedColumns: string[] = ['name', 'role', 'email', 'phone', 'actions'];
   dataSource = new MatTableDataSource<Musician | Crew>();
@@ -141,24 +141,53 @@ export class MusiciansCrewComponent implements OnInit {
     }
   }
 
+  startEditing(item: Partial<Musician | Crew>) {
+    this.editedItem = { ...item };
+    this.editingId = undefined;
+  }
+
+  editItem(item: Musician | Crew) {
+    this.editedItem = { ...item };
+    this.editingId = item.id;
+    this.showActionsForId = null; // Hide the actions menu
+  }
+
+  cancelEdit() {
+    this.editedItem = null;
+    this.editingId = undefined;
+    this.selectedFile = undefined;
+  }
+
   saveItem() {
     const formData = new FormData();
-    Object.keys(this.editedItem).forEach(key => {
-      formData.append(key, this.editedItem[key]);
-    });
+    
+    // Always add the artist_id from the dialog data
+    formData.append('artist_id', this.data.artistId.toString());
 
+    // Add name (required)
+    formData.append('name', this.editedItem.name || '');
+
+    // Add optional fields with empty strings if undefined
+    if (this.data.group) {
+      formData.append('instrument', this.editedItem.instrument || '');
+    } else {
+      formData.append('role', this.editedItem.role || '');
+    }
+    formData.append('email', this.editedItem.email || '');
+    formData.append('phone', this.editedItem.phone || '');
+    
     if (this.selectedFile) {
-      formData.append('image', this.selectedFile);
+      formData.append('file', this.selectedFile);
     }
 
     if (this.editingId) {
       // Update existing item
-      if (this.data.group) {  // group true = musicians
+      if (this.data.group) {
         this.musicianService.updateMusician(this.editingId, formData).subscribe({
           next: (updatedItem) => this.handleSaveSuccess(updatedItem),
           error: (error) => console.error('Error updating musician:', error)
         });
-      } else {  // group false = crew
+      } else {
         this.crewService.updateCrewMember(this.editingId, formData).subscribe({
           next: (updatedItem) => this.handleSaveSuccess(updatedItem),
           error: (error) => console.error('Error updating crew member:', error)
@@ -166,12 +195,12 @@ export class MusiciansCrewComponent implements OnInit {
       }
     } else {
       // Create new item
-      if (this.data.group) {  // group true = musicians
+      if (this.data.group) {
         this.musicianService.createMusician(formData).subscribe({
           next: (newItem) => this.handleSaveSuccess(newItem),
           error: (error) => console.error('Error creating musician:', error)
         });
-      } else {  // group false = crew
+      } else {
         this.crewService.createCrewMember(formData).subscribe({
           next: (newItem) => this.handleSaveSuccess(newItem),
           error: (error) => console.error('Error creating crew member:', error)
@@ -180,37 +209,12 @@ export class MusiciansCrewComponent implements OnInit {
     }
   }
 
-  cancelEdit() {
-    this.editingId = undefined;
-    this.editedItem = {};
-    this.selectedFile = undefined;
-  }
-
   handleSaveSuccess(item: Musician | Crew) {
-    const index = this.dataSource.data.findIndex((i) => i.id === item.id);
-    if (index !== -1) {
-      this.dataSource.data[index] = item;
-      this.dataSource._updateChangeSubscription();
-    } else {
-      this.dataSource.data = [...this.dataSource.data, item];
-    }
-    this.resetForm();
-  }
-
-  resetForm() {
+    this.editedItem = null;
     this.editingId = undefined;
-    this.editedItem = {};
     this.selectedFile = undefined;
-  }
-
-  startEditing(item: Partial<Musician | Crew>) {
-    this.editedItem = { ...item };
-    this.editingId = undefined;
-  }
-
-  editItem(item: Musician | Crew) {
-    this.editingId = item.id;
-    this.editedItem = { ...item };
+    
+    this.loadItems();
   }
 
   deleteItem(id: number) {

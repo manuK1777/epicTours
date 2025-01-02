@@ -37,15 +37,20 @@ export const getCrewMemberById = async (req, res) => {
 
 export const createCrewMember = async (req, res) => {
   try {
-    const { name, email, phone } = req.body;
+    const { name, role, email, phone, artist_id } = req.body;
     const file = req.file ? req.file.filename : null;
 
-    const newCrewMember = await Crew.create({
-      name,
-      email,
-      phone,
-      file,
-    });
+    // Only include fields that are provided and not empty
+    const crewData = {
+      name,  // Required
+      artist_id,  // Required
+      role: role || null,  // Convert empty string to null
+      email: email || null,  // Convert empty string to null
+      phone: phone || null,  // Convert empty string to null
+      ...(file && { file })
+    };
+
+    const newCrewMember = await Crew.create(crewData);
 
     handleResponse(res, 201, 'Crew member created successfully', newCrewMember);
   } catch (error) {
@@ -56,7 +61,7 @@ export const createCrewMember = async (req, res) => {
 export const updateCrewMember = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, phone } = req.body;
+    const { name, role, email, phone, artist_id } = req.body;
     const file = req.file ? req.file.filename : null;
 
     const crewMember = await Crew.findByPk(id);
@@ -72,12 +77,17 @@ export const updateCrewMember = async (req, res) => {
       }
     }
 
-    await crewMember.update({
-      name,
-      email,
-      phone,
-      file: file || crewMember.file,
-    });
+    // Only update fields that are provided
+    const updates = {
+      ...(name && { name }),
+      ...(role && { role }),
+      ...(email && { email }),
+      ...(phone && { phone }),
+      ...(artist_id && { artist_id }),
+      ...(file && { file })
+    };
+
+    await crewMember.update(updates);
 
     handleResponse(res, 200, 'Crew member updated successfully', crewMember);
   } catch (error) {

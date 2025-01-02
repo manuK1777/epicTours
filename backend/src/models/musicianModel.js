@@ -21,15 +21,15 @@ const Musician = sequelize.define('Musician', {
     },
     instrument: {
       type: DataTypes.STRING(100),
-      allowNull: false
+      allowNull: true
     },
     email: {
       type: DataTypes.STRING(100),
-      allowNull: false
+      allowNull: true
     },
     phone: {
       type: DataTypes.STRING(100),
-      allowNull: false
+      allowNull: true
     },
     file: {
       type: DataTypes.STRING(30),
