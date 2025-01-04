@@ -3,7 +3,7 @@ import { sequelize } from '../db.js';
 import Artist from './artistModel.js';
 import Event from './eventModel.js';
 import Location from './locationModel.js';
-import Contact from './contactModel.js';
+import VenueBooker from './venueBookerModel.js';
 import Musician from './musicianModel.js';
 import Crew from './crewModel.js';
 import User from './userModel.js';
@@ -52,7 +52,7 @@ const defineAssociations = () => {
   });
 
   // Location (Venue) associations
-  Location.hasMany(Contact, {
+  Location.hasMany(VenueBooker, {
     foreignKey: 'venue_id',
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE'
@@ -63,8 +63,8 @@ const defineAssociations = () => {
     otherKey: 'artist_id'
   });
 
-  // Contact associations
-  Contact.belongsTo(Location, {
+  // VenueBooker associations
+  VenueBooker.belongsTo(Location, {
     foreignKey: 'venue_id',
     as: 'venue',
     onDelete: 'SET NULL',
@@ -113,7 +113,7 @@ export {
   Artist,
   Event,
   Location,
-  Contact,
+  VenueBooker,
   Musician,
   Crew,
   User,

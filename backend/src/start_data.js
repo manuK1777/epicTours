@@ -1,4 +1,4 @@
-import { User, Artist, Location, Event, Contact, Musician, Crew } from './models/index.js';
+import { User, Artist, Location, Event, VenueBooker, Musician, Crew } from './models/index.js';
 import { sequelize } from './db.js';
 import bcrypt from 'bcrypt';
 
@@ -83,20 +83,23 @@ const insertInitialData = async () => {
       }
     ], { returning: true });
 
-    // 4. Create Contacts for Venues
-    await Contact.bulkCreate([
+    // 4. Create Venue Bookers
+    await VenueBooker.bulkCreate([
       {
         venue_id: locations[0].id,
+        name: 'Blue Note NY Booker',
         email: 'info@bluenote.net',
         phone: '+1 212-475-8592'
       },
       {
         venue_id: locations[1].id,
+        name: 'Blue Note Tokyo Booker',
         email: 'info@bluenote.jp',
         phone: '+81 3-5485-0088'
       },
       {
         venue_id: locations[2].id,
+        name: 'Nova Jazz Cava Booker',
         email: 'info@novajazzcava.com',
         phone: '+34 937 893 590'
       }

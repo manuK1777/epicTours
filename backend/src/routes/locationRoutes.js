@@ -19,6 +19,9 @@ router.get("/", getAllLocations);
 // Get locations by categories
 router.get("/categories", getCategories);
 
+// Get locations filtered by categories
+router.get("/filtered-locations", getLocationsByCategories);
+
 router.post("/", locationValidator, validate, createLocation);
 
 router.put("/:id",

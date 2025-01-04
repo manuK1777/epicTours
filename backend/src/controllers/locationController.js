@@ -1,5 +1,5 @@
 import Location from '../models/locationModel.js';
-import Contact from '../models/contactModel.js';
+import VenueBooker from '../models/venueBookerModel.js';
 import { handleResponse, handleError } from '../utils/responseHelper.js';
 import { Op } from 'sequelize';
 
@@ -7,7 +7,7 @@ import { Op } from 'sequelize';
 export const getAllLocations = async (req, res) => {
   try {
     const locations = await Location.findAll({
-      include: { model: Contact, as: 'contact' }
+      include: { model: VenueBooker }
     });
 
     handleResponse(res, 200, 'Locations retrieved successfully', locations);
@@ -21,7 +21,7 @@ export const getLocationById = async (req, res) => {
   try {
     const { id } = req.params;
     const location = await Location.findByPk(id, {
-      include: { model: Contact, as: 'contact' }
+      include: { model: VenueBooker }
     });
 
     if (!location) {
@@ -37,7 +37,7 @@ export const getLocationById = async (req, res) => {
 // Create New Location
 export const createLocation = async (req, res) => {
   try {
-    const { name, category, address, latitude, longitude, contact_id } = req.body;
+    const { name, category, address, latitude, longitude, venueBooker_id } = req.body;
 
     // Basic validation for required fields
     if (!address) {
@@ -57,7 +57,7 @@ export const createLocation = async (req, res) => {
       address,
       latitude: lat,
       longitude: lng,
-      contact_id: contact_id || null,
+      venueBooker_id: venueBooker_id || null,
     });
 
     handleResponse(res, 201, 'Location created successfully', newLocation);
@@ -70,7 +70,7 @@ export const createLocation = async (req, res) => {
 export const updateLocation = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, category, address, latitude, longitude, contact_id } = req.body;
+    const { name, category, address, latitude, longitude, venueBooker_id } = req.body;
 
     const location = await Location.findByPk(id);
     if (!location) {
@@ -83,7 +83,7 @@ export const updateLocation = async (req, res) => {
       address: address || location.address,
       latitude: latitude || location.latitude,
       longitude: longitude || location.longitude,
-      contact_id: contact_id || location.contact_id,
+      venueBooker_id: venueBooker_id || location.venueBooker_id,
     });
 
     handleResponse(res, 200, 'Location updated successfully', location);

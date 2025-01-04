@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Location } from '../models/location.model';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LocationsService {
 
-  private apiUrl = 'http://localhost:3000/api/locations'; // Base URL for locations API
+  private apiUrl = 'http://localhost:3000/api/locations'; 
 
   constructor(private http: HttpClient) { }
 
@@ -35,7 +36,7 @@ export class LocationsService {
       address: newLocation.address, 
       latitude: newLocation.latitude,
       longitude: newLocation.longitude,
-      contacts: newLocation.contacts
+      venueBooker: newLocation.venueBooker
     });
   }
 
@@ -53,13 +54,19 @@ export class LocationsService {
 
   // Fetch available categories
   getCategories(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/categories`);
+    return this.http.get<{ code: number; message: string; data: string[] }>(`${this.apiUrl}/categories`)
+      .pipe(
+        map(response => response.data || [])
+      );
   }
   
   // Fetch locations filtered by categories
   getLocationsByCategories(categories: string[]): Observable<Location[]> {
     const categoryString = encodeURIComponent(categories.join(','));
-    return this.http.get<Location[]>(`${this.apiUrl}/filtered-locations?categories=${categoryString}`);
+    return this.http.get<{ code: number; message: string; data: Location[] }>(`${this.apiUrl}/filtered-locations?categories=${categoryString}`)
+      .pipe(
+        map(response => response.data || [])
+      );
   }
   
 }

@@ -85,7 +85,7 @@ export class VenueDialogComponent {
         address: formValue.address,
         latitude: Number(formValue.latitude),
         longitude: Number(formValue.longitude),
-        contact_id: formValue.contact_id || null
+        venueBooker_id: formValue.venueBooker_id || null
       };
 
       console.log('Saving venue:', venue);

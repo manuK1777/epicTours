@@ -21,7 +21,7 @@ import { Title } from '@angular/platform-browser';
     CommonModule,
   ],
   templateUrl: './venues.component.html',
-  styleUrl: './venues.component.scss'
+  styleUrls: ['./venues.component.scss']
 })
 
 export class VenuesComponent implements OnInit {
@@ -60,6 +60,11 @@ export class VenuesComponent implements OnInit {
     this.locationsService.getCategories().subscribe({
       next: (categories) => {
         console.log('Loaded categories:', categories); 
+        if (!Array.isArray(categories)) {
+          console.error('Categories is not an array:', categories);
+          this.categoriesSignal.set([]);
+          return;
+        }
         this.categoriesSignal.set(categories);
       },
       error: (err) => {

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { Location } from '../../models/location.model';
@@ -11,25 +11,22 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
   standalone: true,
   imports: [CommonModule, MaterialModule, FormsModule, MatTableModule, MatPaginatorModule],
   templateUrl: './venues-table.component.html',
-  styleUrl: './venues-table.component.scss',
+  styleUrls: ['./venues-table.component.scss'],
 })
-export class VenuesTableComponent implements OnChanges {
+export class VenuesTableComponent implements OnInit {
   @Input() venues: Location[] = []; // Array of venues to display
   @Output() editVenue = new EventEmitter<{ id: number; updatedVenue: Location }>();
   @Output() deleteVenue = new EventEmitter<number>(); // Emits an event when deleting a venue
 
   @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator;
 
+  editedVenue: Location = { name: '', category: '', address: '', latitude: 0, longitude: 0, venueBooker: [] }; 
   editingVenueId: number | null = null;
-  editedVenue: Location = { name: '', category: '', address: '', latitude: 0, longitude: 0, contacts: [] }; 
-
-  displayedColumns: string[] = ['name', 'category', 'address', 'latitude', 'longitude', 'contact', 'actions'];
+  displayedColumns: string[] = ['name', 'category', 'address', 'latitude', 'longitude', 'venueBooker', 'actions'];
   dataSource = new MatTableDataSource<Location>(this.venues);
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['venues'] && changes['venues'].currentValue) {
-      this.updateDataSource();
-    }
+  ngOnInit(): void {
+    this.updateDataSource();
   }
   
   ngAfterViewInit(): void {
@@ -46,20 +43,20 @@ export class VenuesTableComponent implements OnChanges {
   }
   
   startEditing(venue: Location): void {
-    this.editingVenueId = venue.id ?? null;
+    this.editingVenueId = venue.id || null;
     this.editedVenue = { ...venue }; 
   }
 
   saveEdit(): void {
-    if (this.editedVenue) {
-      this.editVenue.emit({ id: this.editingVenueId!, updatedVenue: this.editedVenue });
-      this.cancelEdit();
+    if (this.editedVenue && this.editedVenue.id) {
+      this.editVenue.emit({ id: this.editedVenue.id, updatedVenue: this.editedVenue });
+      this.editingVenueId = null;
     }
   }
 
   cancelEdit(): void {
     this.editingVenueId = null;
-    this.editedVenue = { name: '', category: '', address: '', latitude: 0, longitude: 0, contacts: [] };
+    this.editedVenue = { name: '', category: '', address: '', latitude: 0, longitude: 0, venueBooker: [] };
   }
 
   onDelete(id: number): void {

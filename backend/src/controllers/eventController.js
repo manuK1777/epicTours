@@ -11,7 +11,7 @@ export const getAllEvents = async (req, res) => {
       include: [
         {
           model: Location,
-          as: 'Venue',
+          as: 'venue',
           attributes: ['id', 'name', 'address']
         },
         {
@@ -64,7 +64,7 @@ export const getEventById = async (req, res) => {
       include: [
         {
           model: Location,
-          as: 'Venue',
+          as: 'venue',
           attributes: ['id', 'name', 'address']
         },
         {
@@ -105,7 +105,7 @@ export const createEvent = async (req, res) => {
       include: [
         {
           model: Location,
-          as: 'Venue',
+          as: 'venue',
           attributes: ['id', 'name', 'address']
         },
         {
