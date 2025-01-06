@@ -29,12 +29,11 @@
           multiple
           (selectionChange)="onCategoryChange()"
         >
-          <!-- Always Present "All Venues" Option -->
-          <!-- <mat-option
-            (click)="selectAllVenues()" 
+          <mat-option
+            [value]="ALL_VENUES_ID"
           >
-           
-          </mat-option> -->
+            All Venues  
+          </mat-option>
     
           <!-- Dynamic Categories -->
           @for (category of categories; track category; let i = $index) {
@@ -48,7 +47,3 @@
 
     </div>
   </mat-toolbar>
-
-
-  
-  

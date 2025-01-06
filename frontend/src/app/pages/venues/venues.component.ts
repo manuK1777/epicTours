@@ -78,18 +78,8 @@ export class VenuesComponent implements OnInit {
     const selectedCategories = this.selectedCategoriesSignal();
     console.log('Selected categories for filtering:', selectedCategories);
   
-    if (selectedCategories.length > 0) {
-      this.locationsService.getLocationsByCategories(selectedCategories).subscribe({
-        next: (locations) => {
-          console.log('Filtered venues:', locations); 
-          this.venuesSignal.set(locations || []);
-        },
-        error: (err) => {
-          console.error('Error refreshing venues:', err);
-          this.venuesSignal.set([]);
-        },
-      });
-    } else {
+    // If 'all' is selected or no categories selected, get all venues
+    if (selectedCategories.includes('__all__') || selectedCategories.length === 0) {
       this.locationsService.getLocations().subscribe({
         next: (response) => {
           console.log('All venues:', response.data); 
@@ -97,6 +87,17 @@ export class VenuesComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error loading venues:', err);
+          this.venuesSignal.set([]);
+        },
+      });
+    } else {
+      this.locationsService.getLocationsByCategories(selectedCategories).subscribe({
+        next: (locations) => {
+          console.log('Filtered venues:', locations); 
+          this.venuesSignal.set(locations || []);
+        },
+        error: (err) => {
+          console.error('Error refreshing venues:', err);
           this.venuesSignal.set([]);
         },
       });

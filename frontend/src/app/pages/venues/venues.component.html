@@ -7,21 +7,18 @@
   (switchView)="switchView($event)"
 ></app-toolbar>
 
-<ng-container *ngIf="activeViewSignal() === 'map'; else tableView">
+@if (activeViewSignal() === 'map') {
   <app-map
-    [venues]="venuesSignal()"
-    (editVenue)="editVenue($event.id, $event.updatedVenue)"
-    (deleteVenue)="deleteVenue($event)"
-  ></app-map>
-</ng-container>
+  [venues]="venuesSignal()"
+  (editVenue)="editVenue($event.id, $event.updatedVenue)"
+  (deleteVenue)="deleteVenue($event)">
+</app-map>
+} @else {
+  <app-venues-table
+  [venues]="venuesSignal()"
+  (editVenue)="editVenue($event.id, $event.updatedVenue)"
+  (deleteVenue)="deleteVenue($event)"
+></app-venues-table>
+}
 
-<ng-template #tableView>
-  <app-venues-table class="venues-table-content"
-    [venues]="venuesSignal()"
-    (editVenue)="editVenue($event.id, $event.updatedVenue)"
-    (deleteVenue)="deleteVenue($event)"
-  ></app-venues-table>
-</ng-template>
 
-  
-  

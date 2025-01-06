@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { Location } from '../../models/location.model';
@@ -13,7 +13,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
   templateUrl: './venues-table.component.html',
   styleUrls: ['./venues-table.component.scss'],
 })
-export class VenuesTableComponent implements OnInit {
+export class VenuesTableComponent implements OnInit, OnChanges {
   @Input() venues: Location[] = []; // Array of venues to display
   @Output() editVenue = new EventEmitter<{ id: number; updatedVenue: Location }>();
   @Output() deleteVenue = new EventEmitter<number>(); // Emits an event when deleting a venue
@@ -28,10 +28,16 @@ export class VenuesTableComponent implements OnInit {
   ngOnInit(): void {
     this.updateDataSource();
   }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['venues']) {
+      this.updateDataSource();
+    }
+  }
   
   ngAfterViewInit(): void {
     if (this.paginator) {
-      this.dataSource.paginator = this.paginator; 
+      this.dataSource.paginator = this.paginator;
     }
   }
   
@@ -41,7 +47,7 @@ export class VenuesTableComponent implements OnInit {
       this.dataSource.paginator = this.paginator;
     }
   }
-  
+
   startEditing(venue: Location): void {
     this.editingVenueId = venue.id || null;
     this.editedVenue = { ...venue }; 

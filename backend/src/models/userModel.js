@@ -10,12 +10,18 @@ const User = sequelize.define('User', {
   username: {
     type: DataTypes.STRING(100),
     allowNull: false,
-    unique: true
+    unique: {
+      name: 'username_unique',  // Explicitly name the constraint
+      msg: 'Username must be unique'
+    }
   },
   email: {
     type: DataTypes.STRING(100),
     allowNull: false,
-    unique: true
+    unique: {
+      name: 'email_unique',  // Explicitly name the constraint
+      msg: 'Email must be unique'
+    }
   },
   password: {
     type: DataTypes.STRING(100),
@@ -29,7 +35,19 @@ const User = sequelize.define('User', {
 }, {
   timestamps: true,
   updatedAt: 'updated_at',
-  createdAt: 'created_at'
+  createdAt: 'created_at',
+  indexes: [
+    {
+      unique: true,
+      fields: ['username'],
+      name: 'username_unique'
+    },
+    {
+      unique: true,
+      fields: ['email'],
+      name: 'email_unique'
+    }
+  ]
 });
 
 export default User;

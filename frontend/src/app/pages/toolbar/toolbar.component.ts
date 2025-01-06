@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 })
 
 export class ToolbarComponent {
+  public readonly ALL_VENUES_ID = '__all__';
   @Input() categories: string[] = []; 
   @Input() selectedCategories: string[] = [];
   @Output() filterChange = new EventEmitter<string[]>(); 
@@ -23,6 +24,7 @@ export class ToolbarComponent {
   editMode: boolean = false;
   deleteMode: boolean = false;
   activeView: 'map' | 'table' = 'map';
+  private previousSelection: string[] = [];
 
   constructor(private dialog: MatDialog) {}
 
@@ -72,23 +74,33 @@ export class ToolbarComponent {
   }
 
   private emitFilterChange(): void {
-    console.log('Updated selected categories:', this.selectedCategories); 
-    this.filterChange.emit(this.selectedCategories); 
+    console.log('Emitting categories:', this.selectedCategories);
+    this.filterChange.emit(this.selectedCategories);
   }
-   trackByCategory(index: number, category: string): string {
+
+  onCategoryChange(): void {
+    const hasAll = this.selectedCategories.includes(this.ALL_VENUES_ID);
+    const hadAll = this.previousSelection.includes(this.ALL_VENUES_ID);
+    
+    // If All Venues was just selected (wasn't there before but is now)
+    if (hasAll && !hadAll) {
+      this.selectedCategories = [this.ALL_VENUES_ID];
+    }
+    // If a specific category was selected while All Venues was checked
+    else if (hasAll && this.selectedCategories.length > 1) {
+      this.selectedCategories = this.selectedCategories.filter(cat => cat !== this.ALL_VENUES_ID);
+    }
+    // If no categories are selected, default to All Venues
+    else if (this.selectedCategories.length === 0) {
+      this.selectedCategories = [this.ALL_VENUES_ID];
+    }
+
+    this.previousSelection = [...this.selectedCategories];
+    this.emitFilterChange();
+  }
+
+  
+  trackByCategory(index: number, category: string): string {
     return category;
   }
-
-    isAllVenuesSelected(): boolean {
-      return this.selectedCategories.length === 0;
-    }
-  
-    selectAllVenues(): void {
-      this.selectedCategories = []; 
-      this.emitFilterChange();
-    }
-
-    onCategoryChange(): void {
-      this.emitFilterChange();
-    }
 }

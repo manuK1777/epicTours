@@ -45,11 +45,33 @@ const initializeDatabase = async () => {
     await sequelize.authenticate();
     console.log('Database connection has been established successfully.');
     
-    // Sync without force to preserve existing data
+    // Drop existing unique constraints to prevent duplication
+    try {
+      await sequelize.query(`
+        SELECT CONSTRAINT_NAME
+        FROM information_schema.TABLE_CONSTRAINTS 
+        WHERE TABLE_NAME = 'Users' 
+        AND CONSTRAINT_TYPE = 'UNIQUE'
+        AND CONSTRAINT_NAME NOT IN ('username_unique', 'email_unique')
+      `).then(async ([constraints]) => {
+        if (constraints.length > 0) {
+          const dropQueries = constraints.map(c => 
+            `DROP INDEX ${c.CONSTRAINT_NAME} ON Users`
+          );
+          for (const query of dropQueries) {
+            await sequelize.query(query);
+          }
+        }
+      });
+    } catch (error) {
+      console.warn('Warning: Could not clean up constraints:', error.message);
+    }
+
+    // Sync with alter to allow model changes during development
     await sequelize.sync({ alter: true });
     console.log('Database synchronized successfully');
     
-    // Only insert initial data if tables are empty
+    // Insert initial data if needed
     const { User } = sequelize.models;
     const userCount = await User.count();
     if (userCount === 0) {
