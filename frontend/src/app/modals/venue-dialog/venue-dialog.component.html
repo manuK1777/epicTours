@@ -25,13 +25,18 @@
 
     <mat-form-field appearance="fill" class="full-width">
       <mat-label>Address</mat-label>
-      <input matInput formControlName="address" (blur)="geocodeAddress()">
-      <mat-error *ngIf="venueForm.get('address')?.hasError('required')">
-        Address is required
-      </mat-error>
-      <mat-error *ngIf="venueForm.get('address')?.hasError('geocoding')">
-        {{ venueForm.get('address')?.getError('geocoding') }}
-      </mat-error>
+      <input matInput formControlName="address" (blur)="validateAddress()">
+    
+      @if (venueForm.get('address')?.hasError('required')) {
+        <mat-error>Address is required</mat-error>
+      }
+
+      @if (venueForm.get('address')?.hasError('geocoding')) 
+      {
+        <mat-error>
+          {{ venueForm.get('address')?.getError('geocoding') }}
+        </mat-error>
+      }
     </mat-form-field>
 
     <!-- <mat-form-field appearance="fill">

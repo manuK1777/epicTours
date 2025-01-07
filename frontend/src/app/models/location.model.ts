@@ -7,6 +7,7 @@ export interface Location {
   address: string;
   latitude: number;
   longitude: number;
+  pendingGeocode?: boolean;
   venueBooker?: VenueBooker[];
   created_at?: string;
   updated_at?: string;

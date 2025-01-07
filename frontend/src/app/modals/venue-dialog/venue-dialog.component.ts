@@ -4,13 +4,14 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { MaterialModule } from 'src/app/material.module';
 import { CommonModule } from '@angular/common';
 import { GeocodingService } from 'src/app/services/geocoding.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-venue-dialog',
   standalone: true,
   imports: [ MaterialModule, FormsModule, ReactiveFormsModule, CommonModule ],
   templateUrl: './venue-dialog.component.html',
-  styleUrl: './venue-dialog.component.scss'
+  styleUrls: ['./venue-dialog.component.scss']
 })
 export class VenueDialogComponent {
   venueForm: FormGroup;
@@ -21,6 +22,7 @@ export class VenueDialogComponent {
     private dialogRef: MatDialogRef<VenueDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private geocodingService: GeocodingService,
+    private notificationService: NotificationService
   ) {
     this.isEditMode = data.mode === 'edit';
 
@@ -43,27 +45,12 @@ export class VenueDialogComponent {
     }
   }
 
-  geocodeAddress() {
+  validateAddress(): void {
     const address = this.venueForm.get('address')?.value;
     if (address) {
       this.geocodingService.geocodeAddress(address).subscribe({
-        next: (result) => {
-          console.log('Geocoding result:', result);
-          // Enable the fields temporarily to set values
-          this.venueForm.get('latitude')?.enable();
-          this.venueForm.get('longitude')?.enable();
-          
-          this.venueForm.patchValue({
-            latitude: result.lat,
-            longitude: result.lon
-          });
-          
-          // Disable the fields again
-          this.venueForm.get('latitude')?.disable();
-          this.venueForm.get('longitude')?.disable();
-        },
         error: (error) => {
-          console.error('Geocoding failed:', error.message);
+          console.error('Geocoding validation failed:', error.message);
           this.venueForm.get('address')?.setErrors({
             geocoding: error.message
           });
@@ -72,33 +59,39 @@ export class VenueDialogComponent {
     }
   }
 
-  save(): void {
-    if (this.venueForm.valid) {
+  async save(): Promise<void> {
+    if (!this.venueForm.valid) {
+      console.error('Form is invalid:', this.venueForm.errors);
+      return;
+    }
+
+    try {
       // Get the raw form values including disabled fields
       const formValue = this.venueForm.getRawValue();
       console.log('Form raw value:', formValue);
 
-      // Convert coordinates to numbers
+      // Create venue object
       const venue = {
         name: formValue.name,
         category: formValue.category,
         address: formValue.address,
-        latitude: Number(formValue.latitude),
-        longitude: Number(formValue.longitude),
+        latitude: 0,  // These will be set during geocoding
+        longitude: 0, // in the parent component
         venueBooker_id: formValue.venueBooker_id || null
       };
 
-      console.log('Saving venue:', venue);
-      
+      // Close dialog with venue data
       this.dialogRef.close({
         action: this.isEditMode ? 'edit' : 'add',
         venue: venue
       });
-    } else {
-      console.error('Form is invalid:', this.venueForm.errors);
+      
+    } catch (error) {
+      console.error('Error during save:', error);
+      this.notificationService.showError('Error saving venue');
     }
   }
-  
+
   cancel(): void {
     this.dialogRef.close();
   }

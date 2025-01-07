@@ -13,11 +13,6 @@ export class LocationsService {
 
   constructor(private http: HttpClient) { }
 
-  // Get all locations
-  // getLocations(): Observable<Location[]> {
-  //   return this.http.get<Location[]>(this.apiUrl);
-  // }
-
   getLocations(): Observable<{ code: number; message: string; data: Location[] }> {
     return this.http.get<{ code: number; message: string; data: Location[] }>(this.apiUrl);
   }
