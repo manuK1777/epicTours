@@ -1,28 +1,34 @@
-import util from "util";
-import multer from "multer";
+import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const maxSize = 2 * 1024 * 1024;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const uploadPath = path.resolve(__dirname, "../uploads");
-
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadPath);
-  },
-  filename: function (req, file, cb) {
-    console.log("file.originalname: "+file.originalname);
-    cb(null, file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../uploads/'));
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
 });
 
-let uploadFile = multer({
-  storage: storage,
-  limits: { fileSize: maxSize },
-}).single("file");
+const upload = multer({ 
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 1024 * 5 // 5MB limit
+    },
+    fileFilter: function (req, file, cb) {
+        const filetypes = /jpeg|jpg|png/;
+        const mimetype = filetypes.test(file.mimetype);
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
 
-export const uploadFileMiddleware = util.promisify(uploadFile);
+        if (mimetype && extname) {
+            return cb(null, true);
+        }
+        cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+    }
+});
+
+export default upload;

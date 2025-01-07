@@ -11,7 +11,7 @@ import {
 } from '../controllers/artistsController.js';
 import { idValidator } from '../validations/generic.Validation.js';
 import { validate } from '../middlewares/validate.js';
-import upload from '../middleware/upload.js';
+import upload from '../middlewares/upload.js';
 
 const router = express.Router();
 

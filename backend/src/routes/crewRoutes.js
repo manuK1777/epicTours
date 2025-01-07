@@ -11,7 +11,7 @@ import {
 import { crewValidator } from '../validations/crew.Validation.js';
 import { idValidator } from '../validations/generic.Validation.js';
 import { validate } from "../middlewares/validate.js";
-import { uploadFileMiddleware } from '../middlewares/upload.js';
+import upload from '../middlewares/upload.js';
 
 const router = Router();
 
@@ -19,8 +19,8 @@ const router = Router();
 router.get('/', getAllCrewMembers); // Get all crew members
 router.get('/artist/:artistId', idValidator('artistId'), validate, getCrewMembersByArtist);
 router.get('/:id', idValidator('id'), validate, getCrewMemberById);
-router.post('/', uploadFileMiddleware, crewValidator, validate, createCrewMember);
-router.put('/:id', uploadFileMiddleware, idValidator('id'), crewValidator, validate, updateCrewMember);
+router.post('/', upload.single('file'), crewValidator, validate, createCrewMember);
+router.put('/:id', upload.single('file'), idValidator('id'), crewValidator, validate, updateCrewMember);
 router.delete('/:id', idValidator('id'), validate, deleteCrewMember);
 router.delete('/:id/file', idValidator('id'), validate, deleteCrewMemberImage);
 

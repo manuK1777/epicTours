@@ -54,18 +54,18 @@ const insertInitialData = async () => {
     // 3. Create Locations/Venues
     const locations = await Location.bulkCreate([
       {
-        name: 'Blue Note NY',
+        name: 'Sunset Jazz Club',
         category: 'Jazz Club',
-        address: '131 W 3rd St, New York, NY 10012, USA',
-        latitude: 40.73068,
-        longitude: -74.00049,
+        address: 'C/ Jaume Pons i Martí, 12. 17004 Girona',
+        latitude: 41.98892750,
+        longitude: 2.82423590,
       },
       {
-        name: 'Blue Note Tokyo',
-        category: 'Jazz Club',
-        address: '6-3-16 Minami-Aoyama, Minato City, Tokyo 107-0062, Japan',
-        latitude: 35.66492,
-        longitude: 139.72548,
+        name: 'Palau de la Música Catalana',
+        category: 'general',
+        address: 'Carrer Palau de la Música, 4-6, 08003, Barcelona',
+        latitude: 41.38736166,
+        longitude: 2.17505422,
       },
       {
         name: 'Nova Jazz Cava',
@@ -87,21 +87,21 @@ const insertInitialData = async () => {
     await VenueBooker.bulkCreate([
       {
         venue_id: locations[0].id,
-        name: 'Blue Note NY Booker',
-        email: 'info@bluenote.net',
-        phone: '+1 212-475-8592'
-      },
-      {
-        venue_id: locations[1].id,
-        name: 'Blue Note Tokyo Booker',
-        email: 'info@bluenote.jp',
-        phone: '+81 3-5485-0088'
+        name: 'Alex',
+        email: 'info@sunsetjazz.net',
+        phone: '678945321'
       },
       {
         venue_id: locations[2].id,
-        name: 'Nova Jazz Cava Booker',
-        email: 'info@novajazzcava.com',
-        phone: '+34 937 893 590'
+        name: 'Susanna',
+        email: 'info@jazzterrassa.com',
+        phone: '68876352'
+      },
+      {
+        venue_id: locations[3].id,
+        name: 'Josep Mestres',
+        email: 'jamboree@jamboree.com',
+        phone: '68638094'
       }
     ]);
 
