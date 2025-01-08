@@ -22,6 +22,7 @@ export class VenuesTableComponent implements OnInit, OnChanges {
 
   editedVenue: Location = { name: '', category: '', address: '', latitude: 0, longitude: 0, venueBooker: [] }; 
   editingVenueId: number | null = null;
+  showActionsForId: number | null = null;
   displayedColumns: string[] = ['name', 'category', 'address', 'latitude', 'longitude', 'venueBooker', 'actions'];
   dataSource = new MatTableDataSource<Location>(this.venues);
 
@@ -57,11 +58,13 @@ export class VenuesTableComponent implements OnInit, OnChanges {
     if (this.editedVenue && this.editedVenue.id) {
       this.editVenue.emit({ id: this.editedVenue.id, updatedVenue: this.editedVenue });
       this.editingVenueId = null;
+      this.showActionsForId = null;
     }
   }
 
   cancelEdit(): void {
     this.editingVenueId = null;
+    this.showActionsForId = null;
     this.editedVenue = { name: '', category: '', address: '', latitude: 0, longitude: 0, venueBooker: [] };
   }
 

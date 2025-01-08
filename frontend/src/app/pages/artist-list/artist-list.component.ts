@@ -9,8 +9,6 @@ import { Artist } from '../../models/artist.model';
 import { RouterLink, Router } from '@angular/router';
 import { MaterialModule } from '../../material.module';
 
-
-
 @Component({
   selector: 'app-artist-list',
   standalone: true,

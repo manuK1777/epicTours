@@ -103,7 +103,7 @@ export class ArtistDetailComponent implements OnInit {
           { text: 'Info', cols: 2, rows: 1, color: '', type: 'info' },
           { text: 'Eventos (Table)', cols: 2, rows: 3, color: '', type: 'text' },
           { text: 'Buttons', cols: 1, rows: 2, color: '', type: 'button'},
-          { text: 'EN CONSTRUCCIÓN: info, editar y borrar artista funcionan!', cols: 3, rows: 2, color: '', type: 'text' },
+          { text: 'Folders: rider docs, promo photos, gig photos, map?', cols: 3, rows: 2, color: '', type: 'text' },
         ];
       },
       error: (error) => {

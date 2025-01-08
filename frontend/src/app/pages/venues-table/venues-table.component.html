@@ -80,22 +80,33 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let venue">
-        <ng-container *ngIf="venue?.id !== editingVenueId; else editActions">
-          <button mat-icon-button color="primary" (click)="startEditing(venue)">
+        @if (!editingVenueId && showActionsForId !== venue?.id) {
+          <button mat-mini-fab color="accent" 
+                  (click)="showActionsForId = showActionsForId === venue?.id ? null : venue?.id">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        }
+        
+        @if (!editingVenueId && showActionsForId === venue?.id) {
+          <button mat-mini-fab color="primary" (click)="startEditing(venue)">
             <mat-icon>edit</mat-icon>
           </button>
-          <button mat-icon-button color="warn" (click)="onDelete(venue?.id)">
+          <button mat-mini-fab color="warn" (click)="onDelete(venue?.id)">
             <mat-icon>delete</mat-icon>
           </button>
-        </ng-container>
-        <ng-template #editActions>
-          <button mat-icon-button color="primary" (click)="saveEdit()">
-            <mat-icon>save</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="cancelEdit()">
+          <button mat-mini-fab (click)="showActionsForId = null">
             <mat-icon>close</mat-icon>
           </button>
-        </ng-template>
+        }
+
+        @if (editingVenueId === venue?.id) {
+          <button mat-mini-fab color="primary" (click)="saveEdit()">
+            <mat-icon>save</mat-icon>
+          </button>
+          <button mat-mini-fab color="warn" (click)="cancelEdit()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
       </td>
     </ng-container>
 
