@@ -5,11 +5,14 @@ import { Location } from '../../models/location.model';
 import { FormsModule } from '@angular/forms';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { RouterModule } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { VenueDetailsComponent } from '../../modals/venue-details/venue-details.component';
 
 @Component({
   selector: 'app-venues-table',
   standalone: true,
-  imports: [CommonModule, MaterialModule, FormsModule, MatTableModule, MatPaginatorModule],
+  imports: [CommonModule, MaterialModule, FormsModule, MatTableModule, MatPaginatorModule, RouterModule],
   templateUrl: './venues-table.component.html',
   styleUrls: ['./venues-table.component.scss'],
 })
@@ -18,13 +21,18 @@ export class VenuesTableComponent implements OnInit, OnChanges {
   @Output() editVenue = new EventEmitter<{ id: number; updatedVenue: Location }>();
   @Output() deleteVenue = new EventEmitter<number>(); // Emits an event when deleting a venue
 
+  displayedColumns: string[] = ['name', 'category', 'address'];
+
   @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator;
 
   editedVenue: Location = { name: '', category: '', address: '', latitude: 0, longitude: 0, venueBooker: [] }; 
   editingVenueId: number | null = null;
   showActionsForId: number | null = null;
-  displayedColumns: string[] = ['name', 'category', 'address', 'latitude', 'longitude', 'venueBooker', 'actions'];
   dataSource = new MatTableDataSource<Location>(this.venues);
+
+  constructor(
+    private dialog: MatDialog,
+  ) {}
 
   ngOnInit(): void {
     this.updateDataSource();
@@ -70,5 +78,12 @@ export class VenuesTableComponent implements OnInit, OnChanges {
 
   onDelete(id: number): void {
     this.deleteVenue.emit(id); // Emit the venue ID for deletion
+  }
+
+  openVenueDetails(venue: any): void {
+    this.dialog.open(VenueDetailsComponent, {
+      width: '600px',
+      data: { venue }
+    });
   }
 }

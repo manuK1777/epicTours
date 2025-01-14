@@ -45,3 +45,34 @@
       width: calc(100% - 16px);
     }
   }
+
+  .table-row {
+    cursor: pointer;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+    &.editing {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+  }
+
+  .mat-mdc-icon-button {
+    --mdc-icon-button-state-layer-size: 40px;
+    padding: 8px;
+    
+    .mat-icon {
+      color: inherit;
+    }
+  }
+
+  .mat-mdc-menu-item {
+    .mat-icon {
+      margin-right: 8px;
+      color: inherit;
+    }
+  }
+
+  .mat-mdc-form-field {
+    width: 100%;
+    margin: -1em 0;
+  }

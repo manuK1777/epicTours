@@ -1,0 +1,21 @@
+<div class="dialog-header">
+  <h2>{{ data.venue.name }}</h2>
+  <button mat-icon-button (click)="close()" class="close-button">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div class="venue-info-card">
+  <div class="info-item">
+    <div class="info-label">Category</div>
+    <div class="info-value">{{ data.venue.category }}</div>
+  </div>
+  <div class="info-item">
+    <div class="info-label">Address</div>
+    <div class="info-value">{{ data.venue.address }}</div>
+  </div>
+  <div class="info-item">
+    <div class="info-label">Coordinates</div>
+    <div class="info-value">{{ data.venue.latitude }}, {{ data.venue.longitude }}</div>
+  </div>
+</div>

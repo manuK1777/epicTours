@@ -10,7 +10,7 @@ export const authenticateToken = (allowedRoles) => async (req, res, next) => {
     if (!accessToken) {
       return res.status(401).json({
         code: -50,
-        message: 'No se ha proporcionado un token de acceso'
+        message: 'No access token provided'
       });
     }
 
@@ -19,7 +19,7 @@ export const authenticateToken = (allowedRoles) => async (req, res, next) => {
     if (!user) {
       return res.status(401).json({
         code: -70,
-        message: 'Token de acceso no válido'
+        message: 'Invalid access token'
       });
     }
 
@@ -27,7 +27,7 @@ export const authenticateToken = (allowedRoles) => async (req, res, next) => {
     if (!hasPermission) {
       return res.status(403).json({
         code: -10,
-        message: 'No tiene los permisos necesarios.'
+        message: 'You do not have the necessary permissions.'
       });
     }
 
@@ -37,7 +37,7 @@ export const authenticateToken = (allowedRoles) => async (req, res, next) => {
     console.error(error);
     res.status(500).json({
       code: -100,
-      message: 'Ha ocurrido un error al autenticar el token de acceso'
+      message: 'An error occurred while authenticating the access token'
     });
   }
 };
