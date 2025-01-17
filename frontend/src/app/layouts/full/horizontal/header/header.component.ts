@@ -1,4 +1,5 @@
 import { Component, Output, EventEmitter, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { CoreService } from 'src/app/services/core.service';
 import { MatDialog } from '@angular/material/dialog';
 import { navItems } from '../../vertical/sidebar/sidebar-data';
@@ -8,7 +9,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
 import { BrandingComponent } from '../../vertical/sidebar/branding.component';
 import { FormsModule } from '@angular/forms';
-import { AppSettings } from 'src/app/config';
+import { AuthService } from 'src/app/services/auth.service';
 
 interface notifications {
   id: number;
@@ -53,7 +54,13 @@ interface quicklinks {
 @Component({
   selector: 'app-horizontal-header',
   standalone: true,
-  imports: [RouterModule, TablerIconsModule, MaterialModule, BrandingComponent],
+  imports: [
+    RouterModule,
+    TablerIconsModule,
+    MaterialModule,
+    BrandingComponent,
+    CommonModule,
+  ],
   templateUrl: './header.component.html',
 })
 export class AppHorizontalHeaderComponent {
@@ -63,52 +70,53 @@ export class AppHorizontalHeaderComponent {
   @Output() toggleMobileFilterNav = new EventEmitter<void>();
   @Output() toggleCollapsed = new EventEmitter<void>();
 
+  currentUser$ = this.authService.currentUser$;
+
   showFiller = false;
 
-  public selectedLanguage: any = {
+  // Feature flags for components
+  featureFlags = {
+    showInbox: false,
+    showNotifications: false,
+    showLanguageSelector: false,
+    profileMenu: {
+      showMyProfile: false,
+      showMySubscription: false,
+      showMyInvoice: false,
+      showAccountSettings: false,
+    }
+  };
+
+  // Set English as default and only language
+  public selectedLanguage = {
     language: 'English',
     code: 'en',
     type: 'US',
     icon: '/assets/images/flag/icon-flag-en.svg',
   };
 
-  public languages: any[] = [
+  public languages = [
     {
       language: 'English',
       code: 'en',
       type: 'US',
       icon: '/assets/images/flag/icon-flag-en.svg',
-    },
-    {
-      language: 'Español',
-      code: 'es',
-      icon: '/assets/images/flag/icon-flag-es.svg',
-    },
-    {
-      language: 'Français',
-      code: 'fr',
-      icon: '/assets/images/flag/icon-flag-fr.svg',
-    },
-    {
-      language: 'German',
-      code: 'de',
-      icon: '/assets/images/flag/icon-flag-de.svg',
-    },
+    }
   ];
 
   constructor(
-    private settings: CoreService,
-    private vsidenav: CoreService,
+    private core: CoreService,
     public dialog: MatDialog,
-    private translate: TranslateService
+    private authService: AuthService,
+    public translate: TranslateService
   ) {
     translate.setDefaultLang('en');
   }
 
-  options = this.settings.getOptions();
+  options = this.core.getOptions();
   
   setDark() {
-    this.settings.toggleTheme();
+    this.core.toggleTheme();
   }
 
   openDialog() {
@@ -122,6 +130,11 @@ export class AppHorizontalHeaderComponent {
   changeLanguage(lang: any): void {
     this.translate.use(lang.code);
     this.selectedLanguage = lang;
+  }
+
+  signOut(event: Event): void {
+    event.preventDefault();
+    this.authService.logout();
   }
 
   notifications: notifications[] = [
@@ -213,30 +226,9 @@ export class AppHorizontalHeaderComponent {
   profiledd: profiledd[] = [
     {
       id: 1,
-      title: 'My Profile',
-      link: '/',
-    },
-    {
-      id: 2,
-      title: 'My Subscription',
-      link: '/',
-    },
-    {
-      id: 3,
-      title: 'My Invoice',
-      new: true,
-      link: '/',
-    },
-    {
-      id: 4,
-      title: ' Account Settings',
-      link: '/',
-    },
-    {
-      id: 5,
       title: 'Sign Out',
-      link: '/authentication/login',
-    },
+      link: 'javascript:void(0)',
+    }
   ];
 
   apps: apps[] = [

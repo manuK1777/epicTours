@@ -78,7 +78,9 @@ export class AuthService {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('token');
     this.currentUserSubject.next(null);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/authentication/login'], {
+      queryParams: { returnUrl: '/home' }
+    });
   }
 
   refreshToken(): Observable<any> {

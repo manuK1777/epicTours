@@ -90,109 +90,109 @@ export class FullComponent implements OnInit {
   }
 
   // for mobile app sidebar
-  apps: apps[] = [
-    {
-      id: 1,
-      icon: 'solar:chat-line-line-duotone',
-      color: 'primary',
-      title: 'Chat Application',
-      subtitle: 'Messages & Emails',
-      link: '/apps/chat',
-    },
-    {
-      id: 2,
-      icon: 'solar:checklist-minimalistic-line-duotone',
-      color: 'accent',
-      title: 'Todo App',
-      subtitle: 'Completed task',
-      link: '/apps/todo',
-    },
-    {
-      id: 3,
-      icon: 'solar:bill-list-line-duotone',
-      color: 'success',
-      title: 'Invoice App',
-      subtitle: 'Get latest invoice',
-      link: '/apps/invoice',
-    },
-    {
-      id: 4,
-      icon: 'solar:calendar-line-duotone',
-      color: 'error',
-      title: 'Calendar App',
-      subtitle: 'Get Dates',
-      link: '/apps/calendar',
-    },
-    {
-      id: 5,
-      icon: 'solar:smartphone-2-line-duotone',
-      color: 'warning',
-      title: 'Contact Application',
-      subtitle: '2 Unsaved Contacts',
-      link: '/apps/contacts',
-    },
-    {
-      id: 6,
-      icon: 'solar:ticket-line-duotone',
-      color: 'primary',
-      title: 'Tickets App',
-      subtitle: 'Create new ticket',
-      link: '/apps/tickets',
-    },
-    {
-      id: 7,
-      icon: 'solar:letter-line-duotone',
-      color: 'accent',
-      title: 'Email App',
-      subtitle: 'Get new emails',
-      link: '/apps/email/inbox',
-    },
-    {
-      id: 8,
-      icon: 'solar:book-2-line-duotone',
-      color: 'warning',
-      title: 'Courses',
-      subtitle: 'Create new course',
-      link: '/apps/courses',
-    },
-  ]
-  quicklinks: quicklinks[] = [
-    {
-      id: 1,
-      title: 'Pricing Page',
-      link: '/theme-pages/pricing',
-    },
-    {
-      id: 2,
-      title: 'Authentication Design',
-      link: '/authentication/login',
-    },
-    {
-      id: 3,
-      title: 'Register Now',
-      link: '/authentication/side-register',
-    },
-    {
-      id: 4,
-      title: '404 Error Page',
-      link: '/authentication/error',
-    },
-    {
-      id: 5,
-      title: 'Notes App',
-      link: '/apps/notes',
-    },
-    {
-      id: 6,
-      title: 'Employee App',
-      link: '/apps/employee',
-    },
-    {
-      id: 7,
-      title: 'Todo Application',
-      link: '/apps/todo',
-    },
-  ];
+  // apps: apps[] = [
+  //   {
+  //     id: 1,
+  //     icon: 'solar:chat-line-line-duotone',
+  //     color: 'primary',
+  //     title: 'Chat Application',
+  //     subtitle: 'Messages & Emails',
+  //     link: '/apps/chat',
+  //   },
+  //   {
+  //     id: 2,
+  //     icon: 'solar:checklist-minimalistic-line-duotone',
+  //     color: 'accent',
+  //     title: 'Todo App',
+  //     subtitle: 'Completed task',
+  //     link: '/apps/todo',
+  //   },
+  //   {
+  //     id: 3,
+  //     icon: 'solar:bill-list-line-duotone',
+  //     color: 'success',
+  //     title: 'Invoice App',
+  //     subtitle: 'Get latest invoice',
+  //     link: '/apps/invoice',
+  //   },
+  //   {
+  //     id: 4,
+  //     icon: 'solar:calendar-line-duotone',
+  //     color: 'error',
+  //     title: 'Calendar App',
+  //     subtitle: 'Get Dates',
+  //     link: '/apps/calendar',
+  //   },
+  //   {
+  //     id: 5,
+  //     icon: 'solar:smartphone-2-line-duotone',
+  //     color: 'warning',
+  //     title: 'Contact Application',
+  //     subtitle: '2 Unsaved Contacts',
+  //     link: '/apps/contacts',
+  //   },
+  //   {
+  //     id: 6,
+  //     icon: 'solar:ticket-line-duotone',
+  //     color: 'primary',
+  //     title: 'Tickets App',
+  //     subtitle: 'Create new ticket',
+  //     link: '/apps/tickets',
+  //   },
+  //   {
+  //     id: 7,
+  //     icon: 'solar:letter-line-duotone',
+  //     color: 'accent',
+  //     title: 'Email App',
+  //     subtitle: 'Get new emails',
+  //     link: '/apps/email/inbox',
+  //   },
+  //   {
+  //     id: 8,
+  //     icon: 'solar:book-2-line-duotone',
+  //     color: 'warning',
+  //     title: 'Courses',
+  //     subtitle: 'Create new course',
+  //     link: '/apps/courses',
+  //   },
+  // ]
+  // quicklinks: quicklinks[] = [
+  //   {
+  //     id: 1,
+  //     title: 'Pricing Page',
+  //     link: '/theme-pages/pricing',
+  //   },
+  //   {
+  //     id: 2,
+  //     title: 'Authentication Design',
+  //     link: '/authentication/login',
+  //   },
+  //   {
+  //     id: 3,
+  //     title: 'Register Now',
+  //     link: '/authentication/side-register',
+  //   },
+  //   {
+  //     id: 4,
+  //     title: '404 Error Page',
+  //     link: '/authentication/error',
+  //   },
+  //   {
+  //     id: 5,
+  //     title: 'Notes App',
+  //     link: '/apps/notes',
+  //   },
+  //   {
+  //     id: 6,
+  //     title: 'Employee App',
+  //     link: '/apps/employee',
+  //   },
+  //   {
+  //     id: 7,
+  //     title: 'Todo Application',
+  //     link: '/apps/todo',
+  //   },
+  // ];
 
   constructor(
     private settings: CoreService,

@@ -20,7 +20,7 @@
   <!-- Mobile Menu -->
   <button mat-mini-fab color="inherit" (click)="toggleMobileFilterNav.emit()"
     class="d-flex d-lg-none justify-content-center">
-    <i class="iconify icon-20 d-flex" data-icon="solar:widget-3-line-duotone"></i>
+    <!-- <i class="iconify icon-20 d-flex" data-icon="solar:widget-3-line-duotone"></i> -->
   </button>
 
   <div class="d-none d-lg-flex">
@@ -29,7 +29,7 @@
     <!-- --------------------------------------------------------------- -->
     <button mat-mini-fab color="inherit" [matMenuTriggerFor]="appsmenu" aria-label="Notifications"
       class="d-flex justify-content-center">
-      <i class="iconify icon-20 d-flex" data-icon="solar:widget-3-line-duotone"></i>
+      <!-- <i class="iconify icon-20 d-flex" data-icon="solar:widget-3-line-duotone"></i> -->
     </button>
 
     <mat-menu #appsmenu="matMenu" class="apps-dd cardWithShadow">
@@ -106,7 +106,7 @@
   <!-- --------------------------------------------------------------- -->
   <!-- Inbox Dropdown -->
   <!-- --------------------------------------------------------------- -->
-  <button mat-mini-fab color="inherit" [matMenuTriggerFor]="inboxmenu" aria-label="Inbox"
+  <button *ngIf="featureFlags.showInbox" mat-mini-fab color="inherit" [matMenuTriggerFor]="inboxmenu" aria-label="Inbox"
     class="d-flex justify-content-center position-relative">
     <i class="iconify icon-20 d-flex" data-icon="solar:inbox-line-line-duotone"></i>
     <div class="notification bg-primary text-white rounded-circle f-s-10">3</div>
@@ -155,7 +155,7 @@
   <!-- --------------------------------------------------------------- -->
   <!-- Notification Dropdown -->
   <!-- --------------------------------------------------------------- -->
-  <button mat-mini-fab color="inherit" [matMenuTriggerFor]="notificationmenu" aria-label="Notifications"
+  <button *ngIf="featureFlags.showNotifications" mat-mini-fab color="inherit" [matMenuTriggerFor]="notificationmenu" aria-label="Notifications"
     class="d-flex justify-content-center">
     <i class="iconify icon-20 d-flex" data-icon="solar:bell-bing-line-duotone"></i>
     <div class="notification bg-error text-white rounded-circle f-s-10">5</div>
@@ -202,7 +202,7 @@
   <!-- --------------------------------------------------------------- -->
   <!-- langugage Dropdown -->
   <!-- --------------------------------------------------------------- -->
-  <button [matMenuTriggerFor]="flags" mat-mini-fab color="inherit">
+  <button *ngIf="featureFlags.showLanguageSelector" [matMenuTriggerFor]="flags" mat-mini-fab color="inherit">
     <img [src]="selectedLanguage.icon" class="rounded-circle object-cover icon-20" />
   </button>
   <mat-menu #flags="matMenu" class="cardWithShadow" xPosition="before">
@@ -231,16 +231,24 @@
         <img src="/assets/images/profile/user-1.jpg" class="rounded-circle" width="56" />
         <div class="m-l-16">
           <h6 class="f-s-14 f-w-600 m-0 mat-subtitle-1 d-flex align-items-center">
-            David McMichael
-            <span class="f-s-14 d-block text-success m-l-4">Pro</span>
+            {{ (currentUser$ | async)?.username || 'Guest' }}
+            <span class="f-s-14 d-block text-success m-l-4">{{ (currentUser$ | async)?.role || 'Guest' }}</span>
           </h6>
-          <span> david&#64;wrappixel.com </span>
+          <span>{{ (currentUser$ | async)?.email || 'guest@example.com' }}</span>
         </div>
       </div>
     </div>
     <div class="p-x-32 p-b-16">
       @for(profile of profiledd; track profile.title) {
-      <a class="p-8 text-decoration-none d-block text-hover-primary" [routerLink]="[profile.link]">
+      <a *ngIf="
+          (profile.title === 'Sign Out') || 
+          (profile.title === 'My Profile' && featureFlags.profileMenu.showMyProfile) ||
+          (profile.title === 'My Subscription' && featureFlags.profileMenu.showMySubscription) ||
+          (profile.title === 'My Invoice' && featureFlags.profileMenu.showMyInvoice) ||
+          (profile.title === 'Account Settings' && featureFlags.profileMenu.showAccountSettings)"
+        class="p-8 text-decoration-none d-block text-hover-primary" 
+        href="javascript:void(0)"
+        (click)="signOut($event)">
         <div class="d-flex align-items-center">
           <h5 class="f-s-14 f-w-600 m-0 textprimary mat-subtitle-1 hover-text">
             {{ profile.title }}

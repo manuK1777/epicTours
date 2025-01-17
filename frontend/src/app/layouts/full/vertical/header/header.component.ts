@@ -15,6 +15,7 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgScrollbarModule } from 'ngx-scrollbar';
+import { AuthService } from 'src/app/services/auth.service';
 
 interface notifications {
   id: number;
@@ -78,7 +79,24 @@ export class HeaderComponent {
 
   showFiller = false;
 
-  public selectedLanguage: any = {
+  currentUser$ = this.authService.currentUser$;
+
+  // Feature flags for components
+  featureFlags = {
+    showInbox: false,
+    showNotifications: false,
+    showLanguageSelector: false,
+    showAppsDrawer: false,
+    profileMenu: {
+      showMyProfile: false,
+      showMySubscription: false,
+      showMyInvoice: false,
+      showAccountSettings: false,
+    }
+  };
+
+  // Set English as default and only language
+  public selectedLanguage = {
     language: 'English',
     code: 'en',
     type: 'US',
@@ -92,37 +110,21 @@ export class HeaderComponent {
       type: 'US',
       icon: '/assets/images/flag/icon-flag-en.svg',
     },
-    {
-      language: 'Español',
-      code: 'es',
-      icon: '/assets/images/flag/icon-flag-es.svg',
-    },
-    {
-      language: 'Français',
-      code: 'fr',
-      icon: '/assets/images/flag/icon-flag-fr.svg',
-    },
-    {
-      language: 'German',
-      code: 'de',
-      icon: '/assets/images/flag/icon-flag-de.svg',
-    },
   ];
 
   constructor(
-    private settings: CoreService,
-    private vsidenav: CoreService,
+    private core: CoreService,
     public dialog: MatDialog,
-    private translate: TranslateService
+    private authService: AuthService,
+    public translate: TranslateService
   ) {
     translate.setDefaultLang('en');
   }
 
-  
-  options = this.settings.getOptions();
+  options = this.core.getOptions();
   
   setDark() {
-    this.settings.toggleTheme();
+    this.core.toggleTheme();
   }
 
   openDialog() {
@@ -136,6 +138,11 @@ export class HeaderComponent {
   changeLanguage(lang: any): void {
     this.translate.use(lang.code);
     this.selectedLanguage = lang;
+  }
+
+  signOut(event: Event): void {
+    event.preventDefault();
+    this.authService.logout();
   }
 
   notifications: notifications[] = [
@@ -227,30 +234,9 @@ export class HeaderComponent {
   profiledd: profiledd[] = [
     {
       id: 1,
-      title: 'My Profile',
-      link: '/',
-    },
-    {
-      id: 2,
-      title: 'My Subscription',
-      link: '/',
-    },
-    {
-      id: 3,
-      title: 'My Invoice',
-      new: true,
-      link: '/',
-    },
-    {
-      id: 4,
-      title: ' Account Settings',
-      link: '/',
-    },
-    {
-      id: 5,
       title: 'Sign Out',
-      link: '/authentication/login',
-    },
+      link: 'javascript:void(0)',
+    }
   ];
 
   apps: apps[] = [
