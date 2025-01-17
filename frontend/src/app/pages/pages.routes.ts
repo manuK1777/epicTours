@@ -9,24 +9,24 @@ import { VenuesTableComponent } from './venues-table/venues-table.component';
 import { ChartsComponent } from './charts/charts.component';
 import { ChartBarComponent } from './chart-bar/chart-bar.component';
 import { ChartLineComponent } from './chart-line/chart-line.component';
+import { AuthGuard } from '../guards/auth.guard';
 
 export const PagesRoutes: Routes = [
   {
     path: '',
     component: homeComponent,
-    // data: {
-    //   title: 'Home',
-    //   urls: [
-    //     { title: 'Dashboard', url: '/home' },
-    //     { title: 'Home' },
-    //   ],
-    // },
+    canActivate: [AuthGuard],
+    data: {
+      roles: ['admin', 'manager', 'user']
+    }
   },
   {
     path: 'artist-list', 
     component: ArtistListComponent,
+    canActivate: [AuthGuard],
     data: {
       title: 'Artist List',
+      roles: ['admin', 'manager'],
       urls: [
         { title: 'Dashboard', url: '/home' },
         { title: 'Artist List' },
@@ -35,9 +35,11 @@ export const PagesRoutes: Routes = [
   },
   {
     path: 'venues',
-    component: VenuesComponent, // Parent component
+    component: VenuesComponent,
+    canActivate: [AuthGuard],
     data: {
       title: 'Venues',
+      roles: ['admin', 'manager'],
       urls: [
         { title: 'Dashboard', url: '/home' },
         { title: 'Venues' },
@@ -46,26 +48,19 @@ export const PagesRoutes: Routes = [
     children: [
       {
         path: 'map',
-        component: MapComponent, // Map view
+        component: MapComponent,
         data: {
           title: 'Map View',
-          urls: [
-            { title: 'Dashboard', url: '/home' },
-            { title: 'Venues' },
-          ],
-        },
-        
+          roles: ['admin', 'manager']
+        }
       },
       {
         path: 'table',
-        component: VenuesTableComponent, // Table view
+        component: VenuesTableComponent,
         data: {
           title: 'Table View',
-          urls: [
-            { title: 'Dashboard', url: '/home' },
-            { title: 'Venues' },
-          ],
-        },
+          roles: ['admin', 'manager']
+        }
       },
       {
         path: '',
@@ -77,8 +72,10 @@ export const PagesRoutes: Routes = [
   {
     path: 'calendar', 
     component: CalendarComponent,
+    canActivate: [AuthGuard],
     data: {
       title: 'Calendar',
+      roles: ['admin', 'manager'],
       urls: [
         { title: 'Dashboard', url: '/home' },
         { title: 'Calendar' },
@@ -88,8 +85,10 @@ export const PagesRoutes: Routes = [
   {
     path: 'charts', 
     component: ChartsComponent,
+    canActivate: [AuthGuard],
     data: {
       title: 'Charts',
+      roles: ['admin'],
       urls: [
         { title: 'Dashboard', url: '/home' },
         { title: 'Charts' },
@@ -97,18 +96,20 @@ export const PagesRoutes: Routes = [
     },
     children: [
       {
-        path: 'Bar chart',
+        path: 'bar',
         component: ChartBarComponent,
         data: {
-          title: 'Bar chart',
-        },
+          title: 'Bar Charts',
+          roles: ['admin']
+        }
       },
       {
-        path: 'Line chart',
+        path: 'line',
         component: ChartLineComponent, 
         data: {
-          title: 'Line chart',
-        },
+          title: 'Line Charts',
+          roles: ['admin']
+        }
       },
       {
         path: '',
@@ -120,8 +121,10 @@ export const PagesRoutes: Routes = [
   {
     path: 'artist/:id/:slug', 
     component: ArtistDetailComponent,
+    canActivate: [AuthGuard],
     data: {
       title: 'Artist Details',
+      roles: ['admin', 'manager', 'user'],
       urls: [
         { title: 'Dashboard', url: '/home' },
         { title: 'Artist Details' },
@@ -129,5 +132,3 @@ export const PagesRoutes: Routes = [
     },
   },
 ];
-
-

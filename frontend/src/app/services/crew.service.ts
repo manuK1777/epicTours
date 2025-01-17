@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Crew } from '../models/crew.model';
 
 @Injectable({
@@ -16,7 +17,15 @@ export class CrewService {
   }
 
   getCrewByArtist(artistId: number): Observable<Crew[]> {
-    return this.http.get<Crew[]>(`${this.apiUrl}/artist/${artistId}`);
+    return this.http.get<any>(`${this.apiUrl}/artist/${artistId}`).pipe(
+      map(response => {
+        if (response.data && Array.isArray(response.data)) {
+          return response.data;
+        }
+        console.warn('Unexpected response format:', response);
+        return [];
+      })
+    );
   }
 
   getCrewMember(id: number): Observable<Crew> {

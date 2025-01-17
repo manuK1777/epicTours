@@ -40,9 +40,9 @@ export class ArtistListComponent implements AfterViewInit {
 
   loadArtists(): void {
     this.artistsService.getArtists().subscribe({
-      next: (response: any) => {
-        console.log('API Response:', response); 
-        this.dataSource.data = response.data; 
+      next: (artists: Artist[]) => {
+        console.log('API Response:', artists); 
+        this.dataSource.data = artists;
         console.log('DataSource:', this.dataSource.data); 
       },
       error: (error) => {
@@ -73,4 +73,3 @@ export class ArtistListComponent implements AfterViewInit {
     return url.startsWith('http://') || url.startsWith('https://') ? url : `http://${url}`;
   }
 }
-

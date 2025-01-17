@@ -1,21 +1,16 @@
 import User from '../models/userModel.js';
-import { validationResult } from 'express-validator';
 import fs from 'fs';
-import path from 'path';
 import { handleResponse, handleError } from '../utils/responseHelper.js';
 
 export const getUser = async (req, res) => {
   try {
-
     const user_data = {
-      "id_user": req.user.id_user,
-      "email": req.user.email,
-      "name": req.user.name,
-      "surname": req.user.surname,
-      "file": req.user.file,
-      "roles": req.user.roles,
-      "created_at": req.user.created_at,
-      "updated_at": req.user.updated_at
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email,
+      role: req.user.role,
+      created_at: req.user.created_at,
+      updated_at: req.user.updated_at
     };
 
     handleResponse(res, 200, 'User Detail', user_data);

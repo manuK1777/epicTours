@@ -14,7 +14,15 @@ const __dirname = path.dirname(__filename);
 
 export const getAllArtists = async (req, res) => {
   try {
+    const where = {};
+    
+    // If user is a manager, only show their artists
+    if (req.user.role === 'manager') {
+      where.user_id = req.user.id;
+    }
+
     const artists = await Artist.findAll({
+      where,
       include: [
         {
           model: Event,
@@ -94,20 +102,20 @@ export const getArtistById = async (req, res) => {
 
 export const createArtist = async (req, res) => {
   try {
-    const { name, email, webPage, contact, phone } = req.body;
-    const file = req.file ? req.file.filename : null;
+    const artistData = {
+      ...req.body,
+      file: req.file ? req.file.filename : null,
+      user_id: req.user.role === 'manager' ? req.user.id : req.body.user_id
+    };
 
-    const newArtist = await Artist.create({
-      name,
-      email,
-      webPage: webPage || null,
-      contact,
-      phone,
-      file,
-    });
-
-    handleResponse(res, 201, 'Artist created successfully', newArtist);
+    const artist = await Artist.create(artistData);
+    handleResponse(res, 201, 'Artist created successfully', artist);
   } catch (error) {
+    // If there was an error and a file was uploaded, delete it
+    if (req.file) {
+      const filePath = path.join(__dirname, '..', 'uploads', req.file.filename);
+      fs.unlinkSync(filePath);
+    }
     handleError(res, error);
   }
 };

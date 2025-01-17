@@ -1,35 +1,59 @@
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
-import RecoveryToken from '../models/recoveryTokenModel.js';
-import sendEmail from '../utils/email/sendEmail.js';
 import { serialize } from 'cookie';
 import { handleResponse, handleError } from '../utils/responseHelper.js';
+import { Op } from 'sequelize';
+import crypto from 'crypto';
 
-const clientURL = process.env.CLIENT_URL;
+const generateTokens = (user) => {
+  const accessToken = jwt.sign(
+    { 
+      id: user.id,
+      email: user.email,
+      role: user.role
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '24h' }
+  );
+
+  const refreshToken = jwt.sign(
+    { 
+      id: user.id,
+      email: user.email,
+      role: user.role
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+
+  return { accessToken, refreshToken };
+};
 
 export const register = async (req, res) => {
   try {
-    const { email, password, name, surname } = req.body;
+    const { username, email, password } = req.body;
 
-    // Check if user already exists
+    // Check if email already exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      return handleResponse(res, 400, 'Ya existe un usuario con el mismo correo electrónico');
+      return handleResponse(res, 400, 'Email already exists');
     }
 
     // Create new user
     const hashedPassword = await bcrypt.hash(password, Number(process.env.BCRYPT_SALT));
-    const newUser = new User({ email, password: hashedPassword, name, surname, status: 1 });
-    await newUser.save();
+    const newUser = await User.create({ 
+      username,
+      email, 
+      password: hashedPassword,
+      role: 'user'  // default role
+    });
 
-    // Generate JWT token
-    const token = serialize('token', jwt.sign(
-      { id: newUser.id_user },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    ), {
+    // Generate tokens
+    const { accessToken, refreshToken } = generateTokens(newUser);
+
+    // Set cookies
+    const tokenCookie = serialize('token', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -37,13 +61,22 @@ export const register = async (req, res) => {
       path: '/',
     });
 
-    res.setHeader('Set-Cookie', token);
+    const refreshTokenCookie = serialize('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/',
+    });
 
-    handleResponse(res, 200, 'Usuario registrado correctamente', {
+    res.setHeader('Set-Cookie', [tokenCookie, refreshTokenCookie]);
+
+    handleResponse(res, 200, 'User registered successfully', {
       user: {
-        name: newUser.name,
-        surname: newUser.surname,
-        email: newUser.email
+        id: newUser.id,
+        username: newUser.username,
+        email: newUser.email,
+        role: newUser.role
       }
     });
   } catch (error) {
@@ -58,21 +91,20 @@ export const login = async (req, res) => {
     // Check if user exists
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return handleResponse(res, 401, 'Usuario no existe');
+      return handleResponse(res, 401, 'Invalid credentials');
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return handleResponse(res, 401, 'Credenciales incorrectas');
+      return handleResponse(res, 401, 'Invalid credentials');
     }
 
-    // Generate JWT token
-    const token = serialize('token', jwt.sign(
-      { id: user.id_user },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    ), {
+    // Generate tokens
+    const { accessToken, refreshToken } = generateTokens(user);
+
+    // Set cookies
+    const tokenCookie = serialize('token', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -80,125 +112,156 @@ export const login = async (req, res) => {
       path: '/',
     });
 
-    res.setHeader('Set-Cookie', token);
-
-    handleResponse(res, 200, 'Login OK', {
-      user: {
-        name: user.name,
-        surname: user.surname,
-        email: user.email
-      }
-    });
-  } catch (error) {
-    handleError(res, error);
-  }
-};
-
-export const requestPasswordReset = async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return handleResponse(res, 404, 'Email does not exist');
-    }
-
-    let resetToken = crypto.randomBytes(32).toString('hex');
-    const hash = await bcrypt.hash(resetToken, Number(process.env.BCRYPT_SALT));
-
-    await RecoveryToken.create({
-      user_id: user.id_user,
-      token: hash,
-      status: 1
-    });
-
-    const link = `${clientURL}/passwordReset?token=${resetToken}&id=${user.id_user}`;
-
-    sendEmail(
-      user.email,
-      'Password Reset Request',
-      { name: user.name, link: link },
-      'email/template/requestResetPassword.handlebars'
-    ).then(() => {
-      handleResponse(res, 200, 'Send Email OK', {
-        token: resetToken,
-        link: link
-      });
-    }, error => {
-      console.error(error);
-      handleResponse(res, 500, 'Send Email KO', { error });
-    });
-  } catch (error) {
-    handleError(res, error);
-  }
-};
-
-export const resetPassword = async (req, res) => {
-  try {
-    const { token, password } = req.body;
-
-    // Check if token exists
-    const tokenRecord = await RecoveryToken.findOne({ where: { token } });
-    if (!tokenRecord) {
-      return handleResponse(res, 404, 'Token Incorrecto');
-    }
-
-    // Find user
-    const user = await User.findOne({ where: { id_user: tokenRecord.user_id } });
-    if (!user) {
-      return handleResponse(res, 404, 'Usuario no encontrado');
-    }
-
-    // Update password
-    user.password = await bcrypt.hash(password, Number(process.env.BCRYPT_SALT));
-    await user.save();
-
-    // Delete used token
-    await RecoveryToken.update(
-      { status: 0 },
-      { where: { user_id: user.id_user } }
-    );
-
-    // Generate new JWT token
-    const token_jwt = serialize('token', jwt.sign(
-      { id: user.id_user },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    ), {
+    const refreshTokenCookie = serialize('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 60 * 24, // 24 hours
+      maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/',
     });
 
-    res.setHeader('Set-Cookie', token_jwt);
+    res.setHeader('Set-Cookie', [tokenCookie, refreshTokenCookie]);
+    // Also send the access token in the Authorization header
+    res.setHeader('Authorization', `Bearer ${accessToken}`);
 
-    handleResponse(res, 200, 'Password reset successful', {
+    handleResponse(res, 200, 'Login successful', {
       user: {
-        name: user.name,
-        surname: user.surname,
-        email: user.email
-      }
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      },
+      token: accessToken
     });
   } catch (error) {
+    handleError(res, error);
+  }
+};
+
+export const refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.cookies;
+
+    if (!refreshToken) {
+      return handleResponse(res, 401, 'Refresh token not found');
+    }
+
+    // Verify refresh token
+    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+    
+    // Get user
+    const user = await User.findByPk(decoded.id);
+    if (!user) {
+      return handleResponse(res, 401, 'User not found');
+    }
+
+    // Generate new tokens
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(user);
+
+    // Set new cookies
+    const tokenCookie = serialize('token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24,
+      path: '/',
+    });
+
+    const refreshTokenCookie = serialize('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24 * 7,
+      path: '/',
+    });
+
+    res.setHeader('Set-Cookie', [tokenCookie, refreshTokenCookie]);
+    // Also send the access token in the Authorization header
+    res.setHeader('Authorization', `Bearer ${accessToken}`);
+
+    handleResponse(res, 200, 'Tokens refreshed successfully', {
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      },
+      token: accessToken
+    });
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError') {
+      return handleResponse(res, 401, 'Invalid refresh token');
+    }
     handleError(res, error);
   }
 };
 
 export const logout = async (req, res) => {
   try {
-    const token = serialize('token', null, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: -1,
-      path: '/',
-    });
-    res.setHeader('Set-Cookie', token);
-
-    handleResponse(res, 200, 'Logged out successfully');
+    res.clearCookie('refreshToken');
+    return handleResponse(res, 200, 'Logged out successfully');
   } catch (error) {
-    handleError(res, error);
+    return handleError(res, error);
+  }
+};
+
+export const requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ where: { email } });
+    
+    if (!user) {
+      return handleResponse(res, 404, 'User not found');
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = await bcrypt.hash(resetToken, 10);
+    
+    // Save reset token and expiry
+    user.resetToken = hashedToken;
+    user.resetTokenExpiry = new Date(Date.now() + 3600000); // Token valid for 1 hour
+    await user.save();
+
+    // In a real application, you would send this token via email
+    // For development, we'll return it in the response
+    return handleResponse(res, 200, 'Password reset token generated', { resetToken });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    
+    // Find user with valid reset token
+    const user = await User.findOne({
+      where: {
+        resetToken: { [Op.ne]: null },
+        resetTokenExpiry: { [Op.gt]: new Date() }
+      }
+    });
+
+    if (!user) {
+      return handleResponse(res, 400, 'Invalid or expired reset token');
+    }
+
+    // Verify token
+    const isValidToken = await bcrypt.compare(token, user.resetToken);
+    if (!isValidToken) {
+      return handleResponse(res, 400, 'Invalid reset token');
+    }
+
+    // Update password and clear reset token
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    user.resetToken = null;
+    user.resetTokenExpiry = null;
+    await user.save();
+
+    return handleResponse(res, 200, 'Password reset successful');
+  } catch (error) {
+    return handleError(res, error);
   }
 };

@@ -1,48 +1,57 @@
-import { body } from 'express-validator';
-
-
-export const loginValidator = [
-    body("email").isEmail().withMessage("Provide valid email"),
-    body("password")
-        .exists()
-        .withMessage("Password is required")
-        .isString()
-        .withMessage("Password should be string")
-        .isLength({ min: 5 })
-        .withMessage("Password should be at least 5 characters")
-]
+import { check } from 'express-validator';
 
 export const registerValidator = [
-    body("email").isEmail(),
-    body("password")
-        .exists()
-        .withMessage("Password is required")
-        .isString()
-        .withMessage("Password should be string")
-        .isLength({ min: 5 })
-        .withMessage("Password should be at least 5 characters")
+    check('username')
+        .notEmpty()
+        .withMessage('Username is required')
+        .isLength({ min: 3, max: 100 })
+        .withMessage('Username must be between 3 and 100 characters'),
+    check('email')
+        .notEmpty()
+        .withMessage('Email is required')
+        .isEmail()
+        .withMessage('Please provide a valid email')
+        .isLength({ max: 100 })
+        .withMessage('Email must not exceed 100 characters'),
+    check('password')
+        .notEmpty()
+        .withMessage('Password is required')
+        .isLength({ min: 5, max: 100 })
+        .withMessage('Password must be between 5 and 100 characters')
         .custom(value => {
-            if (value == '123456') {
-                throw new Error('Este pass es muy basico');
+            if (value === '123456') {
+                throw new Error('This password is too basic');
             }
             return true;
-        }),
-    body("name").isString(),
-    body("surname").isString()
-]
+        })
+];
+
+export const loginValidator = [
+    check('email')
+        .notEmpty()
+        .withMessage('Email is required')
+        .isEmail()
+        .withMessage('Please provide a valid email'),
+    check('password')
+        .notEmpty()
+        .withMessage('Password is required')
+];
 
 export const forgotPasswordValidator = [
-    body("email").isEmail()
+    check('email')
+        .notEmpty()
+        .withMessage('Email is required')
+        .isEmail()
+        .withMessage('Please provide a valid email')
 ];
 
 export const changePasswordValidator = [
-    body("token")
-        .exists(),
-        body("password")
-        .exists()
-        .withMessage("Password is required")
-        .isString()
-        .withMessage("Password should be string")
-        .isLength({ min: 5 })
-        .withMessage("Password should be at least 5 characters")
+    check('token')
+        .notEmpty()
+        .withMessage('Token is required'),
+    check('password')
+        .notEmpty()
+        .withMessage('Password is required')
+        .isLength({ min: 5, max: 100 })
+        .withMessage('Password must be between 5 and 100 characters')
 ];

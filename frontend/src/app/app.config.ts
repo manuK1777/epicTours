@@ -7,6 +7,7 @@ import {
   HttpClient,
   provideHttpClient,
   withInterceptorsFromDi,
+  HTTP_INTERCEPTORS
 } from '@angular/common/http';
 import { routes } from './app.routes';
 import {
@@ -18,6 +19,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideClientHydration } from '@angular/platform-browser';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 // icons
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -47,7 +49,11 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
     provideClientHydration(),
     provideAnimationsAsync(),
-
+    { 
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
     importProvidersFrom(
       FormsModule,
       ReactiveFormsModule,

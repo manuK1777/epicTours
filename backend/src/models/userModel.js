@@ -3,25 +3,18 @@ import { sequelize } from '../db.js';
 
 const User = sequelize.define('User', {
   id: {
-    type: DataTypes.INTEGER(8).UNSIGNED,
+    type: DataTypes.INTEGER.UNSIGNED,
     primaryKey: true,
-    autoIncrement: true,
+    autoIncrement: true
   },
   username: {
     type: DataTypes.STRING(100),
-    allowNull: false,
-    unique: {
-      name: 'username_unique',  // Explicitly name the constraint
-      msg: 'Username must be unique'
-    }
+    allowNull: false
   },
   email: {
     type: DataTypes.STRING(100),
     allowNull: false,
-    unique: {
-      name: 'email_unique',  // Explicitly name the constraint
-      msg: 'Email must be unique'
-    }
+    unique: true
   },
   password: {
     type: DataTypes.STRING(100),
@@ -31,23 +24,28 @@ const User = sequelize.define('User', {
     type: DataTypes.ENUM('admin', 'manager', 'user'),
     allowNull: false,
     defaultValue: 'user'
+  },
+  resetToken: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  resetTokenExpiry: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    allowNull: false
   }
 }, {
+  tableName: 'Users',
   timestamps: true,
-  updatedAt: 'updated_at',
   createdAt: 'created_at',
-  indexes: [
-    {
-      unique: true,
-      fields: ['username'],
-      name: 'username_unique'
-    },
-    {
-      unique: true,
-      fields: ['email'],
-      name: 'email_unique'
-    }
-  ]
+  updatedAt: 'updated_at'
 });
 
 export default User;

@@ -1,11 +1,14 @@
 import { Routes } from '@angular/router';
 import { BlankComponent } from './layouts/blank/blank.component';
 import { FullComponent } from './layouts/full/full.component';
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: FullComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['admin', 'manager', 'user'] },
     children: [
       {
         path: '',

@@ -2,7 +2,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
 
-export const authenticateToken = (allowedRoles) => async (req, res, next) => {
+export const authenticateToken = (allowedRoles = ['admin', 'manager', 'user']) => async (req, res, next) => {
   try {
     const { cookies } = req;
     const accessToken = cookies.token;
@@ -15,7 +15,8 @@ export const authenticateToken = (allowedRoles) => async (req, res, next) => {
     }
 
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
-    const user = await User.findByPk(decodedToken.id_user);
+    const user = await User.findByPk(decodedToken.id);
+    
     if (!user) {
       return res.status(401).json({
         code: -70,
@@ -23,15 +24,22 @@ export const authenticateToken = (allowedRoles) => async (req, res, next) => {
       });
     }
 
-    const hasPermission = user.roles.some(role => allowedRoles.includes(role));
-    if (!hasPermission) {
+    // Check if the user's role is allowed
+    if (!allowedRoles.includes(user.role)) {
       return res.status(403).json({
         code: -10,
-        message: 'You do not have the necessary permissions.'
+        message: 'You do not have the necessary permissions'
       });
     }
 
-    req.user = user;
+    // Add user info to request
+    req.user = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      username: user.username
+    };
+    
     next();
   } catch (error) {
     console.error(error);

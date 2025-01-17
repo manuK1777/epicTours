@@ -41,7 +41,7 @@ export interface Tile {
     MaterialModule,
 ],
   templateUrl: './artist-detail.component.html',
-  styleUrl: './artist-detail.component.scss'
+  styleUrls: ['./artist-detail.component.scss']
 })
 export class ArtistDetailComponent implements OnInit {
   id!: number;
@@ -82,10 +82,11 @@ export class ArtistDetailComponent implements OnInit {
   }
 
   loadArtistDetails(id: number): void {
-    console.log('Raw API Response:', Response);
+    console.log('Loading artist details for ID:', id);
     this.artistsService.getArtistById(id).subscribe({
-      next: (response: any) => {
-        const artist = response.data;
+      next: (artist: any) => {
+        console.log('Artist data:', artist);
+        
         this.id = artist.id;
         this.user_id = artist.user_id;
         this.name = artist.name;
@@ -93,11 +94,12 @@ export class ArtistDetailComponent implements OnInit {
         this.contact = artist.contact;
         this.phone = artist.phone;
         this.webpage = artist.webPage;
+        
         const imageUrl = artist.file
           ? `http://localhost:3000/uploads/${artist.file}` 
           : 'http://localhost:3000/uploads/tortuga.jpg';
 
-
+        // Original tile structure
         this.tiles = [
           { text: this.name, imageUrl, cols: 2, rows: 1, color: '', type: 'image' },
           { text: 'Info', cols: 2, rows: 1, color: '', type: 'info' },
@@ -105,10 +107,16 @@ export class ArtistDetailComponent implements OnInit {
           { text: 'Buttons', cols: 1, rows: 2, color: '', type: 'button'},
           { text: 'Folders: rider docs, promo photos, gig photos, map?', cols: 3, rows: 2, color: '', type: 'text' },
         ];
+        
+        console.log('Updated tiles:', this.tiles);
       },
       error: (error) => {
-        console.error('Failed to load artist details:', error);
-      },
+        console.error('Error loading artist details:', error);
+        this.snackBar.open('Error loading artist details', 'Close', {
+          duration: 3000,
+          panelClass: ['snack-bar-error']
+        });
+      }
     });
   }
 
