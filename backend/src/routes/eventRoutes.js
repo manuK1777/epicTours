@@ -11,8 +11,12 @@ import {
 } from '../controllers/eventController.js';
 import { idValidator } from '../validations/generic.Validation.js';
 import { validate } from '../middlewares/validate.js';
+import { authenticateToken } from '../middlewares/authenticateToken.js';
 
 const router = express.Router();
+
+// Apply authentication to all routes
+router.use(authenticateToken(['admin', 'manager']));
 
 // Get all events
 router.get('/', getAllEvents);

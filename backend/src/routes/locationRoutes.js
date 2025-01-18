@@ -10,8 +10,12 @@ import {
 import { validate } from "../middlewares/validate.js";
 import { locationValidator } from "../validations/location.Validation.js";
 import { idValidator } from "../validations/generic.Validation.js";
+import { authenticateToken } from '../middlewares/authenticateToken.js';
 
 const router = Router();
+
+// Apply authentication to all routes
+router.use(authenticateToken(['admin', 'manager']));
 
 // Routes for managing locations
 router.get("/", getAllLocations);

@@ -7,7 +7,7 @@ import { handleResponse, handleError } from '../utils/responseHelper.js';
 
 export const getAllEvents = async (req, res) => {
   try {
-    const events = await Event.findAll({
+    let queryOptions = {
       include: [
         {
           model: Location,
@@ -17,10 +17,19 @@ export const getAllEvents = async (req, res) => {
         {
           model: Artist,
           through: { attributes: [] }, // Exclude junction table attributes
-          attributes: ['id', 'name']
+          attributes: ['id', 'name', 'user_id']
         }
       ]
-    });
+    };
+
+    // If user is a manager, only show events for their artists
+    if (req.user && req.user.role === 'manager') {
+      queryOptions.include[1].where = {
+        user_id: req.user.id
+      };
+    }
+
+    const events = await Event.findAll(queryOptions);
 
     handleResponse(res, 200, 'Events retrieved successfully', events);
   } catch (error) {

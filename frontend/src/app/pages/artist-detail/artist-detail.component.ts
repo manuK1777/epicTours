@@ -103,7 +103,7 @@ export class ArtistDetailComponent implements OnInit {
         this.tiles = [
           { text: this.name, imageUrl, cols: 2, rows: 1, color: '', type: 'image' },
           { text: 'Info', cols: 2, rows: 1, color: '', type: 'info' },
-          { text: 'Eventos (Table)', cols: 2, rows: 3, color: '', type: 'text' },
+          { text: 'Eventos del artista (Table)', cols: 2, rows: 3, color: '', type: 'text' },
           { text: 'Buttons', cols: 1, rows: 2, color: '', type: 'button'},
           { text: 'Folders: rider docs, promo photos, gig photos, map?', cols: 3, rows: 2, color: '', type: 'text' },
         ];

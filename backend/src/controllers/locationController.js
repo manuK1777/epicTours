@@ -1,14 +1,31 @@
 import Location from '../models/locationModel.js';
 import VenueBooker from '../models/venueBookerModel.js';
+import Artist from '../models/artistModel.js';
 import { handleResponse, handleError } from '../utils/responseHelper.js';
 import { Op } from 'sequelize';
 
 // Get All Locations
 export const getAllLocations = async (req, res) => {
   try {
-    const locations = await Location.findAll({
-      include: { model: VenueBooker }
-    });
+    let queryOptions = {
+      include: [
+        { model: VenueBooker },
+        {
+          model: Artist,
+          through: { attributes: [] }, // Exclude junction table attributes
+          attributes: ['id', 'name', 'user_id']
+        }
+      ]
+    };
+
+    // If user is a manager, only show locations linked to their artists
+    if (req.user && req.user.role === 'manager') {
+      queryOptions.include[1].where = {
+        user_id: req.user.id
+      };
+    }
+
+    const locations = await Location.findAll(queryOptions);
 
     handleResponse(res, 200, 'Locations retrieved successfully', locations);
   } catch (error) {

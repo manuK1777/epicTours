@@ -24,11 +24,11 @@ export const navItems: NavItem[] = [
     iconName: 'solar:calendar-line-duotone',
     route: 'home/calendar',
   },
-  {
-    displayName: 'Charts',
-    iconName: 'solar:chart-bold-duotone',
-    route: 'home/charts',
-  },
+  // {
+  //   displayName: 'Charts',
+  //   iconName: 'solar:chart-bold-duotone',
+  //   route: 'home/charts',
+  // },
 ]; //move down to have the res
 
   // {
