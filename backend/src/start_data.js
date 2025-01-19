@@ -117,7 +117,7 @@ const insertInitialData = async () => {
         name: 'Paul Stanley',
         instrument: 'Guitar/Vocals',
         email: 'paul@kiss.com',
-        phone: '+1 555-0101',
+        phone: '15550101',
         file: 'paul-stanley.jpg',
         artist_id: kiss.id
       },
@@ -125,7 +125,7 @@ const insertInitialData = async () => {
         name: 'Gene Simmons',
         instrument: 'Bass/Vocals',
         email: 'gene@kiss.com',
-        phone: '+1 555-0102',
+        phone: '15550102',
         file: 'gene-simmons.jpg',
         artist_id: kiss.id
       },
@@ -133,7 +133,7 @@ const insertInitialData = async () => {
         name: 'Vince Neil',
         instrument: 'Vocals',
         email: 'vince@motleycrue.com',
-        phone: '+1 555-0201',
+        phone: '15550201',
         file: 'vince-neil.jpg',
         artist_id: motleyCrue.id
       },
@@ -141,7 +141,7 @@ const insertInitialData = async () => {
         name: 'Mick Mars',
         instrument: 'Guitar',
         email: 'mick@motleycrue.com',
-        phone: '+1 555-0202',
+        phone: '15550202',
         file: 'mick-mars.jpg',
         artist_id: motleyCrue.id
       }
@@ -153,7 +153,7 @@ const insertInitialData = async () => {
         name: 'John Doe',
         role: 'Sound Engineer',
         email: 'john@kisstechnical.com',
-        phone: '+1 555-1001',
+        phone: '15551001',
         file: 'john-doe.jpg',
         artist_id: kiss.id
       },
@@ -161,7 +161,7 @@ const insertInitialData = async () => {
         name: 'Jane Smith',
         role: 'Light Technician',
         email: 'jane@kisstechnical.com',
-        phone: '+1 555-1002',
+        phone: '15551002',
         file: 'jane-smith.jpg',
         artist_id: kiss.id
       },
@@ -169,7 +169,7 @@ const insertInitialData = async () => {
         name: 'Mike Johnson',
         role: 'Stage Manager',
         email: 'mike@motleycruetechnical.com',
-        phone: '+1 555-2001',
+        phone: '15552001',
         file: 'mike-johnson.jpg',
         artist_id: motleyCrue.id
       }
