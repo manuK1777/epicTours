@@ -1,59 +1,58 @@
-
-
+<div class="dialog-header">
   <h2 mat-dialog-title>{{ isEditMode ? 'Edit Event' : 'Add Event' }}</h2>
-  <mat-dialog-content>
-    <form [formGroup]="eventForm" class="event-form">
-      <!-- Title -->
-      <mat-form-field appearance="fill">
-        <mat-label>Title</mat-label>
-        <input matInput formControlName="title" />
-        @if (eventForm.get('title')?.hasError('required')) {
-          <mat-error>Title is required</mat-error>
-        }
-      </mat-form-field>
-  
-      <!-- category -->
-      <mat-form-field appearance="fill">
-        <mat-label>category</mat-label>
-        <input matInput formControlName="category"/>
-      </mat-form-field>
-  
-      <!-- Start Time -->
-      <mat-form-field appearance="fill">
-        <mat-label>Start Time</mat-label>
-        <input matInput type="datetime-local" formControlName="start_time" />
-        @if (eventForm.get('start_time')?.hasError('required')) {
-          <mat-error>Start time is required</mat-error>
-        }
-      </mat-form-field>
+  <button mat-icon-button class="close-button" (click)="cancel()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
 
-      <!-- End Time -->
-      <mat-form-field appearance="fill">
-        <mat-label>End Time</mat-label>
-        <input matInput type="datetime-local" formControlName="end_time" />
-        @if (eventForm.get('end_time')?.hasError('required')) {
-          <mat-error>End time is required</mat-error>
-        }
-      </mat-form-field>
-  
-      <!-- Color -->
-      <mat-form-field appearance="fill">
-        <mat-label>Color</mat-label>
-        <input matInput type="color" formControlName="color" />
-      </mat-form-field>
-    </form>
-  </mat-dialog-content>
-  
-  <mat-dialog-actions align="end">
-    <button mat-button (click)="cancel()">Cancel</button>
-    <button mat-raised-button color="primary" [disabled]="eventForm.invalid" (click)="saveEvent()">
-      {{ isEditMode ? 'Update' : 'Add' }}
-    </button>
-    @if (isEditMode) {
-      <button mat-raised-button color="warn" (click)="deleteEvent()">Delete</button>
-    }
-  </mat-dialog-actions>
+<mat-dialog-content>
+  <form [formGroup]="eventForm" class="event-form">
+    <!-- Title -->
+    <mat-form-field appearance="fill">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" />
+      @if (eventForm.get('title')?.hasError('required')) {
+        <mat-error>Title is required</mat-error>
+      }
+    </mat-form-field>
 
- 
+    <!-- category -->
+    <mat-form-field appearance="fill">
+      <mat-label>category</mat-label>
+      <input matInput formControlName="category"/>
+    </mat-form-field>
 
-  
+    <!-- Start Time -->
+    <mat-form-field appearance="fill">
+      <mat-label>Start Time</mat-label>
+      <input matInput type="datetime-local" formControlName="start_time" />
+      @if (eventForm.get('start_time')?.hasError('required')) {
+        <mat-error>Start time is required</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- End Time -->
+    <mat-form-field appearance="fill">
+      <mat-label>End Time</mat-label>
+      <input matInput type="datetime-local" formControlName="end_time" />
+      @if (eventForm.get('end_time')?.hasError('required')) {
+        <mat-error>End time is required</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Color -->
+    <mat-form-field appearance="fill">
+      <mat-label>Color</mat-label>
+      <input matInput type="color" formControlName="color" />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button color="primary" [disabled]="eventForm.invalid" (click)="saveEvent()">
+    {{ isEditMode ? 'Update' : 'Add' }}
+  </button>
+  @if (isEditMode) {
+    <button mat-stroked-button color="warn" (click)="deleteEvent()">Delete</button>
+  }
+</mat-dialog-actions>

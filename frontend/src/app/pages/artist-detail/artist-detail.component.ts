@@ -281,10 +281,10 @@ export class ArtistDetailComponent implements OnInit {
 deleteArtist(): void {
   const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
     data: {
-      title: 'Confirmar eliminación',
-      message: '¿Estás seguro de que desea eliminar a este artista?',
-      confirmText: 'Eliminar',
-      cancelText: 'Cancelar',
+      title: 'Confirm Deletion',
+      message: 'Are you sure you want to delete this artist?',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
     },
   });
 
@@ -293,7 +293,7 @@ deleteArtist(): void {
       this.artistsService.deleteArtist(this.id).subscribe({
         next: () => {
           this.router.navigate(['/home/artist-list']);
-          this.snackBar.open('Artista elmininado!', 'Cerrar', {
+          this.snackBar.open('Artist deleted!', 'Close', {
             duration: 3000, 
             verticalPosition: 'top', 
             horizontalPosition: 'center',
@@ -301,7 +301,7 @@ deleteArtist(): void {
         },
         error: (error) => {
           console.error('Error deleting artist:', error);
-          this.snackBar.open('No se pudo eliminar el artista. Por favor, inténtelo de nuevo.', 'Cerrar', {
+          this.snackBar.open('Failed to delete artist. Please try again.', 'Close', {
             duration: 3000,
             panelClass: ['snack-bar-error'], 
           });

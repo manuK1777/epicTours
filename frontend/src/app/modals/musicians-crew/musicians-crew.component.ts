@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MusicianService } from '../../services/musician.service';
 import { CrewService } from '../../services/crew.service';
 import { Musician } from '../../models/musician.model';
@@ -18,6 +19,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-musicians-crew',
@@ -66,7 +68,8 @@ export class MusiciansCrewComponent implements OnInit {
     private dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public data: { group: boolean, artistId: number },
     private musicianService: MusicianService,
-    private crewService: CrewService
+    private crewService: CrewService,
+    private _snackBar: MatSnackBar
   ) {
     // Set up sorting accessor
     this.dataSource.sortingDataAccessor = (item: Musician | Crew, property: string): string | number => {
@@ -257,13 +260,39 @@ export class MusiciansCrewComponent implements OnInit {
       // Create new item
       if (this.data.group) {
         this.musicianService.createMusician(formData).subscribe({
-          next: (newItem) => this.handleSaveSuccess(newItem),
-          error: (error) => console.error('Error creating musician:', error)
+          next: (newItem) => {
+            this.handleSaveSuccess(newItem);
+            this._snackBar.open('Musician created successfully!', 'Close', {
+              duration: 3000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center',
+            });
+          },
+          error: (error) => {
+            console.error('Error creating musician:', error);
+            this._snackBar.open('Failed to create musician. Please try again.', 'Close', {
+              duration: 3000,
+              panelClass: ['snack-bar-error'],
+            });
+          }
         });
       } else {
         this.crewService.createCrewMember(formData).subscribe({
-          next: (newItem) => this.handleSaveSuccess(newItem),
-          error: (error) => console.error('Error creating crew member:', error)
+          next: (newItem) => {
+            this.handleSaveSuccess(newItem);
+            this._snackBar.open('Crew member created successfully!', 'Close', {
+              duration: 3000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center',
+            });
+          },
+          error: (error) => {
+            console.error('Error creating crew member:', error);
+            this._snackBar.open('Failed to create crew member. Please try again.', 'Close', {
+              duration: 3000,
+              panelClass: ['snack-bar-error'],
+            });
+          }
         });
       }
     }
@@ -289,17 +318,58 @@ export class MusiciansCrewComponent implements OnInit {
   }
 
   deleteItem(id: number) {
-    if (this.data.group) {  // group true = musicians
-      this.musicianService.deleteMusician(id).subscribe({
-        next: () => this.handleDeleteSuccess(id),
-        error: (error) => console.error('Error deleting musician:', error)
-      });
-    } else {  // group false = crew
-      this.crewService.deleteCrewMember(id).subscribe({
-        next: () => this.handleDeleteSuccess(id),
-        error: (error) => console.error('Error deleting crew member:', error)
-      });
-    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: this.data.group ? 'Confirm Musician Deletion' : 'Confirm Crew Member Deletion',
+        message: this.data.group ? 
+          'Are you sure you want to delete this musician?' : 
+          'Are you sure you want to delete this crew member?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        if (this.data.group) {  // group true = musicians
+          this.musicianService.deleteMusician(id).subscribe({
+            next: () => {
+              this.handleDeleteSuccess(id);
+              this._snackBar.open('Musician deleted!', 'Close', {
+                duration: 3000,
+                verticalPosition: 'top',
+                horizontalPosition: 'center',
+              });
+            },
+            error: (error) => {
+              console.error('Error deleting musician:', error);
+              this._snackBar.open('Failed to delete musician. Please try again.', 'Close', {
+                duration: 3000,
+                panelClass: ['snack-bar-error'],
+              });
+            }
+          });
+        } else {  // group false = crew
+          this.crewService.deleteCrewMember(id).subscribe({
+            next: () => {
+              this.handleDeleteSuccess(id);
+              this._snackBar.open('Crew member deleted!', 'Close', {
+                duration: 3000,
+                verticalPosition: 'top',
+                horizontalPosition: 'center',
+              });
+            },
+            error: (error) => {
+              console.error('Error deleting crew member:', error);
+              this._snackBar.open('Failed to delete crew member. Please try again.', 'Close', {
+                duration: 3000,
+                panelClass: ['snack-bar-error'],
+              });
+            }
+          });
+        }
+      }
+    });
   }
 
   handleDeleteSuccess(id: number) {

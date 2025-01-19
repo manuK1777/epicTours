@@ -11,6 +11,7 @@ import { Artist } from '../../models/artist.model';
 import { Router } from '@angular/router';
 import { MaterialModule } from 'src/app/material.module';
 import { CommonModule } from '@angular/common';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-create-artist',
@@ -40,6 +41,7 @@ export class CreateArtistComponent implements OnInit {
     private http: HttpClient,
     private artistsService: ArtistsService,
     private router: Router,
+    private _snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: { artist?: Artist } | null,
   ) {}
 
@@ -152,10 +154,19 @@ export class CreateArtistComponent implements OnInit {
       this.artistsService.editArtist(this.data.artist.id, formData).subscribe({
         next: (response) => {
           this.dialogRef.close({ action: 'edit', artist: response });
+          this._snackBar.open('Artist updated successfully!', 'Close', {
+            duration: 3000,
+            verticalPosition: 'top',
+            horizontalPosition: 'center',
+          });
         },
         error: (error) => {
           console.error('Error updating artist:', error);
           this.errorMessage = error.error?.message || 'Failed to update artist';
+          this._snackBar.open('Failed to update artist. Please try again.', 'Close', {
+            duration: 3000,
+            panelClass: ['snack-bar-error'],
+          });
           this.isSubmitting = false;
         },
         complete: () => {
@@ -168,13 +179,21 @@ export class CreateArtistComponent implements OnInit {
         next: (response) => {
           console.log('Artist created successfully:', response);
           this.dialogRef.close({ action: 'create', artist: response });
+          this._snackBar.open('Artist created successfully!', 'Close', {
+            duration: 3000,
+            verticalPosition: 'top',
+            horizontalPosition: 'center',
+          });
         },
         error: (error) => {
           console.error('Error creating artist:', error);
           this.errorMessage = error.error?.message || 'Failed to create artist';
+          this._snackBar.open('Failed to create artist. Please try again.', 'Close', {
+            duration: 3000,
+            panelClass: ['snack-bar-error'],
+          });
           this.isSubmitting = false;
         },
-      
         complete: () => {
           this.isSubmitting = false;
         }
