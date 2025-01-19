@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { MusicianService } from '../../services/musician.service';
 import { CrewService } from '../../services/crew.service';
@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MaterialModule } from '../../material.module';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -29,6 +30,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
     FormsModule,
     MatTableModule,
     MatPaginatorModule,
+    MatSortModule,
     MatIconModule,
     MatInputModule,
     MatFormFieldModule
@@ -55,6 +57,8 @@ export class MusiciansCrewComponent implements OnInit {
   displayedColumns: string[] = ['name', 'role', 'email', 'phone', 'actions'];
   dataSource = new MatTableDataSource<Musician | Crew>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild('input') input!: ElementRef;
   showActionsForId: string | null = null;
 
   constructor(
@@ -63,7 +67,18 @@ export class MusiciansCrewComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: { group: boolean, artistId: number },
     private musicianService: MusicianService,
     private crewService: CrewService
-  ) {}
+  ) {
+    // Set up sorting accessor
+    this.dataSource.sortingDataAccessor = (item: Musician | Crew, property: string): string | number => {
+      switch(property) {
+        case 'name': return item.name.toLowerCase();
+        case 'email': return item.email?.toLowerCase() || '';
+        case 'phone': return item.phone || '';
+        case 'role': return this.getItemValue(item).toLowerCase();
+        default: return '';
+      }
+    };
+  }
 
   ngOnInit() {
     console.log('MusiciansCrewComponent initialized with data:', this.data);
@@ -78,11 +93,28 @@ export class MusiciansCrewComponent implements OnInit {
           console.log('Received musicians data:', response);
           const musicians = response.data || response;
           this.items = musicians;
-          this.dataSource.data = this.items;
-          console.log('DataSource updated:', this.dataSource.data);
+          this.dataSource = new MatTableDataSource(this.items);
+          
+          // Reinitialize sorting and filtering
+          if (this.sort) {
+            this.dataSource.sort = this.sort;
+            this.applyCurrentSort();
+          }
+          
           if (this.paginator) {
             this.dataSource.paginator = this.paginator;
           }
+
+          // Reapply sorting accessor
+          this.dataSource.sortingDataAccessor = (item: Musician | Crew, property: string): string | number => {
+            switch(property) {
+              case 'name': return item.name.toLowerCase();
+              case 'email': return item.email?.toLowerCase() || '';
+              case 'phone': return item.phone || '';
+              case 'role': return this.getItemValue(item).toLowerCase();
+              default: return '';
+            }
+          };
         },
         error: (error) => {
           console.error('Error loading musicians:', error);
@@ -95,11 +127,28 @@ export class MusiciansCrewComponent implements OnInit {
           console.log('Received crew data:', response);
           const crew = response.data || response;
           this.items = crew;
-          this.dataSource.data = this.items;
-          console.log('DataSource updated:', this.dataSource.data);
+          this.dataSource = new MatTableDataSource(this.items);
+          
+          // Reinitialize sorting and filtering
+          if (this.sort) {
+            this.dataSource.sort = this.sort;
+            this.applyCurrentSort();
+          }
+          
           if (this.paginator) {
             this.dataSource.paginator = this.paginator;
           }
+
+          // Reapply sorting accessor
+          this.dataSource.sortingDataAccessor = (item: Musician | Crew, property: string): string | number => {
+            switch(property) {
+              case 'name': return item.name.toLowerCase();
+              case 'email': return item.email?.toLowerCase() || '';
+              case 'phone': return item.phone || '';
+              case 'role': return this.getItemValue(item).toLowerCase();
+              default: return '';
+            }
+          };
         },
         error: (error) => {
           console.error('Error loading crew members:', error);
@@ -108,8 +157,19 @@ export class MusiciansCrewComponent implements OnInit {
     }
   }
 
+  private applyCurrentSort() {
+    if (this.sort && this.sort.active) {
+      const currentSort = this.sort.active;
+      const currentDirection = this.sort.direction || 'asc';
+      this.sort.sort({ id: currentSort, start: currentDirection, disableClear: false });
+    }
+  }
+
   ngAfterViewInit() {
-    if (this.dataSource) {
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
+    }
+    if (this.paginator) {
       this.dataSource.paginator = this.paginator;
     }
   }
@@ -130,8 +190,8 @@ export class MusiciansCrewComponent implements OnInit {
 
   getItemValue(item: Musician | Crew): string {
     return this.data.group 
-        ? ((item as Crew).role || '')
-        : ((item as Musician).instrument || '');
+        ? ((item as Musician).instrument || '')
+        : ((item as Crew).role || '');
   }
 
   onFileSelected(event: any) {
@@ -214,6 +274,17 @@ export class MusiciansCrewComponent implements OnInit {
     this.editingId = undefined;
     this.selectedFile = undefined;
     
+    // Clear the search filter
+    this.dataSource.filter = '';
+    if (this.input) {
+      this.input.nativeElement.value = '';
+    }
+    
+    // Reset paginator to first page
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+    
     this.loadItems();
   }
 
@@ -260,5 +331,14 @@ export class MusiciansCrewComponent implements OnInit {
     setTimeout(() => {
       window.scrollTo({ top: scrollPosition });
     }, 50);
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 }

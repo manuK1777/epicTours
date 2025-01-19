@@ -184,6 +184,7 @@ export class CreateArtistComponent implements OnInit {
     this.markFormGroupTouched(this.artistForm);
   }
   }
+  
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.values(formGroup.controls).forEach((control) => {
       control.markAsTouched();
