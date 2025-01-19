@@ -140,7 +140,7 @@ When you start the backend, the following sample data will be automatically crea
   - Role: manager
 
   - Username: manager1
-  - Email: manager1epictours.com
+  - Email: manager1@epictours.com
   - Password: manager123
   - Role: manager
 
