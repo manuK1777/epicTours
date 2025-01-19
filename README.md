@@ -132,17 +132,23 @@ Before starting, ensure you have the following installed:
 When you start the backend, the following sample data will be automatically created:
 
 ### Users
+
+- Manager Users
+  - Username: manager0
+  - Email: manager0@epictours.com
+  - Password: manager123
+  - Role: manager
+
+  - Username: manager1
+  - Email: manager1epictours.com
+  - Password: manager123
+  - Role: manager
+
 - Admin User
   - Username: admin
   - Email: admin@epictours.com
   - Password: admin123
   - Role: admin
-
-- Manager User
-  - Username: manager1
-  - Email: manager1@epictours.com
-  - Password: manager123
-  - Role: manager
 
 ### Sample Data
 - Artists: Kiss, Motley Crüe, Twisted Sister (with their musicians and crew members)
@@ -152,7 +158,7 @@ When you start the backend, the following sample data will be automatically crea
 
 ---
 
-### User credential for testing:
+### User credentials for testing:
 
 Manager can see and edit their own artists: create, edit and delete information, events, venues, musicians and crew members related to them.
 
