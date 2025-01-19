@@ -32,12 +32,18 @@ const generateTokens = (user) => {
 
 export const register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
 
     // Check if email already exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return handleResponse(res, 400, 'Email already exists');
+    }
+
+    // Validate role
+    const allowedRoles = ['admin', 'manager', 'user'];
+    if (!allowedRoles.includes(role)) {
+      return handleResponse(res, 400, 'Invalid role specified');
     }
 
     // Create new user
@@ -46,7 +52,7 @@ export const register = async (req, res) => {
       username,
       email, 
       password: hashedPassword,
-      role: 'user'  // default role
+      role
     });
 
     // Generate tokens
@@ -89,7 +95,10 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     // Check if user exists
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ 
+      where: { email },
+      attributes: ['id', 'username', 'email', 'password', 'role'] // Explicitly include role
+    });
     if (!user) {
       return handleResponse(res, 401, 'Invalid credentials');
     }
@@ -100,7 +109,7 @@ export const login = async (req, res) => {
       return handleResponse(res, 401, 'Invalid credentials');
     }
 
-    // Generate tokens
+    // Generate tokens with role included
     const { accessToken, refreshToken } = generateTokens(user);
 
     // Set cookies
@@ -124,12 +133,13 @@ export const login = async (req, res) => {
     // Also send the access token in the Authorization header
     res.setHeader('Authorization', `Bearer ${accessToken}`);
 
+    // Include role in response
     handleResponse(res, 200, 'Login successful', {
       user: {
         id: user.id,
         username: user.username,
         email: user.email,
-        role: user.role
+        role: user.role // Ensure role is included
       },
       token: accessToken
     });

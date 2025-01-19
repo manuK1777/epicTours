@@ -36,17 +36,30 @@ export class AuthService {
     }
   }
 
-  register(username: string, email: string, password: string): Observable<HttpResponse<AuthResponse>> {
+  register(username: string, email: string, password: string, role: string): Observable<any> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, {
       username,
       email,
-      password
+      password,
+      role
     }, { 
       observe: 'response',
       withCredentials: true 
     }).pipe(
-      tap(response => this.handleAuthSuccess(response)),
-      catchError(this.handleError)
+      tap(response => {
+        console.log('Register response:', response.body);
+        if (response.body && 'data' in response.body && response.body.data?.token) {
+          console.log('Token found in response body');
+        } else {
+          console.log('No token in response body');
+        }
+        this.handleAuthSuccess(response);
+      }),
+      map(response => response.body),
+      catchError(error => {
+        console.log('Registration error:', error);
+        return throwError(() => error);
+      })
     );
   }
 
@@ -140,21 +153,23 @@ export class AuthService {
 
   private handleAuthSuccess(response: HttpResponse<AuthResponse>): void {
     if (!response.body) {
-      console.log('No response body found');
-      return;
+      throw new Error('Response body is null');
     }
 
-    let userData: AuthResponseData;
-    
-    if ('data' in response.body && response.body.data) {
+    let userData: AuthResponseData | null = null;
+
+    if ('data' in response.body) {
       // Handle wrapped response
-      userData = response.body.data;
+      userData = response.body.data as AuthResponseData;
     } else if ('user' in response.body && 'token' in response.body) {
       // Handle direct response
       userData = response.body as AuthResponseData;
     } else {
-      console.log('Invalid response format');
-      return;
+      throw new Error('Invalid response format');
+    }
+
+    if (!userData) {
+      throw new Error('User data is null');
     }
 
     const { user, token } = userData;
@@ -170,9 +185,15 @@ export class AuthService {
     }
     
     if (user) {
-      localStorage.setItem('currentUser', JSON.stringify(user));
-      this.currentUserSubject.next(user);
+      // Ensure role is included when storing user data
+      const userWithRole = {
+        ...user,
+        role: user.role || 'user' // Fallback to 'user' if role is not present
+      };
+      localStorage.setItem('currentUser', JSON.stringify(userWithRole));
+      this.currentUserSubject.next(userWithRole);
       this.startRefreshTokenTimer();
+      console.log('Stored user with role:', userWithRole);
     } else {
       console.log('No user found in response');
     }

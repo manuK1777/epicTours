@@ -10,13 +10,12 @@
           <div class="col-lg-7">
             <h2 class="text-white f-s-40 m-b-16">
               Welcome to <br />
-              MaterialM
+              EpicTours
             </h2>
-            <span class="op-75 f-s-16 text-white d-block m-b-16 lh-base">MaterialM helps developers to build organized and well
-              <br />
-              coded dashboards full of beautiful and rich modules.
+            <span class="op-75 f-s-16 text-white d-block m-b-16 lh-base">EpicTours simplifies artist and event management.<br><br>
+              Manage everything from schedules to artists staff, mailing, all in one platform.
             </span>
-            <button mat-flat-button color="primary">Learn More</button>
+            <!-- <button mat-flat-button color="primary">Learn More</button> -->
           </div>
         </div>
       </div>
@@ -25,13 +24,13 @@
       <div class="d-flex align-items-start align-items-lg-center justify-content-center h-100">
         <div class="row p-20 w-100 h-100 align-items-center">
           <div class="col-lg-9 max-width-form">
-            <a [routerLink]="['/']">
-              <img src="./assets/images/logos/logo-icon.svg" class="align-middle m-2" alt="logo" />
-            </a>
+            <!-- <a [routerLink]="['/']">
+              <img src="./assets/images/logos/light-logo.svg" class="align-middle m-2" alt="logo" />
+            </a> -->
             <h4 class="f-w-700 f-s-24 m-t-24 m-b-8">Sign Up</h4>
             <span class="f-s-14 d-block mat-body-1 m-t-8">Your Admin Dashboard</span>
 
-            <div class="row m-t-24">
+            <!-- <div class="row m-t-24">
               <div class="col-6">
                 <button mat-stroked-button class="w-100">
                   <div class="d-flex align-items-center">
@@ -50,60 +49,63 @@
               </div>
             </div>
 
-            <div class="or-border m-t-30 f-s-16 f-w-500">or Sign Up with</div>
+            <div class="or-border m-t-30 f-s-16 f-w-500">or Sign Up with</div> -->
 
             <div class="register-box">
-              <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+              <form class="m-t-30" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
                 <!-- Username -->
-                <mat-form-field class="w-100" appearance="outline">
-                  <mat-label>Username</mat-label>
+                <mat-label class="f-s-14 f-w-600 m-b-12 d-block">Username</mat-label>
+                <mat-form-field appearance="outline" class="w-100" color="primary">
                   <input matInput formControlName="username" placeholder="Enter your username">
-                  <mat-error *ngIf="registerForm.get('username')?.hasError('required')">
-                    Username is required
-                  </mat-error>
-                  <mat-error *ngIf="registerForm.get('username')?.hasError('minlength')">
-                    Username must be at least 3 characters
+                  <mat-error *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.invalid">
+                    <div *ngIf="registerForm.get('username')?.hasError('required')">Username is required</div>
+                    <div *ngIf="registerForm.get('username')?.hasError('minlength')">Username must be at least 3 characters</div>
                   </mat-error>
                 </mat-form-field>
 
                 <!-- Email -->
                 <mat-form-field class="w-100" appearance="outline">
                   <mat-label>Email</mat-label>
-                  <input matInput formControlName="email" placeholder="Enter your email" type="email">
-                  <mat-error *ngIf="registerForm.get('email')?.hasError('required')">
-                    Email is required
-                  </mat-error>
-                  <mat-error *ngIf="registerForm.get('email')?.hasError('email')">
-                    Please enter a valid email
-                  </mat-error>
+                  <input matInput formControlName="email" type="email" />
+                  <mat-error *ngIf="registerForm.get('email')?.hasError('required')">Email is required</mat-error>
+                  <mat-error *ngIf="registerForm.get('email')?.hasError('email')">Please enter a valid email</mat-error>
+                </mat-form-field>
+
+                <!-- Role -->
+                <mat-label class="f-s-14 f-w-600 m-b-12 d-block">Role</mat-label>
+                <mat-form-field class="w-100" appearance="outline">
+                  <mat-label>Select Role</mat-label>
+                  <mat-select formControlName="role">
+                    <mat-option value="manager">Manager</mat-option>
+                    <mat-option value="admin">Admin</mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="registerForm.get('role')?.hasError('required')">Role is required</mat-error>
                 </mat-form-field>
 
                 <!-- Password -->
-                <mat-form-field class="w-100" appearance="outline">
-                  <mat-label>Password</mat-label>
+                <mat-label class="f-s-14 f-w-600 m-b-12 d-block">Password</mat-label>
+                <mat-form-field appearance="outline" class="w-100" color="primary">
                   <input matInput formControlName="password" type="password" placeholder="Enter your password">
-                  <mat-error *ngIf="registerForm.get('password')?.hasError('required')">
-                    Password is required
-                  </mat-error>
-                  <mat-error *ngIf="registerForm.get('password')?.hasError('minlength')">
-                    Password must be at least 5 characters
+                  <mat-error *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
+                    <div *ngIf="registerForm.get('password')?.hasError('required')">Password is required</div>
+                    <div *ngIf="registerForm.get('password')?.hasError('minlength')">Password must be at least 5 characters</div>
                   </mat-error>
                 </mat-form-field>
 
                 <!-- Error Message -->
-                <div *ngIf="error" class="alert alert-danger">
+                <div class="alert alert-danger m-t-16" *ngIf="error">
                   {{ error }}
                 </div>
 
                 <!-- Submit Button -->
-                <button mat-raised-button color="primary" type="submit" [class.loading]="loading">
-                  <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
-                  <span *ngIf="!loading">Register</span>
+                <button mat-flat-button color="primary" class="w-100" type="submit">
+                  <mat-spinner diameter="20" class="m-r-8" *ngIf="loading"></mat-spinner>
+                  Sign Up
                 </button>
 
                 <!-- Login Link -->
-                <div class="mt-3">
-                  Already have an account? <a routerLink="/login">Login here</a>
+                <div class="d-block f-w-500 d-block m-t-24">
+                  Already have an account? <a routerLink="/authentication/login">Login here</a>
                 </div>
               </form>
             </div>

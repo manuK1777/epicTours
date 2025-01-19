@@ -16,10 +16,7 @@ export class AppSideRegisterComponent implements OnInit {
   loading: boolean = false;
 
   registerForm = new FormGroup({
-    username: new FormControl({
-      value: '',
-      disabled: true
-    }, {
+    username: new FormControl('', {
       validators: [
         Validators.required,
         Validators.minLength(3),
@@ -27,10 +24,7 @@ export class AppSideRegisterComponent implements OnInit {
       ],
       nonNullable: true
     }),
-    email: new FormControl({
-      value: '',
-      disabled: true
-    }, {
+    email: new FormControl('', {
       validators: [
         Validators.required,
         Validators.email,
@@ -38,10 +32,13 @@ export class AppSideRegisterComponent implements OnInit {
       ],
       nonNullable: true
     }),
-    password: new FormControl({
-      value: '',
-      disabled: true
-    }, {
+    role: new FormControl('', {
+      validators: [
+        Validators.required
+      ],
+      nonNullable: true
+    }),
+    password: new FormControl('', {
       validators: [
         Validators.required,
         Validators.minLength(6),
@@ -64,38 +61,26 @@ export class AppSideRegisterComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.registerForm.valid && !this.loading) {
+    if (this.registerForm.valid) {
       this.loading = true;
       this.error = '';
-      
-      // Disable the form during submission
-      Object.keys(this.registerForm.controls).forEach(key => {
-        this.disableControl(key);
-      });
-      
+
       const formValue = this.registerForm.getRawValue();
-      
+      console.log('Value registered in side-register component: ', formValue.role);
+
       this.authService.register(
         formValue.username,
         formValue.email,
-        formValue.password
+        formValue.password,
+        formValue.role
       ).subscribe({
         next: () => {
           this.loading = false;
-          this.router.navigate(['/home']);
-          // Enable the form after submission
-          Object.keys(this.registerForm.controls).forEach(key => {
-            this.enableControl(key);
-          });
+          this.router.navigate(['/authentication/login']);
         },
         error: (error) => {
           this.loading = false;
-          this.error = 'Registration failed';
-          // Enable the form if there's an error
-          Object.keys(this.registerForm.controls).forEach(key => {
-            this.enableControl(key);
-          });
-          this.error = error.message;
+          this.error = error;
         }
       });
     }
