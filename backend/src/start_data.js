@@ -7,16 +7,22 @@ const insertInitialData = async () => {
     // 1. Create Users
     const users = await User.bulkCreate([
       {
-        username: 'admin',
-        email: 'admin@epictours.com',
-        password: await bcrypt.hash('admin123', 10),
-        role: 'admin',
+        username: 'manager0',
+        email: 'manager0@epictours.com',
+        password: await bcrypt.hash('manager123', 10),
+        role: 'manager',
       },
       {
         username: 'manager1',
         email: 'manager1@epictours.com',
         password: await bcrypt.hash('manager123', 10),
         role: 'manager',
+      },
+      {
+        username: 'admin',
+        email: 'admin@epictours.com',
+        password: await bcrypt.hash('admin123', 10),
+        role: 'admin',
       }
     ], { returning: true });
 
@@ -27,7 +33,7 @@ const insertInitialData = async () => {
         contact: 'Gene Simmons',
         phone: '1234567890',
         webPage: 'https://kissonline.com',
-        file: 'file-1733425970024.jpg',
+        file: '1737143738968.jpg',
         user_id: users[0].id
     });
 

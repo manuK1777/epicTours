@@ -1,6 +1,19 @@
 # epicTours
 
-EpicTours is a full-stack web exercise built with Angular 18 (frontend), Node.js (backend), Sequelize, and MySQL. The application allows users to manage events and locations with a calendar interface a map, and displays the data also in charts.
+EpicTours is a full-stack web application designed to streamline the management of music tours and events. Built with Angular 18 (frontend), Node.js (backend), Sequelize, and MySQL, it empowers users to efficiently organize and manage artists, musicians, crew members, events, venues, and contacts.
+
+Key features include:
+
+   - Artist Management: Link artists with musicians, crew members, and events.
+   - Event Coordination: Plan events with single or multiple artists across 
+     various venues, including support for festivals with multiple locations.
+   - Venue Database: Maintain a comprehensive list of venues with detailed 
+     contact information for seamless communication.
+   - Contact Management: Create and manage contacts for artists, musicians, crew 
+     members, and venue bookers.
+   
+EpicTours is tailored to the needs of tour managers, artists, and event organizers, providing an intuitive and centralized platform to simplify complex tour planning​
+
 
 ## Table of Contents
 1. [Requirements](#requirements)
@@ -28,7 +41,7 @@ Before starting, ensure you have the following installed:
 
 ## Clone the repository
    ```bash
-   git clone https://github.com/manuK1777/S8-inprocode-v3.git
+   git clone https://github.com/manuK1777/epicTours.git
    ```
 
 ### 1. Database Setup
@@ -46,29 +59,24 @@ Before starting, ensure you have the following installed:
      CREATE DATABASE epictours;
      ```
 
-3. **Import the Schema (Optional)**
-   - If you want to manually set up the database structure, you can import the schema file:
-     ```bash
-     mysql -u root -p epictours < backend/epictours_schema.sql
-     ```
 
 ---
+
 
 ### 2. Backend Setup
 
 1. **Navigate to the Backend Directory**
-   ```bash
-   cd backend
-   ```
+   
+
 2. **Install Dependencies**
    ```bash
    npm install
    ```  
+   
 3. **Configure Environment Variables**   
+  
    - Create a .env file:
-   ```bash
-    touch .env
-   ```  
+
    - Edit the .env file with your MySQL credentials and other configurations:
    ```bash
    HOST_NAME=localhost
@@ -89,13 +97,16 @@ Before starting, ensure you have the following installed:
    ```
    - The backend will be available at http://localhost:3000.
 
+
+---
+
+
+
 ### 3. Frontend Setup     
 
 1. **Navigate to the Frontend Directory**
-   ```bash
-   cd ..
-   cd frontend
-   ```
+   
+  
 2. **Install Dependencies**   
    ```bash
    npm install
@@ -111,28 +122,50 @@ Before starting, ensure you have the following installed:
 
 4. **Test the Application**  
    - Open http://localhost:4200 in your browser.
-   
+
+
 ---
 
-## Optional: Manual Database Setup
 
-If you prefer to manually set up the database schema and skip Sequelize's automatic creation:
+## Initial Data
 
-1. **Import the Schema**
-   ```bash
-   mysql -u root -p epictours < backend/epictours_schema.sql
-   ```
+When you start the backend, the following sample data will be automatically created:
 
-2. **Seed the Data**   
-   - Start the backend to insert initial data:
-   ```bash
-   npm start
-   ```
+### Users
+- Admin User
+  - Username: admin
+  - Email: admin@epictours.com
+  - Password: admin123
+  - Role: admin
 
-## Troubleshooting
+- Manager User
+  - Username: manager1
+  - Email: manager1@epictours.com
+  - Password: manager123
+  - Role: manager
 
-   - Error: Access Denied for User
-     Check your .env file for correct database credentials.
+### Sample Data
+- Artists: Kiss, Motley Crüe, Twisted Sister (with their musicians and crew members)
+- Venues: Sunset Jazz Club, Palau de la Música Catalana, Nova Jazz Cava, Jamboree
+- Events: Sample concerts and performances
+- Venue Bookers: Contact persons for each venue
 
-   - Angular Fails to Connect to Backend
-     Ensure the apiUrl in environment.ts matches the backend URL.   
+---
+
+### User credential for testing:
+
+Manager can see and edit their own artists: create, edit and delete information, events, venues, musicians and crew members related to them.
+
+Admin users can see and edit all artists, events, venues, musicians and crew members.
+
+- Username: manager0
+- Email: manager0@epictours.com
+- Password: manager123
+
+- Username: manager1
+- Email: manager1@epictours.com
+- Password: manager123
+
+- Username: admin
+- Email: admin@epictours.com
+- Password: admin123
