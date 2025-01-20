@@ -9,46 +9,50 @@
   <!-- Add/Edit Form -->
    @if (editingId !== undefined || editedItem !== null) {
   <div class="form-container">
-    <div class="form-grid">
-      <mat-form-field>
-        <mat-label>Name</mat-label>
-        <input matInput [(ngModel)]="editedItem.name" placeholder="Enter name">
-      </mat-form-field>
+    <form [formGroup]="itemForm" (ngSubmit)="saveItem()">
+      <div class="form-grid">
+        <mat-form-field>
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="name" placeholder="Enter name">
+          <mat-error>{{getErrorMessage('name')}}</mat-error>
+        </mat-form-field>
 
-      <mat-form-field>
-        <mat-label>{{ data.group ? 'Instrument' : 'Role' }}</mat-label>
-        <input matInput [ngModel]="data.group ? editedItem?.instrument : editedItem?.role" 
-               (ngModelChange)="data.group ? (editedItem.instrument = $event) : (editedItem.role = $event)"
-               [placeholder]="'Enter ' + (data.group ? 'instrument' : 'role')">
-      </mat-form-field>
+        <mat-form-field>
+          <mat-label>{{ data.group ? 'Instrument' : 'Role' }}</mat-label>
+          <input matInput formControlName="role" [placeholder]="'Enter ' + (data.group ? 'instrument' : 'role')">
+          <mat-error>{{getErrorMessage('role')}}</mat-error>
+        </mat-form-field>
 
-      <mat-form-field>
-        <mat-label>Email</mat-label>
-        <input matInput [(ngModel)]="editedItem.email" placeholder="Enter email">
-      </mat-form-field>
+        <mat-form-field>
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" placeholder="Enter email">
+          <mat-error>{{getErrorMessage('email')}}</mat-error>
+        </mat-form-field>
 
-      <mat-form-field>
-        <mat-label>Phone</mat-label>
-        <input matInput [(ngModel)]="editedItem.phone" placeholder="Enter phone">
-      </mat-form-field>
-    </div>
+        <mat-form-field>
+          <mat-label>Phone</mat-label>
+          <input matInput formControlName="phone" placeholder="Enter phone">
+          <mat-error>{{getErrorMessage('phone')}}</mat-error>
+        </mat-form-field>
+      </div>
 
-    <div class="file-input">
-      <input type="file" (change)="onFileSelected($event)" #fileInput>
-      <button mat-button color="primary" (click)="fileInput.click()">
-        Choose File
-      </button>
-      @if (selectedFile) {
-      <span>{{ selectedFile.name }}</span>
-      }
-    </div>
+      <div class="file-input">
+        <input type="file" (change)="onFileSelected($event)" #fileInput>
+        <button mat-button color="primary" type="button" (click)="fileInput.click()">
+          Choose File
+        </button>
+        @if (selectedFile) {
+        <span>{{ selectedFile.name }}</span>
+        }
+      </div>
 
-    <div class="button-container">
-      <button mat-raised-button color="primary" (click)="saveItem()">
-        {{ editingId ? 'Update' : 'Add' }}
-      </button>
-      <button mat-button (click)="cancelEdit()">Cancel</button>
-    </div>
+      <div class="button-container">
+        <button mat-raised-button color="primary" type="submit" [disabled]="!itemForm.valid">
+          {{ editingId ? 'Update' : 'Add' }}
+        </button>
+        <button mat-button type="button" (click)="cancelEdit()">Cancel</button>
+      </div>
+    </form>
   </div>
 }
   <!-- Table view (only shown when not editing) -->

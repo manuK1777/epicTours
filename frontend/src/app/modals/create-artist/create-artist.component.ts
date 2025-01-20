@@ -122,7 +122,6 @@ export class CreateArtistComponent implements OnInit {
     }
   }
   
-  
   onSave(): void {
     if (this.artistForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;

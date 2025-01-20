@@ -12,7 +12,7 @@ import { MaterialModule } from '../../material.module';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,7 +29,7 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
     MatDialogModule, 
     MatButtonModule, 
     MaterialModule, 
-    FormsModule,
+    ReactiveFormsModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -62,6 +62,7 @@ export class MusiciansCrewComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild('input') input!: ElementRef;
   showActionsForId: string | null = null;
+  itemForm!: FormGroup;
 
   constructor(
     private dialogRef: MatDialogRef<MusiciansCrewComponent>,
@@ -69,7 +70,8 @@ export class MusiciansCrewComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: { group: boolean, artistId: number },
     private musicianService: MusicianService,
     private crewService: CrewService,
-    private _snackBar: MatSnackBar
+    private _snackBar: MatSnackBar,
+    private fb: FormBuilder
   ) {
     // Set up sorting accessor
     this.dataSource.sortingDataAccessor = (item: Musician | Crew, property: string): string | number => {
@@ -86,6 +88,33 @@ export class MusiciansCrewComponent implements OnInit {
   ngOnInit() {
     console.log('MusiciansCrewComponent initialized with data:', this.data);
     this.loadItems();
+    this.initForm();
+  }
+
+  initForm(item?: any) {
+    this.itemForm = this.fb.group({
+      name: [item?.name || '', [Validators.required, Validators.minLength(2)]],
+      role: [item?.role || item?.instrument || ''],
+      email: [item?.email || '', [Validators.email]],
+      phone: [item?.phone || '', [Validators.pattern(/^[0-9]{7,15}$/)]]
+    });
+  }
+
+  getErrorMessage(controlName: string): string {
+    const control = this.itemForm.get(controlName);
+    if (control?.hasError('required')) {
+      return `${controlName.charAt(0).toUpperCase() + controlName.slice(1)} is required`;
+    }
+    if (control?.hasError('minlength')) {
+      return `${controlName.charAt(0).toUpperCase() + controlName.slice(1)} must be at least ${control.errors?.['minlength'].requiredLength} characters`;
+    }
+    if (control?.hasError('email')) {
+      return 'Please enter a valid email address';
+    }
+    if (control?.hasError('pattern')) {
+      return 'Please enter a valid phone number';
+    }
+    return '';
   }
 
   loadItems() {
@@ -204,15 +233,17 @@ export class MusiciansCrewComponent implements OnInit {
     }
   }
 
-  startEditing(item: Partial<Musician | Crew>) {
+  startEditing(item: any = {}) {
+    this.editingId = item.id;
     this.editedItem = { ...item };
-    this.editingId = undefined;
+    this.initForm(item);
   }
 
   editItem(item: Musician | Crew) {
-    this.editedItem = { ...item };
     this.editingId = item.id;
+    this.editedItem = { ...item };
     this.showActionsForId = null; // Hide the actions menu
+    this.initForm(item);
   }
 
   cancelEdit() {
@@ -222,78 +253,81 @@ export class MusiciansCrewComponent implements OnInit {
   }
 
   saveItem() {
-    const formData = new FormData();
-    
-    // Always add the artist_id from the dialog data
-    formData.append('artist_id', this.data.artistId.toString());
+    if (this.itemForm.valid) {
+      const formData = new FormData();
+      
+      // Always add the artist_id from the dialog data
+      formData.append('artist_id', this.data.artistId.toString());
 
-    // Add name (required)
-    formData.append('name', this.editedItem.name || '');
-
-    // Add optional fields with empty strings if undefined
-    if (this.data.group) {
-      formData.append('instrument', this.editedItem.instrument || '');
-    } else {
-      formData.append('role', this.editedItem.role || '');
-    }
-    formData.append('email', this.editedItem.email || '');
-    formData.append('phone', this.editedItem.phone || '');
-    
-    if (this.selectedFile) {
-      formData.append('file', this.selectedFile);
-    }
-
-    if (this.editingId) {
-      // Update existing item
+      // Add form values
+      const formValues = this.itemForm.value;
+      formData.append('name', formValues.name);
+      
       if (this.data.group) {
-        this.musicianService.updateMusician(this.editingId, formData).subscribe({
-          next: (updatedItem) => this.handleSaveSuccess(updatedItem),
-          error: (error) => console.error('Error updating musician:', error)
-        });
+        formData.append('instrument', formValues.role);
       } else {
-        this.crewService.updateCrewMember(this.editingId, formData).subscribe({
-          next: (updatedItem) => this.handleSaveSuccess(updatedItem),
-          error: (error) => console.error('Error updating crew member:', error)
-        });
+        formData.append('role', formValues.role);
       }
-    } else {
-      // Create new item
-      if (this.data.group) {
-        this.musicianService.createMusician(formData).subscribe({
-          next: (newItem) => {
-            this.handleSaveSuccess(newItem);
-            this._snackBar.open('Musician created successfully!', 'Close', {
-              duration: 3000,
-              verticalPosition: 'top',
-              horizontalPosition: 'center',
-            });
-          },
-          error: (error) => {
-            console.error('Error creating musician:', error);
-            this._snackBar.open('Failed to create musician. Please try again.', 'Close', {
-              duration: 3000,
-              panelClass: ['snack-bar-error'],
-            });
-          }
-        });
+      
+      formData.append('email', formValues.email);
+      formData.append('phone', formValues.phone || '');
+      
+      if (this.selectedFile) {
+        formData.append('file', this.selectedFile);
+      }
+
+      if (this.editingId) {
+        // Update existing item
+        if (this.data.group) {
+          this.musicianService.updateMusician(this.editingId, formData).subscribe({
+            next: (updatedItem) => this.handleSaveSuccess(updatedItem),
+            error: (error) => console.error('Error updating musician:', error)
+          });
+        } else {
+          this.crewService.updateCrewMember(this.editingId, formData).subscribe({
+            next: (updatedItem) => this.handleSaveSuccess(updatedItem),
+            error: (error) => console.error('Error updating crew member:', error)
+          });
+        }
       } else {
-        this.crewService.createCrewMember(formData).subscribe({
-          next: (newItem) => {
-            this.handleSaveSuccess(newItem);
-            this._snackBar.open('Crew member created successfully!', 'Close', {
-              duration: 3000,
-              verticalPosition: 'top',
-              horizontalPosition: 'center',
-            });
-          },
-          error: (error) => {
-            console.error('Error creating crew member:', error);
-            this._snackBar.open('Failed to create crew member. Please try again.', 'Close', {
-              duration: 3000,
-              panelClass: ['snack-bar-error'],
-            });
-          }
-        });
+        // Create new item
+        if (this.data.group) {
+          this.musicianService.createMusician(formData).subscribe({
+            next: (newItem) => {
+              this.handleSaveSuccess(newItem);
+              this._snackBar.open('Musician created successfully!', 'Close', {
+                duration: 3000,
+                verticalPosition: 'top',
+                horizontalPosition: 'center',
+              });
+            },
+            error: (error) => {
+              console.error('Error creating musician:', error);
+              this._snackBar.open('Failed to create musician. Please try again.', 'Close', {
+                duration: 3000,
+                panelClass: ['snack-bar-error'],
+              });
+            }
+          });
+        } else {
+          this.crewService.createCrewMember(formData).subscribe({
+            next: (newItem) => {
+              this.handleSaveSuccess(newItem);
+              this._snackBar.open('Crew member created successfully!', 'Close', {
+                duration: 3000,
+                verticalPosition: 'top',
+                horizontalPosition: 'center',
+              });
+            },
+            error: (error) => {
+              console.error('Error creating crew member:', error);
+              this._snackBar.open('Failed to create crew member. Please try again.', 'Close', {
+                duration: 3000,
+                panelClass: ['snack-bar-error'],
+              });
+            }
+          });
+        }
       }
     }
   }
