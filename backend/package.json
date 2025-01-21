@@ -1,12 +1,15 @@
 {
-  "name": "backend-gpttest",
+  "name": "backend-epictours",
   "version": "1.0.0",
   "description": "Descripción del proyecto",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
+    "migrate": "sequelize db:migrate",
+    "seed": "sequelize db:seed:all",
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "postinstall": "npm run migrate && npm run seed"
   },
   "keywords": [
     "Node.js",
