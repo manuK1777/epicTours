@@ -15,8 +15,16 @@ if (!process.env.DATABASE && !isProduction) {
 let sequelize;
 
 if (isProduction) {
-  sequelize = new Sequelize(process.env.DATABASE_URL, {
+  // Parse DATABASE_URL manually
+  const dbUrl = new URL(process.env.DATABASE_URL);
+  
+  sequelize = new Sequelize({
     dialect: 'mysql',
+    host: dbUrl.hostname,
+    port: dbUrl.port,
+    username: dbUrl.username,
+    password: dbUrl.password,
+    database: dbUrl.pathname.substring(1), // remove leading '/'
     timezone: '+00:00',
     dialectOptions: {
       ssl: {
@@ -24,6 +32,13 @@ if (isProduction) {
         rejectUnauthorized: false
       }
     }
+  });
+  
+  console.log('Production DB Config:', {
+    host: dbUrl.hostname,
+    port: dbUrl.port,
+    username: dbUrl.username,
+    database: dbUrl.pathname.substring(1)
   });
 } else {
   sequelize = new Sequelize(
