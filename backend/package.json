@@ -8,8 +8,7 @@
     "migrate": "sequelize db:migrate",
     "seed": "sequelize db:seed:all",
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "postinstall": "npm run migrate && npm run seed"
+    "dev": "nodemon src/index.js"
   },
   "keywords": [
     "Node.js",
