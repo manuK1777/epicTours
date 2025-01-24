@@ -15,30 +15,17 @@ if (!process.env.DATABASE && !isProduction) {
 let sequelize;
 
 if (isProduction) {
-  // Parse DATABASE_URL manually
-  const dbUrl = new URL(process.env.DATABASE_URL);
+  console.log('DATABASE_URL:', process.env.DATABASE_URL); // Debug log
   
-  sequelize = new Sequelize({
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'mysql',
-    host: dbUrl.hostname,
-    port: dbUrl.port,
-    username: dbUrl.username,
-    password: dbUrl.password,
-    database: dbUrl.pathname.substring(1), // remove leading '/'
-    timezone: '+00:00',
     dialectOptions: {
       ssl: {
         require: true,
         rejectUnauthorized: false
       }
-    }
-  });
-  
-  console.log('Production DB Config:', {
-    host: dbUrl.hostname,
-    port: dbUrl.port,
-    username: dbUrl.username,
-    database: dbUrl.pathname.substring(1)
+    },
+    timezone: '+00:00'
   });
 } else {
   sequelize = new Sequelize(
@@ -70,6 +57,13 @@ const testConnection = async () => {
     console.log('Connection has been established successfully.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
+    // Log more details about the connection
+    if (isProduction) {
+      console.log('Production connection details:', {
+        url: process.env.DATABASE_URL?.replace(/:.*@/, ':****@'), // Hide password
+        dialect: 'mysql'
+      });
+    }
   }
 };
 
