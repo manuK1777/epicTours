@@ -52,7 +52,9 @@ Admin users can see and edit all artists, events, venues, musicians and crew mem
 - Email: admin@epictours.com
 - Password: admin123
 
-## Requirements
+---
+
+## Requirements for Local Installation
 
 Before starting, ensure you have the following installed:
 
