@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "node server.js",
+    "prebuild": "rm -rf dist",
     "build": "ng build --configuration production --aot",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
