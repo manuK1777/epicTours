@@ -4,28 +4,53 @@ EpicTours is a full-stack web application designed to streamline the management 
 
 Key features include:
 
-   - Artist Management: Link artists with musicians, crew members, and events.
-   - Event Coordination: Plan events with single or multiple artists across 
-     various venues, including support for festivals with multiple locations.
-   - Venue Database: Maintain a comprehensive list of venues with detailed 
-     contact information for seamless communication.
-   - Contact Management: Create and manage contacts for artists, musicians, crew 
-     members, and venue bookers.
-   
+- Artist Management: Link artists with musicians, crew members, and events.
+- Event Coordination: Plan events with single or multiple artists across
+  various venues, including support for festivals with multiple locations.
+- Venue Database: Maintain a comprehensive list of venues with detailed
+  contact information for seamless communication.
+- Contact Management: Create and manage contacts for artists, musicians, crew
+  members, and venue bookers.
+
 EpicTours is tailored to the needs of tour managers, artists, and event organizers, providing an intuitive and centralized platform to simplify complex tour planning​
 
-
 ## Table of Contents
-1. [Requirements](#requirements)
-2. [Setup Instructions](#setup-instructions)
-    - [Database Setup](#database-setup)
-    - [Backend Setup](#backend-setup)
-    - [Frontend Setup](#frontend-setup)
-3. [How to Run](#how-to-run)
-4. [Optional: Manual Database Setup](#optional-manual-database-setup)
-5. [Troubleshooting](#troubleshooting)
+
+1. [Live Demo](#live-demo)
+2. [Requirements](#requirements)
+3. [Setup Instructions](#setup-instructions)
+   - [Database Setup](#database-setup)
+   - [Backend Setup](#backend-setup)
+   - [Frontend Setup](#frontend-setup)
+4. [How to Run](#how-to-run)
+5. [Optional: Manual Database Setup](#optional-manual-database-setup)
+6. [Troubleshooting](#troubleshooting)
 
 ---
+
+## Live Demo
+
+Click the link below to access the app:
+
+[EpicTours Live Demo](https://epictours-frontend-production.up.railway.app/)
+
+### User credentials for testing:
+
+Manager can see and edit their own artists: create, edit and delete information, events, venues, musicians and crew members related to them.
+
+Admin users can see and edit all artists, events, venues, musicians and crew members.
+
+- Username: manager0
+- Email: manager0@epictours.com
+- Password: manager123
+
+- Username: manager1
+- Email: manager1@epictours.com
+- Password: manager123
+
+- Username: admin
+- Email: admin@epictours.com
+- Password: admin123
 
 ## Requirements
 
@@ -40,13 +65,15 @@ Before starting, ensure you have the following installed:
 ## Setup Instructions
 
 ## Clone the repository
-   ```bash
-   git clone https://github.com/manuK1777/epicTours.git
-   ```
+
+```bash
+git clone https://github.com/manuK1777/epicTours.git
+```
 
 ### 1. Database Setup
 
 1. **Start MySQL Server**
+
    - Ensure your MySQL server is running on your system.
 
 2. **Create the Database**
@@ -59,25 +86,22 @@ Before starting, ensure you have the following installed:
      CREATE DATABASE epictours;
      ```
 
-
 ---
-
 
 ### 2. Backend Setup
 
 1. **Navigate to the Backend Directory**
-   
 
 2. **Install Dependencies**
    ```bash
    npm install
-   ```  
-   
-3. **Configure Environment Variables**   
-  
+   ```
+3. **Configure Environment Variables**
+
    - Create a .env file:
 
    - Edit the .env file with your MySQL credentials and other configurations:
+
    ```bash
    HOST_NAME=localhost
    USER_NAME=root
@@ -89,43 +113,41 @@ Before starting, ensure you have the following installed:
    BASE_DIR=
    DB_PORT=3306
    ```
-4. **Seed the Database**  
-   - When you start the backend, the database schema will be created, and initial data will be   
-     inserted automatically: 
+
+4. **Seed the Database**
+   - When you start the backend, the database schema will be created, and initial data will be  
+     inserted automatically:
    ```bash
    npm start
    ```
    - The backend will be available at http://localhost:3000.
 
-
 ---
 
-
-
-### 3. Frontend Setup     
+### 3. Frontend Setup
 
 1. **Navigate to the Frontend Directory**
-   
-  
-2. **Install Dependencies**   
+
+2. **Install Dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Start the Frontend**
+
    - Run the Angular development server:
+
    ```bash
    npx ng serve
    ```
+
    - The frontend will be available at http://localhost:4200.
 
-
-4. **Test the Application**  
+4. **Test the Application**
    - Open http://localhost:4200 in your browser.
 
-
 ---
-
 
 ## Initial Data
 
@@ -134,6 +156,7 @@ When you start the backend, the following sample data will be automatically crea
 ### Users
 
 - Manager Users
+
   - Username: manager0
   - Email: manager0@epictours.com
   - Password: manager123
@@ -151,6 +174,7 @@ When you start the backend, the following sample data will be automatically crea
   - Role: admin
 
 ### Sample Data
+
 - Artists: Kiss, Motley Crüe, Twisted Sister (with their musicians and crew members)
 - Venues: Sunset Jazz Club, Palau de la Música Catalana, Nova Jazz Cava, Jamboree
 - Events: Sample concerts and performances
