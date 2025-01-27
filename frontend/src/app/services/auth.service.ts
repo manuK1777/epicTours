@@ -4,12 +4,13 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
 import { User, AuthResponse, AuthResponseData } from '../models/user.model';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api/auth';
+  private apiUrl = `${environment.apiUrl}/api/auth`;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   private refreshTokenTimeout: any;
 
@@ -37,52 +38,64 @@ export class AuthService {
   }
 
   register(username: string, email: string, password: string, role: string): Observable<any> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, {
-      username,
-      email,
-      password,
-      role
-    }, { 
-      observe: 'response',
-      withCredentials: true 
-    }).pipe(
-      tap(response => {
-        console.log('Register response:', response.body);
-        if (response.body && 'data' in response.body && response.body.data?.token) {
-          console.log('Token found in response body');
-        } else {
-          console.log('No token in response body');
+    return this.http
+      .post<AuthResponse>(
+        `${this.apiUrl}/register`,
+        {
+          username,
+          email,
+          password,
+          role,
+        },
+        {
+          observe: 'response',
+          withCredentials: true,
         }
-        this.handleAuthSuccess(response);
-      }),
-      map(response => response.body),
-      catchError(error => {
-        console.log('Registration error:', error);
-        return throwError(() => error);
-      })
-    );
+      )
+      .pipe(
+        tap((response) => {
+          console.log('Register response:', response.body);
+          if (response.body && 'data' in response.body && response.body.data?.token) {
+            console.log('Token found in response body');
+          } else {
+            console.log('No token in response body');
+          }
+          this.handleAuthSuccess(response);
+        }),
+        map((response) => response.body),
+        catchError((error) => {
+          console.log('Registration error:', error);
+          return throwError(() => error);
+        })
+      );
   }
 
   login(email: string, password: string): Observable<any> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { email, password }, {
-      observe: 'response',
-      withCredentials: true
-    }).pipe(
-      tap(response => {
-        console.log('Login response:', response.body);
-        if (response.body && 'data' in response.body && response.body.data?.token) {
-          console.log('Token found in response body');
-        } else {
-          console.log('No token in response body');
+    return this.http
+      .post<AuthResponse>(
+        `${this.apiUrl}/login`,
+        { email, password },
+        {
+          observe: 'response',
+          withCredentials: true,
         }
-        this.handleAuthSuccess(response);
-      }),
-      map(response => response.body),
-      catchError(error => {
-        console.log('Login error:', error);
-        return throwError(() => error);
-      })
-    );
+      )
+      .pipe(
+        tap((response) => {
+          console.log('Login response:', response.body);
+          if (response.body && 'data' in response.body && response.body.data?.token) {
+            console.log('Token found in response body');
+          } else {
+            console.log('No token in response body');
+          }
+          this.handleAuthSuccess(response);
+        }),
+        map((response) => response.body),
+        catchError((error) => {
+          console.log('Login error:', error);
+          return throwError(() => error);
+        })
+      );
   }
 
   logout(): void {
@@ -92,34 +105,41 @@ export class AuthService {
     localStorage.removeItem('token');
     this.currentUserSubject.next(null);
     this.router.navigate(['/authentication/login'], {
-      queryParams: { returnUrl: '/home' }
+      queryParams: { returnUrl: '/home' },
     });
   }
 
   refreshToken(): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/refresh-token`, {}, {
-      observe: 'response',  // Get the full response including headers
-      withCredentials: true
-    }).pipe(
-      tap((response: HttpResponse<any>) => {
-        console.log('Refresh token response headers:', response.headers.keys());
-        console.log('Authorization header:', response.headers.get('Authorization'));
-        console.log('Refresh token response:', response.body);
-        this.handleAuthSuccess(response);
-      }),
-      map(response => {
-        // Return the processed data that includes both token and user
-        const responseData = response.body && 'data' in response.body ? response.body.data : response.body;
-        return {
-          token: responseData?.token,
-          user: responseData?.user
-        };
-      }),
-      catchError(error => {
-        console.log('Refresh token error:', error);
-        return throwError(() => error);
-      })
-    );
+    return this.http
+      .post<any>(
+        `${this.apiUrl}/refresh-token`,
+        {},
+        {
+          observe: 'response', // Get the full response including headers
+          withCredentials: true,
+        }
+      )
+      .pipe(
+        tap((response: HttpResponse<any>) => {
+          console.log('Refresh token response headers:', response.headers.keys());
+          console.log('Authorization header:', response.headers.get('Authorization'));
+          console.log('Refresh token response:', response.body);
+          this.handleAuthSuccess(response);
+        }),
+        map((response) => {
+          // Return the processed data that includes both token and user
+          const responseData =
+            response.body && 'data' in response.body ? response.body.data : response.body;
+          return {
+            token: responseData?.token,
+            user: responseData?.user,
+          };
+        }),
+        catchError((error) => {
+          console.log('Refresh token error:', error);
+          return throwError(() => error);
+        })
+      );
   }
 
   getCurrentUser(): User | null {
@@ -134,9 +154,9 @@ export class AuthService {
     const user = this.currentUserSubject.value;
     console.log('Checking role:', role);
     console.log('Current user in hasRole:', user);
-    
+
     if (!user) return false;
-    
+
     if (Array.isArray(role)) {
       const hasRole = role.includes(user.role);
       console.log(`User role ${user.role} included in ${role}:`, hasRole);
@@ -176,19 +196,19 @@ export class AuthService {
     console.log('Response data:', userData);
     console.log('User from response:', user);
     console.log('Token from response:', token);
-    
+
     if (token) {
       localStorage.setItem('token', token);
       console.log('Token stored:', token);
     } else {
       console.log('No token in response');
     }
-    
+
     if (user) {
       // Ensure role is included when storing user data
       const userWithRole = {
         ...user,
-        role: user.role || 'user' // Fallback to 'user' if role is not present
+        role: user.role || 'user', // Fallback to 'user' if role is not present
       };
       localStorage.setItem('currentUser', JSON.stringify(userWithRole));
       this.currentUserSubject.next(userWithRole);
@@ -206,8 +226,8 @@ export class AuthService {
     try {
       const decoded = JSON.parse(atob(token.split('.')[1]));
       const expires = new Date(decoded.exp * 1000);
-      const timeout = expires.getTime() - Date.now() - (60 * 1000); // Refresh 1 minute before expiry
-      
+      const timeout = expires.getTime() - Date.now() - 60 * 1000; // Refresh 1 minute before expiry
+
       this.refreshTokenTimeout = setTimeout(() => {
         this.refreshToken().subscribe();
       }, timeout);
@@ -225,7 +245,7 @@ export class AuthService {
   private handleError(error: HttpErrorResponse) {
     console.error('Auth error:', error);
     let errorMessage = 'An error occurred';
-    
+
     if (error.error instanceof ErrorEvent) {
       // Client-side error
       errorMessage = error.error.message;
@@ -233,7 +253,7 @@ export class AuthService {
       // Server-side error
       errorMessage = error.error.message || error.message;
     }
-    
+
     return throwError(() => new Error(errorMessage));
   }
 }
