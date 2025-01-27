@@ -1,4 +1,3 @@
-/* global console */
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -23,7 +22,7 @@ app.use((err, req, res) => {
 });
 
 // Start the app by listening on the default Railway port
-const port = process.env.PORT || 4200;
+const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on http://0.0.0.0:${port}`);
   console.log(`Serving static files from: ${path.join(__dirname, '/dist/frontend-epictours')}`);

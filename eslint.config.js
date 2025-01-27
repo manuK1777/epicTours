@@ -13,6 +13,7 @@ export default [
       sourceType: 'module',
       globals: {
         // Browser globals
+        console: true,
         window: true,
         document: true,
         navigator: true,

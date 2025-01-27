@@ -1,18 +1,18 @@
 // app.js
 import express from 'express';
-import cookieParser from "cookie-parser";
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import artistRoutes from './routes/artistRoutes.js';
 import venueBookerRoutes from './routes/venueBookerRoutes.js';
-import eventRoutes  from './routes/eventRoutes.js';
+import eventRoutes from './routes/eventRoutes.js';
 import musicianRoutes from './routes/musicianRoutes.js';
 import locationRoutes from './routes/locationRoutes.js';
 import crewRoutes from './routes/crewRoutes.js';
 import testRoutes from './routes/testRoutes.js';
 import { sequelize } from './db.js';
-import './models/index.js';  // Import models to ensure they are registered
+import './models/index.js'; // Import models to ensure they are registered
 import dotenv from 'dotenv';
 import { insertInitialData } from './start_data.js';
 import path from 'path';
@@ -26,10 +26,13 @@ dotenv.config();
 const app = express();
 
 // Configura el middleware CORS para que peuda recibir solicitudes de POST, PUT, DELETE, UPDATE, etc.
-app.use(cors({
-  credentials: true,
-  origin: 'http://localhost:4200'
-}));
+app.use(
+  cors({
+    credentials: true,
+    origin: ['https://epictours-frontend-production.up.railway.app', 'http://localhost:4200'],
+    //origin: 'http://localhost:4200'
+  })
+);
 
 app.use(cookieParser());
 
@@ -44,25 +47,27 @@ const initializeDatabase = async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connection has been established successfully.');
-    
+
     // Drop existing unique constraints to prevent duplication
     try {
-      await sequelize.query(`
+      await sequelize
+        .query(
+          `
         SELECT CONSTRAINT_NAME
         FROM information_schema.TABLE_CONSTRAINTS 
         WHERE TABLE_NAME = 'Users' 
         AND CONSTRAINT_TYPE = 'UNIQUE'
         AND CONSTRAINT_NAME NOT IN ('username_unique', 'email_unique')
-      `).then(async ([constraints]) => {
-        if (constraints.length > 0) {
-          const dropQueries = constraints.map(c => 
-            `DROP INDEX ${c.CONSTRAINT_NAME} ON Users`
-          );
-          for (const query of dropQueries) {
-            await sequelize.query(query);
+      `
+        )
+        .then(async ([constraints]) => {
+          if (constraints.length > 0) {
+            const dropQueries = constraints.map((c) => `DROP INDEX ${c.CONSTRAINT_NAME} ON Users`);
+            for (const query of dropQueries) {
+              await sequelize.query(query);
+            }
           }
-        }
-      });
+        });
     } catch (error) {
       console.warn('Warning: Could not clean up constraints:', error.message);
     }
@@ -70,7 +75,7 @@ const initializeDatabase = async () => {
     // Sync with alter to allow model changes during development
     await sequelize.sync({ alter: true });
     console.log('Database synchronized successfully');
-    
+
     // Insert initial data if needed
     const { User } = sequelize.models;
     const userCount = await User.count();
@@ -88,8 +93,8 @@ const initializeDatabase = async () => {
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/artists', artistRoutes);
-app.use('/api/locations', locationRoutes); 
-app.use('/api/venueBooker',venueBookerRoutes);
+app.use('/api/locations', locationRoutes);
+app.use('/api/venueBooker', venueBookerRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/musicians', musicianRoutes);
 app.use('/api/crew', crewRoutes);
