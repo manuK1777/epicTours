@@ -2,12 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { Event } from '../models/event.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class EventService {
-  private apiUrl = 'http://localhost:3000/api/events';
+  private apiUrl = `${environment.apiUrl}/api/events`;
 
   constructor(private http: HttpClient) {}
 
@@ -20,8 +21,8 @@ export class EventService {
   }
 
   updateEvent(id: number, event: Event): Observable<Event> {
-    console.log('http request: ',  this.http.put<Event>(`${this.apiUrl}/${id}`, event));
-    
+    console.log('http request: ', this.http.put<Event>(`${this.apiUrl}/${id}`, event));
+
     return this.http.put<Event>(`${this.apiUrl}/${id}`, event);
   }
 
@@ -31,7 +32,7 @@ export class EventService {
 
   getEvents(): Observable<Event[]> {
     return this.http.get<{ code: number; message: string; data: Event[] }>(this.apiUrl).pipe(
-      map((response: { data: any; }) => response.data) // Extract the `data` array
+      map((response: { data: any }) => response.data) // Extract the `data` array
     );
   }
 }

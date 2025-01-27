@@ -2,15 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { VenueBooker } from '../models/venueBooker.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class VenueBookerService {
+  private apiUrl = `${environment.apiUrl}/api/venueBooker`;
 
-  private apiUrl = 'http://localhost:3000/api/venueBooker';
-
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   // Get all venue bookers
   getAllVenueBookers(): Observable<VenueBooker[]> {

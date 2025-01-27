@@ -3,14 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Musician } from '../models/musician.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MusicianService {
-  private apiUrl = 'http://localhost:3000/api/musicians';
+  private apiUrl = `${environment.apiUrl}/api/musicians`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getMusicians(): Observable<Musician[]> {
     return this.http.get<Musician[]>(this.apiUrl);
@@ -18,7 +19,7 @@ export class MusicianService {
 
   getMusiciansByArtist(artistId: number): Observable<Musician[]> {
     return this.http.get<any>(`${this.apiUrl}/artist/${artistId}`).pipe(
-      map(response => {
+      map((response) => {
         if (response.data && Array.isArray(response.data)) {
           return response.data;
         }

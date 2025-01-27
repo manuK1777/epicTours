@@ -3,15 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Location } from '../models/location.model';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LocationsService {
+  private apiUrl = `${environment.apiUrl}/api/locations`;
 
-  private apiUrl = 'http://localhost:3000/api/locations'; 
-
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getLocations(): Observable<{ code: number; message: string; data: Location[] }> {
     return this.http.get<{ code: number; message: string; data: Location[] }>(this.apiUrl);
@@ -28,10 +28,10 @@ export class LocationsService {
     return this.http.post<Location>(this.apiUrl, {
       name: newLocation.name,
       category: newLocation.category,
-      address: newLocation.address, 
+      address: newLocation.address,
       latitude: newLocation.latitude,
       longitude: newLocation.longitude,
-      venueBooker: newLocation.venueBooker
+      venueBooker: newLocation.venueBooker,
     });
   }
 
@@ -49,19 +49,20 @@ export class LocationsService {
 
   // Fetch available categories
   getCategories(): Observable<string[]> {
-    return this.http.get<{ code: number; message: string; data: string[] }>(`${this.apiUrl}/categories`)
-      .pipe(
-        map(response => response.data || [])
-      );
+    return this.http
+      .get<{ code: number; message: string; data: string[] }>(`${this.apiUrl}/categories`)
+      .pipe(map((response) => response.data || []));
   }
-  
+
   // Fetch locations filtered by categories
   getLocationsByCategories(categories: string[]): Observable<Location[]> {
     const categoryString = encodeURIComponent(categories.join(','));
-    return this.http.get<{ code: number; message: string; data: Location[] }>(`${this.apiUrl}/filtered-locations?categories=${categoryString}`)
-      .pipe(
-        map(response => response.data || [])
-      );
+    return this.http
+      .get<{
+        code: number;
+        message: string;
+        data: Location[];
+      }>(`${this.apiUrl}/filtered-locations?categories=${categoryString}`)
+      .pipe(map((response) => response.data || []));
   }
-  
 }
