@@ -3,15 +3,20 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Crew } from '../models/crew.model';
-import { environment } from '../../environments/environment';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CrewService {
-  private apiUrl = `${environment.apiUrl}/api/crew`;
+  private apiUrl: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private apiService: ApiService
+  ) {
+    this.apiUrl = `${this.apiService.getApiUrl()}/api/crew`;
+  }
 
   getCrewMembers(): Observable<Crew[]> {
     return this.http.get<Crew[]>(this.apiUrl);

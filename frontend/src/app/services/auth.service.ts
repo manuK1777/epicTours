@@ -4,13 +4,13 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
 import { User, AuthResponse, AuthResponseData } from '../models/user.model';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/environment';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = `${environment.apiUrl}/api/auth`;
+  private apiUrl: string;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   private refreshTokenTimeout: any;
 
@@ -18,8 +18,10 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private apiService: ApiService
   ) {
+    this.apiUrl = `${this.apiService.getApiUrl()}/api/auth`;
     this.initializeAuth();
   }
 

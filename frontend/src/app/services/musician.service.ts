@@ -3,15 +3,20 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Musician } from '../models/musician.model';
-import { environment } from '../../environments/environment';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MusicianService {
-  private apiUrl = `${environment.apiUrl}/api/musicians`;
+  private apiUrl: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private apiService: ApiService
+  ) {
+    this.apiUrl = `${this.apiService.getApiUrl()}/api/musicians`;
+  }
 
   getMusicians(): Observable<Musician[]> {
     return this.http.get<Musician[]>(this.apiUrl);

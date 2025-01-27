@@ -3,18 +3,21 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, map } from 'rxjs';
 import { Artist } from '../models/artist.model';
 import { AuthService } from './auth.service';
-import { environment } from '../../environments/environment';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ArtistsService {
-  private apiUrl = `${environment.apiUrl}/api/artists`;
+  private apiUrl: string;
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private apiService: ApiService
+  ) {
+    this.apiUrl = `${this.apiService.getApiUrl()}/api/artists`;
+  }
 
   getArtists(): Observable<Artist[]> {
     return this.http

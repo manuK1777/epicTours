@@ -3,15 +3,20 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Location } from '../models/location.model';
 import { map } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LocationsService {
-  private apiUrl = `${environment.apiUrl}/api/locations`;
+  private apiUrl: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private apiService: ApiService
+  ) {
+    this.apiUrl = `${this.apiService.getApiUrl()}/api/locations`;
+  }
 
   getLocations(): Observable<{ code: number; message: string; data: Location[] }> {
     return this.http.get<{ code: number; message: string; data: Location[] }>(this.apiUrl);
