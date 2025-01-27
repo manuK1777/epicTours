@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { MaterialModule } from 'src/app/material.module';
 import { CommonModule } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ImageService } from '../../services/image.service';
 
 @Component({
   selector: 'app-create-artist',
@@ -20,20 +21,20 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
-    MatButtonModule, 
+    MatButtonModule,
     MatDialogModule,
     MaterialModule,
-    CommonModule
+    CommonModule,
   ],
   templateUrl: './create-artist.component.html',
-  styleUrl: './create-artist.component.scss'
+  styleUrl: './create-artist.component.scss',
 })
 export class CreateArtistComponent implements OnInit {
   artistForm!: FormGroup;
   errorMessage: string = '';
   isSubmitting: boolean = false;
-  selectedFile: File | null = null; 
-  previewUrl: string | ArrayBuffer | null = null; 
+  selectedFile: File | null = null;
+  previewUrl: string | ArrayBuffer | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -43,29 +44,33 @@ export class CreateArtistComponent implements OnInit {
     private router: Router,
     private _snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: { artist?: Artist } | null,
+    private imageService: ImageService
   ) {}
 
   ngOnInit(): void {
     const artist: Partial<Artist> = this.data?.artist || {};
-  
+
     // Initialize form with existing artist data or empty values
     this.artistForm = this.fb.group({
       name: [artist.name || '', [Validators.required, Validators.minLength(2)]],
       email: [artist.email || '', [Validators.required, Validators.email]],
-      webPage: [artist.webPage || '', [Validators.pattern(/^(https?:\/\/)?[\w-]+(\.[\w-]+)+[/#?]?.*$/)]],
+      webPage: [
+        artist.webPage || '',
+        [Validators.pattern(/^(https?:\/\/)?[\w-]+(\.[\w-]+)+[/#?]?.*$/)],
+      ],
       contact: [artist.contact || '', [Validators.required, Validators.minLength(2)]],
       phone: [artist.phone || '', [Validators.required, Validators.pattern(/^[0-9]{7,15}$/)]],
     });
-  
+
     // Reset file and preview if editing
     if (artist.file) {
-      this.previewUrl = `http://localhost:3000/uploads/${artist.file}`;
+      this.previewUrl = this.getImageUrl(artist.file);
     } else {
       this.previewUrl = 'no image';
     }
   }
 
-   onFileSelected(event: Event): void {
+  onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       this.processFile(input.files[0]);
@@ -101,13 +106,13 @@ export class CreateArtistComponent implements OnInit {
       console.log('Local image preview cleared');
       return;
     }
-  
+
     // Case 2: If editing an existing artist with an image
     if (this.data?.artist?.id) {
       this.artistsService.deleteArtistImage(this.data.artist.id).subscribe({
         next: () => {
           console.log('File deleted successfully from the server');
-  
+
           // Update previewUrl and reset file reference
           this.previewUrl = null;
           this.dialogRef.close({
@@ -121,7 +126,7 @@ export class CreateArtistComponent implements OnInit {
       });
     }
   }
-  
+
   onSave(): void {
     if (this.artistForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
@@ -132,13 +137,12 @@ export class CreateArtistComponent implements OnInit {
       formData.append('email', this.artistForm.get('email')?.value);
       formData.append('contact', this.artistForm.get('contact')?.value);
       formData.append('phone', this.artistForm.get('phone')?.value);
-      
-      const webPageValue = this.artistForm.get('webPage')?.value;
-        if (webPageValue) {
-          formData.append('webPage', webPageValue);
-        }
 
-    
+      const webPageValue = this.artistForm.get('webPage')?.value;
+      if (webPageValue) {
+        formData.append('webPage', webPageValue);
+      }
+
       if (this.selectedFile) {
         formData.append('file', this.selectedFile);
       }
@@ -146,63 +150,63 @@ export class CreateArtistComponent implements OnInit {
       console.log('FormData before submission:', Array.from((formData as any).entries()));
 
       // Check if editing or creating
-    if (this.data?.artist) {
-      console.log('Editing Artist ID:', this.data.artist.id);
+      if (this.data?.artist) {
+        console.log('Editing Artist ID:', this.data.artist.id);
 
-      // Editing existing artist
-      this.artistsService.editArtist(this.data.artist.id, formData).subscribe({
-        next: (response) => {
-          this.dialogRef.close({ action: 'edit', artist: response });
-          this._snackBar.open('Artist updated successfully!', 'Close', {
-            duration: 3000,
-            verticalPosition: 'top',
-            horizontalPosition: 'center',
-          });
-        },
-        error: (error) => {
-          console.error('Error updating artist:', error);
-          this.errorMessage = error.error?.message || 'Failed to update artist';
-          this._snackBar.open('Failed to update artist. Please try again.', 'Close', {
-            duration: 3000,
-            panelClass: ['snack-bar-error'],
-          });
-          this.isSubmitting = false;
-        },
-        complete: () => {
-          this.isSubmitting = false;
-        }
-      });
+        // Editing existing artist
+        this.artistsService.editArtist(this.data.artist.id, formData).subscribe({
+          next: (response) => {
+            this.dialogRef.close({ action: 'edit', artist: response });
+            this._snackBar.open('Artist updated successfully!', 'Close', {
+              duration: 3000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center',
+            });
+          },
+          error: (error) => {
+            console.error('Error updating artist:', error);
+            this.errorMessage = error.error?.message || 'Failed to update artist';
+            this._snackBar.open('Failed to update artist. Please try again.', 'Close', {
+              duration: 3000,
+              panelClass: ['snack-bar-error'],
+            });
+            this.isSubmitting = false;
+          },
+          complete: () => {
+            this.isSubmitting = false;
+          },
+        });
+      } else {
+        // Creating new artist
+        this.artistsService.addArtistWithfile(formData).subscribe({
+          next: (response) => {
+            console.log('Artist created successfully:', response);
+            this.dialogRef.close({ action: 'create', artist: response });
+            this._snackBar.open('Artist created successfully!', 'Close', {
+              duration: 3000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center',
+            });
+          },
+          error: (error) => {
+            console.error('Error creating artist:', error);
+            this.errorMessage = error.error?.message || 'Failed to create artist';
+            this._snackBar.open('Failed to create artist. Please try again.', 'Close', {
+              duration: 3000,
+              panelClass: ['snack-bar-error'],
+            });
+            this.isSubmitting = false;
+          },
+          complete: () => {
+            this.isSubmitting = false;
+          },
+        });
+      }
     } else {
-      // Creating new artist
-      this.artistsService.addArtistWithfile(formData).subscribe({
-        next: (response) => {
-          console.log('Artist created successfully:', response);
-          this.dialogRef.close({ action: 'create', artist: response });
-          this._snackBar.open('Artist created successfully!', 'Close', {
-            duration: 3000,
-            verticalPosition: 'top',
-            horizontalPosition: 'center',
-          });
-        },
-        error: (error) => {
-          console.error('Error creating artist:', error);
-          this.errorMessage = error.error?.message || 'Failed to create artist';
-          this._snackBar.open('Failed to create artist. Please try again.', 'Close', {
-            duration: 3000,
-            panelClass: ['snack-bar-error'],
-          });
-          this.isSubmitting = false;
-        },
-        complete: () => {
-          this.isSubmitting = false;
-        }
-      });
+      this.markFormGroupTouched(this.artistForm);
     }
-  } else {
-    this.markFormGroupTouched(this.artistForm);
   }
-  }
-  
+
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.values(formGroup.controls).forEach((control) => {
       control.markAsTouched();
@@ -214,5 +218,9 @@ export class CreateArtistComponent implements OnInit {
 
   onCancel(): void {
     this.dialogRef.close();
+  }
+
+  getImageUrl(filename: string): string {
+    return this.imageService.getImageUrl(filename);
   }
 }
