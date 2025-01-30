@@ -296,7 +296,7 @@ export class ArtistDetailComponent implements OnInit {
       if (confirmed) {
         this.artistsService.deleteArtist(this.id).subscribe({
           next: () => {
-            this.router.navigate(['/home/artist-list']);
+            this.router.navigate(['/home/artist-card']);
             this.snackBar.open('Artist deleted!', 'Close', {
               duration: 3000,
               verticalPosition: 'top',
@@ -316,7 +316,7 @@ export class ArtistDetailComponent implements OnInit {
   }
 
   navigateToArtistList(): void {
-    this.router.navigate(['/home/artist-list']);
+    this.router.navigate(['/home/artist-card']);
   }
 
   openArtistInfoModal() {

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { homeComponent } from './home/home.component';
 import { ArtistListComponent } from './artist-list/artist-list.component';
+import { ArtistCardComponent } from './artist-card/artist-card.component';
 import { ArtistDetailComponent } from './artist-detail/artist-detail.component';
 import { MapComponent } from './map/map.component';
 import { VenuesComponent } from './venues/venues.component';
@@ -17,20 +18,27 @@ export const PagesRoutes: Routes = [
     component: homeComponent,
     canActivate: [AuthGuard],
     data: {
-      roles: ['admin', 'manager', 'user']
-    }
+      roles: ['admin', 'manager', 'user'],
+    },
   },
   {
-    path: 'artist-list', 
+    path: 'artist-card',
+    component: ArtistCardComponent,
+    canActivate: [AuthGuard],
+    data: {
+      title: 'Artists',
+      roles: ['admin', 'manager'],
+      urls: [{ title: 'Dashboard', url: '/home' }, { title: 'Artists' }],
+    },
+  },
+  {
+    path: 'artist-list',
     component: ArtistListComponent,
     canActivate: [AuthGuard],
     data: {
       title: 'Artist List',
       roles: ['admin', 'manager'],
-      urls: [
-        { title: 'Dashboard', url: '/home' },
-        { title: 'Artist List' },
-      ],
+      urls: [{ title: 'Dashboard', url: '/home' }, { title: 'Artist List' }],
     },
   },
   {
@@ -40,10 +48,7 @@ export const PagesRoutes: Routes = [
     data: {
       title: 'Venues',
       roles: ['admin', 'manager'],
-      urls: [
-        { title: 'Dashboard', url: '/home' },
-        { title: 'Venues' },
-      ],
+      urls: [{ title: 'Dashboard', url: '/home' }, { title: 'Venues' }],
     },
     children: [
       {
@@ -51,16 +56,16 @@ export const PagesRoutes: Routes = [
         component: MapComponent,
         data: {
           title: 'Map View',
-          roles: ['admin', 'manager']
-        }
+          roles: ['admin', 'manager'],
+        },
       },
       {
         path: 'table',
         component: VenuesTableComponent,
         data: {
           title: 'Table View',
-          roles: ['admin', 'manager']
-        }
+          roles: ['admin', 'manager'],
+        },
       },
       {
         path: '',
@@ -70,29 +75,23 @@ export const PagesRoutes: Routes = [
     ],
   },
   {
-    path: 'calendar', 
+    path: 'calendar',
     component: CalendarComponent,
     canActivate: [AuthGuard],
     data: {
       title: 'Calendar',
       roles: ['admin', 'manager'],
-      urls: [
-        { title: 'Dashboard', url: '/home' },
-        { title: 'Calendar' },
-      ],
+      urls: [{ title: 'Dashboard', url: '/home' }, { title: 'Calendar' }],
     },
   },
   {
-    path: 'charts', 
+    path: 'charts',
     component: ChartsComponent,
     canActivate: [AuthGuard],
     data: {
       title: 'Charts',
       roles: ['admin'],
-      urls: [
-        { title: 'Dashboard', url: '/home' },
-        { title: 'Charts' },
-      ],
+      urls: [{ title: 'Dashboard', url: '/home' }, { title: 'Charts' }],
     },
     children: [
       {
@@ -100,16 +99,16 @@ export const PagesRoutes: Routes = [
         component: ChartBarComponent,
         data: {
           title: 'Bar Charts',
-          roles: ['admin']
-        }
+          roles: ['admin'],
+        },
       },
       {
         path: 'line',
-        component: ChartLineComponent, 
+        component: ChartLineComponent,
         data: {
           title: 'Line Charts',
-          roles: ['admin']
-        }
+          roles: ['admin'],
+        },
       },
       {
         path: '',
@@ -119,16 +118,13 @@ export const PagesRoutes: Routes = [
     ],
   },
   {
-    path: 'artist/:id/:slug', 
+    path: 'artist/:id/:slug',
     component: ArtistDetailComponent,
     canActivate: [AuthGuard],
     data: {
       title: 'Artist Details',
       roles: ['admin', 'manager', 'user'],
-      urls: [
-        { title: 'Dashboard', url: '/home' },
-        { title: 'Artist Details' },
-      ],
+      urls: [{ title: 'Dashboard', url: '/home' }, { title: 'Artist Details' }],
     },
   },
 ];

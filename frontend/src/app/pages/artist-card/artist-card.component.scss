@@ -1,0 +1,46 @@
+.artist-card {
+  max-width: 300px;
+  margin: 16px;
+  
+  img {
+    height: 300px;
+    object-fit: cover;
+  }
+}
+
+.search-container {
+  display: flex;
+  justify-content: center;
+
+  mat-form-field {
+    width: 100%;
+    max-width: 500px;
+  }
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.artist-card {
+  background: linear-gradient(135deg, #302626, #ada09c);
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  &:hover {
+    transform: translateY(-5px) scale(1.05);
+    transition: all 0.3s ease;
+  }
+
+  img {
+    height: 200px;
+    object-fit: cover;
+  }
+
+  mat-card-header {
+    justify-content: center;
+    padding: 12px;
+  }
+}

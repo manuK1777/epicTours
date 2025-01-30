@@ -1,0 +1,18 @@
+<div class="search-container">
+  <mat-form-field appearance="outline">
+    <mat-label>Search artist</mat-label>
+    <input matInput (keyup)="applyFilter($event)" placeholder="E.g. artist name..." #input>
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+</div>
+
+<div class="cards-grid">
+    @for (artist of filteredArtists; track artist.id) {
+  <mat-card class="artist-card mat-elevation-z8" (click)="onSelectArtist(artist)" [class.mat-elevation-z12]="hover" (mouseenter)="hover=true" (mouseleave)="hover=false">
+    <mat-card-header>
+      <mat-card-title>{{ artist.name }}</mat-card-title>
+    </mat-card-header>
+    <img mat-card-image [src]="getImageUrl(artist.file)" [alt]="artist.name">
+  </mat-card>
+    }
+</div>
