@@ -103,14 +103,14 @@ export class EventDialogComponent implements OnInit {
 
   saveEvent(): void {
     if (this.eventForm.valid) {
+      const formValues = this.eventForm.value;
       const updatedEvent = {
         ...this.data.event,
-        ...this.eventForm.value,
-        start_time: this.convertToUTC(this.eventForm.value.start_time),
-        end_time: this.convertToUTC(this.eventForm.value.end_time),
-        artists: this.artists.filter((artist) =>
-          this.eventForm.value.artistIds.includes(artist.id)
-        ),
+        ...formValues,
+        venue_id: formValues.location_id, // Map location_id to venue_id
+        start_time: this.convertToUTC(formValues.start_time),
+        end_time: this.convertToUTC(formValues.end_time),
+        artists: this.artists.filter((artist) => formValues.artistIds.includes(artist.id)),
       };
 
       try {
