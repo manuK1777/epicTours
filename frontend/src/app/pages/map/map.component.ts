@@ -1,4 +1,12 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  Output,
+  EventEmitter,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { Location } from 'src/app/models/location.model';
 import { MaterialModule } from 'src/app/material.module';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +18,7 @@ declare let L: any;
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [ MaterialModule, FormsModule, CommonModule ],
+  imports: [MaterialModule, FormsModule, CommonModule],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
@@ -19,8 +27,8 @@ export class MapComponent implements OnInit, OnChanges {
   @Output() editVenue = new EventEmitter<{ id: number; updatedVenue: Location }>();
   @Output() deleteVenue = new EventEmitter<number>();
 
-  private map: any; 
-  private markersLayer: any; 
+  private map: any;
+  private markersLayer: any;
 
   constructor(private dialog: MatDialog) {}
 
@@ -28,7 +36,6 @@ export class MapComponent implements OnInit, OnChanges {
     this.initMap();
     this.updateMapMarkers(this.venues);
   }
-
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['venues'] && this.map) {
@@ -38,10 +45,11 @@ export class MapComponent implements OnInit, OnChanges {
 
   private initMap(): void {
     // Initialize the map
-    this.map = L.map('map').setView([41.669888, 1.827222], 9); 
+    this.map = L.map('map').setView([40, -20], 3);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 20,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.map);
 
     // Create a layer group for markers

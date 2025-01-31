@@ -11,7 +11,7 @@ interface NominatimResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class GeocodingService {
   private nominatimUrl = 'https://nominatim.openstreetmap.org/search';
@@ -37,14 +37,15 @@ export class GeocodingService {
 
     // Set up headers
     const headers = {
-      'Accept-Language': language
+      'Accept-Language': language,
     };
 
     // Make the HTTP request
     return this.http
       .get<NominatimResponse[]>(this.nominatimUrl, {
         params,
-        headers
+        headers,
+        withCredentials: false, // Disable sending credentials
       })
       .pipe(
         // Map the response to extract coordinates
@@ -52,13 +53,13 @@ export class GeocodingService {
           if (response && response.length > 0) {
             return {
               lat: parseFloat(response[0].lat),
-              lon: parseFloat(response[0].lon)
+              lon: parseFloat(response[0].lon),
             };
           }
           throw new Error('No results found for this address');
         }),
         // Catch and handle errors
-        catchError(error => {
+        catchError((error) => {
           const errorMessage =
             error?.error?.message ||
             'Failed to geocode address. Please check the address and try again.';

@@ -1,4 +1,13 @@
-import { Component, Input, Output, EventEmitter, OnInit, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  ViewChild,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { Location } from '../../models/location.model';
@@ -32,7 +41,7 @@ import { VenueDetailsComponent } from '../../modals/venue-details/venue-details.
     MatButtonModule,
     MatCardModule,
     MatSelectModule,
-    MatSortModule
+    MatSortModule,
   ],
   templateUrl: './venues-table.component.html',
   styleUrls: ['./venues-table.component.scss'],
@@ -42,26 +51,34 @@ export class VenuesTableComponent implements OnInit, OnChanges {
   @Output() editVenue = new EventEmitter<{ id: number; updatedVenue: Location }>();
   @Output() deleteVenue = new EventEmitter<number>(); // Emits an event when deleting a venue
 
-  displayedColumns: string[] = ['name', 'category', 'address'];
+  displayedColumns: string[] = ['name', 'category', 'address', 'actions'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  editedVenue: Location = { name: '', category: '', address: '', latitude: 0, longitude: 0, venueBooker: [] }; 
+  editedVenue: Location = {
+    name: '',
+    category: '',
+    address: '',
+    latitude: 0,
+    longitude: 0,
+    venueBooker: [],
+  };
   editingVenueId: number | null = null;
   showActionsForId: number | null = null;
   dataSource = new MatTableDataSource<Location>([]);
 
-  constructor(
-    private dialog: MatDialog,
-  ) {
+  constructor(private dialog: MatDialog) {
     // Set default sort
     this.dataSource.sortingDataAccessor = (item: Location, property: string): string | number => {
-      switch(property) {
-        case 'name': return item.name.toLowerCase();
-        case 'category': return item.category.toLowerCase();
-        case 'address': return item.address.toLowerCase();
-        default: 
+      switch (property) {
+        case 'name':
+          return item.name.toLowerCase();
+        case 'category':
+          return item.category.toLowerCase();
+        case 'address':
+          return item.address.toLowerCase();
+        default:
           const value = item[property as keyof Location];
           return typeof value === 'string' || typeof value === 'number' ? value : '';
       }
@@ -77,14 +94,14 @@ export class VenuesTableComponent implements OnInit, OnChanges {
       this.updateDataSource();
     }
   }
-  
+
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
     // Apply initial sort
     this.sort.sort({ id: 'name', start: 'asc', disableClear: false });
   }
-  
+
   updateDataSource(): void {
     this.dataSource.data = this.venues;
     // Re-apply sort if it exists
@@ -97,21 +114,39 @@ export class VenuesTableComponent implements OnInit, OnChanges {
 
   startEditing(venue: Location): void {
     this.editingVenueId = venue.id || null;
-    this.editedVenue = { ...venue }; 
+    this.editedVenue = { ...venue };
   }
 
-  saveEdit(): void {
-    if (this.editedVenue && this.editedVenue.id) {
-      this.editVenue.emit({ id: this.editedVenue.id, updatedVenue: this.editedVenue });
-      this.editingVenueId = null;
-      this.showActionsForId = null;
+  saveEdits(): void {
+    if (this.editingVenueId && this.editedVenue.name && this.editedVenue.address) {
+      this.editVenue.emit({
+        id: this.editingVenueId,
+        updatedVenue: this.editedVenue,
+      });
+      this.cancelEditing();
     }
   }
 
-  cancelEdit(): void {
+  cancelEditing(): void {
     this.editingVenueId = null;
-    this.showActionsForId = null;
-    this.editedVenue = { name: '', category: '', address: '', latitude: 0, longitude: 0, venueBooker: [] };
+    this.editedVenue = {
+      name: '',
+      category: '',
+      address: '',
+      latitude: 0,
+      longitude: 0,
+      venueBooker: [],
+    };
+  }
+
+  handleKeydown(event: KeyboardEvent): void {
+    if (this.editingVenueId) {
+      if (event.key === 'Escape') {
+        this.cancelEditing();
+      } else if (event.key === 'Enter' && !event.shiftKey) {
+        this.saveEdits();
+      }
+    }
   }
 
   onDelete(id: number): void {
@@ -121,7 +156,7 @@ export class VenuesTableComponent implements OnInit, OnChanges {
   openVenueDetails(venue: any): void {
     this.dialog.open(VenueDetailsComponent, {
       width: '600px',
-      data: { venue }
+      data: { venue },
     });
   }
 
