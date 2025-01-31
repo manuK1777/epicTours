@@ -1,11 +1,9 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { MaterialModule } from '../../material.module';
+import { MaterialModule } from 'src/app/material.module';
 import { CommonModule } from '@angular/common';
+import { ArtistsService } from 'src/app/services/artists.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator } from '@angular/material/paginator';
-import { ArtistsService } from '../../services/artists.service';
-import { Event } from '../../models/event.model';
 
 @Component({
   selector: 'app-artist-events',
@@ -17,14 +15,11 @@ import { Event } from '../../models/event.model';
 export class ArtistEventsComponent implements OnInit {
   @Input() artistId!: number;
   @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   displayedColumns: string[] = ['title', 'start_time'];
-  dataSource: MatTableDataSource<Event>;
+  dataSource: MatTableDataSource<any> = new MatTableDataSource();
 
-  constructor(private artistsService: ArtistsService) {
-    this.dataSource = new MatTableDataSource<Event>([]);
-  }
+  constructor(private artistsService: ArtistsService) {}
 
   ngOnInit() {
     this.loadArtistEvents();
@@ -32,7 +27,6 @@ export class ArtistEventsComponent implements OnInit {
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
   }
 
   loadArtistEvents() {
@@ -40,11 +34,26 @@ export class ArtistEventsComponent implements OnInit {
       this.artistsService.getArtistEvents(this.artistId).subscribe({
         next: (events) => {
           this.dataSource.data = events;
+          this.dataSource.sort = this.sort;
+
+          // Set up custom filter predicate for better search
+          this.dataSource.filterPredicate = (data: any, filter: string) => {
+            const searchStr = filter.toLowerCase();
+            return (
+              data.title.toLowerCase().includes(searchStr) ||
+              new Date(data.start_time).toLocaleDateString().toLowerCase().includes(searchStr)
+            );
+          };
         },
         error: (error) => {
           console.error('Error loading artist events:', error);
         },
       });
     }
+  }
+
+  applyFilter(event: KeyboardEvent) {
+    const filterValue = (event.target as HTMLInputElement)?.value || '';
+    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 }
