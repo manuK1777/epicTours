@@ -40,6 +40,17 @@
       }
     </mat-form-field>
 
+    <!-- Artists -->
+<mat-form-field appearance="fill">
+  <mat-label>Artists</mat-label>
+  <mat-select formControlName="artistIds" multiple>
+    @for (artist of artists; track artist.id) {
+      <mat-option [value]="artist.id">{{ artist.name }}</mat-option>
+    }
+  </mat-select>
+  <mat-hint>You can select multiple artists</mat-hint>
+</mat-form-field>
+
     <!-- Color -->
     <mat-form-field appearance="fill">
       <mat-label>Color</mat-label>

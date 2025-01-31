@@ -58,6 +58,27 @@ export class ArtistsService {
     );
   }
 
+  getArtistEvents(artistId: number): Observable<any[]> {
+    const url = `${this.apiUrl}/${artistId}/events`;
+    return this.http
+      .get<any>(url, {
+        withCredentials: true,
+      })
+      .pipe(
+        map((response) => {
+          if (response.data && Array.isArray(response.data)) {
+            return response.data;
+          }
+          console.warn('Unexpected response format:', response);
+          return [];
+        }),
+        catchError((error) => {
+          console.error('Error fetching artist events:', error);
+          throw error;
+        })
+      );
+  }
+
   addArtist(newArtist: Artist): Observable<Artist> {
     return this.http.post<any>(this.apiUrl, newArtist).pipe(
       map((response) => {

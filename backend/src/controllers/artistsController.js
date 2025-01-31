@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
 export const getAllArtists = async (req, res) => {
   try {
     const where = {};
-    
+
     // If user is a manager, only show their artists
     if (req.user.role === 'manager') {
       where.user_id = req.user.id;
@@ -27,26 +27,26 @@ export const getAllArtists = async (req, res) => {
         {
           model: Event,
           through: { attributes: [] },
-          attributes: ['id', 'title', 'start_time']
+          attributes: ['id', 'title', 'start_time'],
         },
         {
           model: Location,
           through: { attributes: [] },
-          attributes: ['id', 'name', 'address']
+          attributes: ['id', 'name', 'address'],
         },
         {
           model: Musician,
-          attributes: ['id', 'name']
+          attributes: ['id', 'name'],
         },
         {
           model: Crew,
-          attributes: ['id', 'name']
+          attributes: ['id', 'name'],
         },
         {
           model: User,
-          attributes: ['id', 'username']
-        }
-      ]
+          attributes: ['id', 'username'],
+        },
+      ],
     });
 
     const artistsWithFile = artists.map((artist) => ({
@@ -68,26 +68,26 @@ export const getArtistById = async (req, res) => {
         {
           model: Event,
           through: { attributes: [] },
-          attributes: ['id', 'title', 'start_time']
+          attributes: ['id', 'title', 'start_time'],
         },
         {
           model: Location,
           through: { attributes: [] },
-          attributes: ['id', 'name', 'address']
+          attributes: ['id', 'name', 'address'],
         },
         {
           model: Musician,
-          attributes: ['id', 'name']
+          attributes: ['id', 'name'],
         },
         {
           model: Crew,
-          attributes: ['id', 'name']
+          attributes: ['id', 'name'],
         },
         {
           model: User,
-          attributes: ['id', 'username']
-        }
-      ]
+          attributes: ['id', 'username'],
+        },
+      ],
     });
 
     if (!artist) {
@@ -105,7 +105,7 @@ export const createArtist = async (req, res) => {
     const artistData = {
       ...req.body,
       file: req.file ? req.file.filename : null,
-      user_id: req.user.role === 'manager' ? req.user.id : req.body.user_id
+      user_id: req.user.role === 'manager' ? req.user.id : req.body.user_id,
     };
 
     const artist = await Artist.create(artistData);
@@ -204,7 +204,7 @@ export const deleteArtistImage = async (req, res) => {
 export const addVenueToArtist = async (req, res) => {
   try {
     const { artistId, venueId } = req.params;
-    
+
     const artist = await Artist.findByPk(artistId);
     if (!artist) {
       return handleResponse(res, 404, 'Artist not found');
@@ -216,7 +216,7 @@ export const addVenueToArtist = async (req, res) => {
     }
 
     await artist.addVenue(venue);
-    
+
     handleResponse(res, 200, 'Venue added to artist successfully');
   } catch (error) {
     handleError(res, error);
@@ -226,7 +226,7 @@ export const addVenueToArtist = async (req, res) => {
 export const removeVenueFromArtist = async (req, res) => {
   try {
     const { artistId, venueId } = req.params;
-    
+
     const artist = await Artist.findByPk(artistId);
     if (!artist) {
       return handleResponse(res, 404, 'Artist not found');
@@ -238,8 +238,33 @@ export const removeVenueFromArtist = async (req, res) => {
     }
 
     await artist.removeVenue(venue);
-    
+
     handleResponse(res, 200, 'Venue removed from artist successfully');
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+export const getArtistEvents = async (req, res) => {
+  try {
+    const artistId = req.params.id;
+    const artist = await Artist.findByPk(artistId);
+
+    if (!artist) {
+      return handleResponse(res, 404, 'Artist not found');
+    }
+
+    // If user is a manager, check if they own this artist
+    if (req.user.role === 'manager' && artist.user_id !== req.user.id) {
+      return handleResponse(res, 403, 'Unauthorized access to this artist');
+    }
+
+    const events = await artist.getEvents({
+      attributes: ['id', 'title', 'start_time', 'end_time', 'category'],
+      order: [['start_time', 'DESC']],
+    });
+
+    handleResponse(res, 200, 'Events retrieved successfully', events);
   } catch (error) {
     handleError(res, error);
   }

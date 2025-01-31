@@ -19,6 +19,7 @@ import { Musician } from 'src/app/models/musician.model';
 import { CrewService } from 'src/app/services/crew.service';
 import { Crew } from 'src/app/models/crew.model';
 import { ImageService } from '../../services/image.service';
+import { ArtistEventsComponent } from '../artist-events/artist-events.component';
 
 export interface Tile {
   color: string;
@@ -27,7 +28,7 @@ export interface Tile {
   cols: number;
   rows: number;
   text: string;
-  type: 'header' | 'text' | 'image' | 'button' | 'info';
+  type: 'header' | 'text' | 'image' | 'button' | 'info' | 'events';
 }
 
 @Component({
@@ -40,6 +41,7 @@ export interface Tile {
     MatCardModule,
     MatListModule,
     MaterialModule,
+    ArtistEventsComponent,
   ],
   templateUrl: './artist-detail.component.html',
   styleUrls: ['./artist-detail.component.scss'],
@@ -102,7 +104,7 @@ export class ArtistDetailComponent implements OnInit {
         this.tiles = [
           { text: this.name, imageUrl, cols: 2, rows: 1, color: '', type: 'image' },
           { text: 'Info', cols: 2, rows: 1, color: '', type: 'info' },
-          { text: 'Eventos del artista (Table)', cols: 2, rows: 3, color: '', type: 'text' },
+          { text: 'Events', cols: 2, rows: 3, color: '', type: 'events' },
           { text: 'Buttons', cols: 1, rows: 2, color: '', type: 'button' },
           {
             text: 'Folders: rider docs, promo photos, gig photos, map?',

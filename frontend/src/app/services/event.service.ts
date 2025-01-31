@@ -22,13 +22,19 @@ export class EventService {
   }
 
   createEvent(event: Event): Observable<Event> {
-    return this.http.post<Event>(`${this.apiUrl}/`, event);
+    const eventData = {
+      ...event,
+      artist_ids: event.artists?.map((artist) => artist.id) || [],
+    };
+    return this.http.post<Event>(`${this.apiUrl}/`, eventData);
   }
 
   updateEvent(id: number, event: Event): Observable<Event> {
-    console.log('http request: ', this.http.put<Event>(`${this.apiUrl}/${id}`, event));
-
-    return this.http.put<Event>(`${this.apiUrl}/${id}`, event);
+    const eventData = {
+      ...event,
+      artist_ids: event.artists?.map((artist) => artist.id) || [],
+    };
+    return this.http.put<Event>(`${this.apiUrl}/${id}`, eventData);
   }
 
   deleteEvent(id: number): Observable<void> {

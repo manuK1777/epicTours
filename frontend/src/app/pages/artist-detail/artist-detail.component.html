@@ -7,7 +7,13 @@
   
     <ng-container [ngSwitch]="tile.type">
 
-      <div *ngSwitchCase="'text'" class="tile-text">{{ tile.text }}</div>
+      <div *ngSwitchCase="'text'" class="tile-text">
+        {{ tile.text }}
+      </div>
+
+      <div *ngSwitchCase="'events'" class="tile-events">
+        <app-artist-events [artistId]="id"></app-artist-events>
+      </div>
 
       <div *ngSwitchCase="'image'" class="tile-header">
           <h1 class="mat-h1">{{ tile.text }}</h1>

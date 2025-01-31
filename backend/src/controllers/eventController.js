@@ -12,20 +12,20 @@ export const getAllEvents = async (req, res) => {
         {
           model: Location,
           as: 'venue',
-          attributes: ['id', 'name', 'address']
+          attributes: ['id', 'name', 'address'],
         },
         {
           model: Artist,
           through: { attributes: [] }, // Exclude junction table attributes
-          attributes: ['id', 'name', 'user_id']
-        }
-      ]
+          attributes: ['id', 'name', 'user_id'],
+        },
+      ],
     };
 
     // If user is a manager, only show events for their artists
     if (req.user && req.user.role === 'manager') {
       queryOptions.include[1].where = {
-        user_id: req.user.id
+        user_id: req.user.id,
       };
     }
 
@@ -41,10 +41,7 @@ export const getChartData = async (req, res) => {
   try {
     // Events by category
     const eventsByCategory = await Event.findAll({
-      attributes: [
-        'category',
-        [sequelize.fn('COUNT', sequelize.col('category')), 'count'],
-      ],
+      attributes: ['category', [sequelize.fn('COUNT', sequelize.col('category')), 'count']],
       group: ['category'],
     });
 
@@ -74,20 +71,20 @@ export const getEventById = async (req, res) => {
         {
           model: Location,
           as: 'venue',
-          attributes: ['id', 'name', 'address']
+          attributes: ['id', 'name', 'address'],
         },
         {
           model: Artist,
           through: { attributes: [] },
-          attributes: ['id', 'name']
-        }
-      ]
+          attributes: ['id', 'name'],
+        },
+      ],
     });
-    
+
     if (!event) {
       return handleResponse(res, 404, 'Event not found');
     }
-    
+
     handleResponse(res, 200, 'Event retrieved successfully', event);
   } catch (error) {
     handleError(res, error);
@@ -97,13 +94,13 @@ export const getEventById = async (req, res) => {
 export const createEvent = async (req, res) => {
   try {
     const { title, category, start_time, end_time, venue_id, artist_ids = [] } = req.body;
-    
+
     const event = await Event.create({
       title,
       category,
       start_time,
       end_time,
-      venue_id
+      venue_id,
     });
 
     if (artist_ids.length > 0) {
@@ -115,14 +112,14 @@ export const createEvent = async (req, res) => {
         {
           model: Location,
           as: 'venue',
-          attributes: ['id', 'name', 'address']
+          attributes: ['id', 'name', 'address'],
         },
         {
           model: Artist,
           through: { attributes: [] },
-          attributes: ['id', 'name']
-        }
-      ]
+          attributes: ['id', 'name'],
+        },
+      ],
     });
 
     handleResponse(res, 201, 'Event created successfully', eventWithRelations);
@@ -132,7 +129,6 @@ export const createEvent = async (req, res) => {
 };
 
 export const updateEvent = async (req, res) => {
-
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -141,7 +137,7 @@ export const updateEvent = async (req, res) => {
 
   try {
     const { id } = req.params;
-    const { title, category, start_time, end_time, color } = req.body;
+    const { title, category, start_time, end_time, color, artist_ids = [] } = req.body;
 
     const event = await Event.findByPk(id);
     if (!event) {
@@ -152,11 +148,34 @@ export const updateEvent = async (req, res) => {
       title,
       category,
       start_time: new Date(start_time).toISOString(), // Ensure UTC
-      end_time: end_time ? new Date(end_time).toISOString() : null, 
+      end_time: end_time ? new Date(end_time).toISOString() : null,
       color,
     });
 
-    handleResponse(res, 200, 'Event updated successfully', event);
+    // Update artist associations
+    if (artist_ids.length > 0) {
+      await event.setArtists(artist_ids);
+    } else {
+      await event.setArtists([]); // Remove all artist associations if no artists selected
+    }
+
+    // Fetch updated event with relations
+    const updatedEvent = await Event.findByPk(id, {
+      include: [
+        {
+          model: Location,
+          as: 'venue',
+          attributes: ['id', 'name', 'address'],
+        },
+        {
+          model: Artist,
+          through: { attributes: [] },
+          attributes: ['id', 'name'],
+        },
+      ],
+    });
+
+    handleResponse(res, 200, 'Event updated successfully', updatedEvent);
   } catch (error) {
     handleError(res, error);
   }
@@ -181,7 +200,7 @@ export const deleteEvent = async (req, res) => {
 export const addArtistToEvent = async (req, res) => {
   try {
     const { eventId, artistId } = req.params;
-    
+
     const event = await Event.findByPk(eventId);
     if (!event) {
       return handleResponse(res, 404, 'Event not found');
@@ -193,7 +212,7 @@ export const addArtistToEvent = async (req, res) => {
     }
 
     await event.addArtist(artist);
-    
+
     handleResponse(res, 200, 'Artist added to event successfully');
   } catch (error) {
     handleError(res, error);
@@ -203,7 +222,7 @@ export const addArtistToEvent = async (req, res) => {
 export const removeArtistFromEvent = async (req, res) => {
   try {
     const { eventId, artistId } = req.params;
-    
+
     const event = await Event.findByPk(eventId);
     if (!event) {
       return handleResponse(res, 404, 'Event not found');
@@ -215,7 +234,7 @@ export const removeArtistFromEvent = async (req, res) => {
     }
 
     await event.removeArtist(artist);
-    
+
     handleResponse(res, 200, 'Artist removed from event successfully');
   } catch (error) {
     handleError(res, error);
