@@ -41,15 +41,28 @@
     </mat-form-field>
 
     <!-- Artists -->
-<mat-form-field appearance="fill">
-  <mat-label>Artists</mat-label>
-  <mat-select formControlName="artistIds" multiple>
-    @for (artist of artists; track artist.id) {
-      <mat-option [value]="artist.id">{{ artist.name }}</mat-option>
-    }
-  </mat-select>
-  <mat-hint>You can select multiple artists</mat-hint>
-</mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Artists</mat-label>
+      <mat-select formControlName="artistIds" multiple>
+        @for (artist of artists; track artist.id) {
+          <mat-option [value]="artist.id">{{ artist.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint>You can select multiple artists</mat-hint>
+    </mat-form-field>
+
+    <!-- Venue -->
+    <mat-form-field appearance="fill">
+      <mat-label>Venue</mat-label>
+      <mat-select formControlName="location_id">
+        @for (location of locations; track location.id) {
+          <mat-option [value]="location.id">{{ location.name }}</mat-option>
+        }
+      </mat-select>
+      @if (eventForm.get('location_id')?.hasError('required')) {
+        <mat-error>Venue is required</mat-error>
+      }
+    </mat-form-field>
 
     <!-- Color -->
     <mat-form-field appearance="fill">

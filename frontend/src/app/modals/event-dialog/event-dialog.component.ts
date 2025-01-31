@@ -13,6 +13,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { ArtistsService } from '../../services/artists.service';
 import { Artist } from '../../models/artist.model';
+import { LocationsService } from '../../services/locations.service';
+import { Location } from '../../models/location.model';
 
 @Component({
   selector: 'app-event-dialog',
@@ -26,6 +28,7 @@ export class EventDialogComponent implements OnInit {
   isEditMode: boolean;
   event: any = {};
   artists: Artist[] = [];
+  locations: Location[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -33,13 +36,15 @@ export class EventDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private _snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private artistsService: ArtistsService
+    private artistsService: ArtistsService,
+    private locationsService: LocationsService
   ) {
     this.isEditMode = data.mode === 'edit';
   }
 
   ngOnInit(): void {
     this.loadArtists();
+    this.loadLocations();
 
     this.eventForm = this.fb.group({
       title: [this.data.event?.title || '', [Validators.required]],
@@ -56,6 +61,7 @@ export class EventDialogComponent implements OnInit {
       ],
       color: [this.data.event?.color || '#3788d8'],
       artistIds: [this.data.event?.artists?.map((a: Artist) => a.id) || []],
+      location_id: [this.data.event?.location_id || '', [Validators.required]],
     });
   }
 
@@ -67,6 +73,20 @@ export class EventDialogComponent implements OnInit {
       error: (error) => {
         this._snackBar.open('Error loading artists', 'Close', { duration: 3000 });
         console.error('Error loading artists:', error);
+      },
+    });
+  }
+
+  loadLocations() {
+    this.locationsService.getLocations().subscribe({
+      next: (response) => {
+        this.locations = response.data;
+      },
+      error: (error) => {
+        console.error('Error loading locations:', error);
+        this._snackBar.open('Error loading locations', 'Close', {
+          duration: 3000,
+        });
       },
     });
   }
