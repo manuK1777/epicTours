@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { HttpClient } from '@angular/common/http';
 import { ArtistsService } from '../../services/artists.service';
 import { MatDialogModule } from '@angular/material/dialog';
-import { Artist } from '../../models/artist.model';
+import { Artist } from '@shared/models/artist.model';
 import { Router } from '@angular/router';
 import { MaterialModule } from 'src/app/material.module';
 import { CommonModule } from '@angular/common';

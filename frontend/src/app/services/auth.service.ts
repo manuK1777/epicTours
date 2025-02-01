@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
-import { User, AuthResponse, AuthResponseData } from '../models/user.model';
+import { User, AuthResponse, AuthResponseData } from '@shared/models/user.model';
 import { Router } from '@angular/router';
 import { ApiService } from './api.service';
 

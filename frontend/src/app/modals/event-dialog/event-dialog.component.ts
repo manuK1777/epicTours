@@ -12,9 +12,9 @@ import { CommonModule } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { ArtistsService } from '../../services/artists.service';
-import { Artist } from '../../models/artist.model';
+import { Artist } from '@shared/models/artist.model';
 import { LocationsService } from '../../services/locations.service';
-import { Location } from '../../models/location.model';
+import { Location } from '@shared/models/location.model';
 
 @Component({
   selector: 'app-event-dialog',

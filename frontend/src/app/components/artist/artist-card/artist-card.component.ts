@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { Artist } from '../../models/artist.model';
-import { ArtistsService } from '../../services/artists.service';
+import { Artist } from '@shared/models/artist.model';
+import { ArtistsService } from '../../../services/artists.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { environment } from '../../../environments/environment';
+import { environment } from '@environments/environment';
 
 @Component({
   selector: 'app-artist-card',

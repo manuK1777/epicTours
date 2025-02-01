@@ -3,8 +3,8 @@ import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dial
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MusicianService } from '../../services/musician.service';
 import { CrewService } from '../../services/crew.service';
-import { Musician } from '../../models/musician.model';
-import { Crew } from '../../models/crew.model';
+import { Musician } from '@shared/models/musician.model';
+import { Crew } from '@shared/models/crew.model';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,17 +25,17 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
   selector: 'app-musicians-crew',
   standalone: true,
   imports: [
-    CommonModule, 
-    MatDialogModule, 
-    MatButtonModule, 
-    MaterialModule, 
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MaterialModule,
     ReactiveFormsModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
     MatIconModule,
     MatInputModule,
-    MatFormFieldModule
+    MatFormFieldModule,
   ],
   templateUrl: './musicians-crew.component.html',
   styleUrls: ['./musicians-crew.component.scss'],
@@ -43,13 +43,13 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
     trigger('tableAnimation', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(20px)' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
       ]),
       transition(':leave', [
-        animate('300ms ease-in', style({ opacity: 0, transform: 'translateY(-20px)' }))
-      ])
-    ])
-  ]
+        animate('300ms ease-in', style({ opacity: 0, transform: 'translateY(-20px)' })),
+      ]),
+    ]),
+  ],
 })
 export class MusiciansCrewComponent implements OnInit {
   items: (Musician | Crew)[] = [];
@@ -67,20 +67,28 @@ export class MusiciansCrewComponent implements OnInit {
   constructor(
     private dialogRef: MatDialogRef<MusiciansCrewComponent>,
     private dialog: MatDialog,
-    @Inject(MAT_DIALOG_DATA) public data: { group: boolean, artistId: number },
+    @Inject(MAT_DIALOG_DATA) public data: { group: boolean; artistId: number },
     private musicianService: MusicianService,
     private crewService: CrewService,
     private _snackBar: MatSnackBar,
     private fb: FormBuilder
   ) {
     // Set up sorting accessor
-    this.dataSource.sortingDataAccessor = (item: Musician | Crew, property: string): string | number => {
-      switch(property) {
-        case 'name': return item.name.toLowerCase();
-        case 'email': return item.email?.toLowerCase() || '';
-        case 'phone': return item.phone || '';
-        case 'role': return this.getItemValue(item).toLowerCase();
-        default: return '';
+    this.dataSource.sortingDataAccessor = (
+      item: Musician | Crew,
+      property: string
+    ): string | number => {
+      switch (property) {
+        case 'name':
+          return item.name.toLowerCase();
+        case 'email':
+          return item.email?.toLowerCase() || '';
+        case 'phone':
+          return item.phone || '';
+        case 'role':
+          return this.getItemValue(item).toLowerCase();
+        default:
+          return '';
       }
     };
   }
@@ -96,7 +104,7 @@ export class MusiciansCrewComponent implements OnInit {
       name: [item?.name || '', [Validators.required, Validators.minLength(2)]],
       role: [item?.role || item?.instrument || ''],
       email: [item?.email || '', [Validators.email]],
-      phone: [item?.phone || '', [Validators.pattern(/^[0-9]{7,15}$/)]]
+      phone: [item?.phone || '', [Validators.pattern(/^[0-9]{7,15}$/)]],
     });
   }
 
@@ -118,7 +126,8 @@ export class MusiciansCrewComponent implements OnInit {
   }
 
   loadItems() {
-    if (this.data.group) {  // If group is true, load musicians
+    if (this.data.group) {
+      // If group is true, load musicians
       console.log('Loading musicians for artist:', this.data.artistId);
       this.musicianService.getMusiciansByArtist(this.data.artistId).subscribe({
         next: (response: any) => {
@@ -126,33 +135,42 @@ export class MusiciansCrewComponent implements OnInit {
           const musicians = response.data || response;
           this.items = musicians;
           this.dataSource = new MatTableDataSource(this.items);
-          
+
           // Reinitialize sorting and filtering
           if (this.sort) {
             this.dataSource.sort = this.sort;
             this.applyCurrentSort();
           }
-          
+
           if (this.paginator) {
             this.dataSource.paginator = this.paginator;
           }
 
           // Reapply sorting accessor
-          this.dataSource.sortingDataAccessor = (item: Musician | Crew, property: string): string | number => {
-            switch(property) {
-              case 'name': return item.name.toLowerCase();
-              case 'email': return item.email?.toLowerCase() || '';
-              case 'phone': return item.phone || '';
-              case 'role': return this.getItemValue(item).toLowerCase();
-              default: return '';
+          this.dataSource.sortingDataAccessor = (
+            item: Musician | Crew,
+            property: string
+          ): string | number => {
+            switch (property) {
+              case 'name':
+                return item.name.toLowerCase();
+              case 'email':
+                return item.email?.toLowerCase() || '';
+              case 'phone':
+                return item.phone || '';
+              case 'role':
+                return this.getItemValue(item).toLowerCase();
+              default:
+                return '';
             }
           };
         },
         error: (error) => {
           console.error('Error loading musicians:', error);
-        }
+        },
       });
-    } else {  // If group is false, load crew
+    } else {
+      // If group is false, load crew
       console.log('Loading crew members for artist:', this.data.artistId);
       this.crewService.getCrewByArtist(this.data.artistId).subscribe({
         next: (response: any) => {
@@ -160,31 +178,39 @@ export class MusiciansCrewComponent implements OnInit {
           const crew = response.data || response;
           this.items = crew;
           this.dataSource = new MatTableDataSource(this.items);
-          
+
           // Reinitialize sorting and filtering
           if (this.sort) {
             this.dataSource.sort = this.sort;
             this.applyCurrentSort();
           }
-          
+
           if (this.paginator) {
             this.dataSource.paginator = this.paginator;
           }
 
           // Reapply sorting accessor
-          this.dataSource.sortingDataAccessor = (item: Musician | Crew, property: string): string | number => {
-            switch(property) {
-              case 'name': return item.name.toLowerCase();
-              case 'email': return item.email?.toLowerCase() || '';
-              case 'phone': return item.phone || '';
-              case 'role': return this.getItemValue(item).toLowerCase();
-              default: return '';
+          this.dataSource.sortingDataAccessor = (
+            item: Musician | Crew,
+            property: string
+          ): string | number => {
+            switch (property) {
+              case 'name':
+                return item.name.toLowerCase();
+              case 'email':
+                return item.email?.toLowerCase() || '';
+              case 'phone':
+                return item.phone || '';
+              case 'role':
+                return this.getItemValue(item).toLowerCase();
+              default:
+                return '';
             }
           };
         },
         error: (error) => {
           console.error('Error loading crew members:', error);
-        }
+        },
       });
     }
   }
@@ -207,10 +233,10 @@ export class MusiciansCrewComponent implements OnInit {
   }
 
   getEditedItemValue(): string {
-    return this.data.group 
-        ? ((this.editedItem as Crew).role || '')
-        : ((this.editedItem as Musician).instrument || '');
-}
+    return this.data.group
+      ? (this.editedItem as Crew).role || ''
+      : (this.editedItem as Musician).instrument || '';
+  }
 
   setEditedItemValue(value: string) {
     if (this.data.group) {
@@ -221,9 +247,7 @@ export class MusiciansCrewComponent implements OnInit {
   }
 
   getItemValue(item: Musician | Crew): string {
-    return this.data.group 
-        ? ((item as Musician).instrument || '')
-        : ((item as Crew).role || '');
+    return this.data.group ? (item as Musician).instrument || '' : (item as Crew).role || '';
   }
 
   onFileSelected(event: any) {
@@ -255,23 +279,23 @@ export class MusiciansCrewComponent implements OnInit {
   saveItem() {
     if (this.itemForm.valid) {
       const formData = new FormData();
-      
+
       // Always add the artist_id from the dialog data
       formData.append('artist_id', this.data.artistId.toString());
 
       // Add form values
       const formValues = this.itemForm.value;
       formData.append('name', formValues.name);
-      
+
       if (this.data.group) {
         formData.append('instrument', formValues.role);
       } else {
         formData.append('role', formValues.role);
       }
-      
+
       formData.append('email', formValues.email);
       formData.append('phone', formValues.phone || '');
-      
+
       if (this.selectedFile) {
         formData.append('file', this.selectedFile);
       }
@@ -281,12 +305,12 @@ export class MusiciansCrewComponent implements OnInit {
         if (this.data.group) {
           this.musicianService.updateMusician(this.editingId, formData).subscribe({
             next: (updatedItem) => this.handleSaveSuccess(updatedItem),
-            error: (error) => console.error('Error updating musician:', error)
+            error: (error) => console.error('Error updating musician:', error),
           });
         } else {
           this.crewService.updateCrewMember(this.editingId, formData).subscribe({
             next: (updatedItem) => this.handleSaveSuccess(updatedItem),
-            error: (error) => console.error('Error updating crew member:', error)
+            error: (error) => console.error('Error updating crew member:', error),
           });
         }
       } else {
@@ -307,7 +331,7 @@ export class MusiciansCrewComponent implements OnInit {
                 duration: 3000,
                 panelClass: ['snack-bar-error'],
               });
-            }
+            },
           });
         } else {
           this.crewService.createCrewMember(formData).subscribe({
@@ -325,7 +349,7 @@ export class MusiciansCrewComponent implements OnInit {
                 duration: 3000,
                 panelClass: ['snack-bar-error'],
               });
-            }
+            },
           });
         }
       }
@@ -336,18 +360,18 @@ export class MusiciansCrewComponent implements OnInit {
     this.editedItem = null;
     this.editingId = undefined;
     this.selectedFile = undefined;
-    
+
     // Clear the search filter
     this.dataSource.filter = '';
     if (this.input) {
       this.input.nativeElement.value = '';
     }
-    
+
     // Reset paginator to first page
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
-    
+
     this.loadItems();
   }
 
@@ -355,9 +379,9 @@ export class MusiciansCrewComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
         title: this.data.group ? 'Confirm Musician Deletion' : 'Confirm Crew Member Deletion',
-        message: this.data.group ? 
-          'Are you sure you want to delete this musician?' : 
-          'Are you sure you want to delete this crew member?',
+        message: this.data.group
+          ? 'Are you sure you want to delete this musician?'
+          : 'Are you sure you want to delete this crew member?',
         confirmText: 'Delete',
         cancelText: 'Cancel',
       },
@@ -365,7 +389,8 @@ export class MusiciansCrewComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
-        if (this.data.group) {  // group true = musicians
+        if (this.data.group) {
+          // group true = musicians
           this.musicianService.deleteMusician(id).subscribe({
             next: () => {
               this.handleDeleteSuccess(id);
@@ -381,9 +406,10 @@ export class MusiciansCrewComponent implements OnInit {
                 duration: 3000,
                 panelClass: ['snack-bar-error'],
               });
-            }
+            },
           });
-        } else {  // group false = crew
+        } else {
+          // group false = crew
           this.crewService.deleteCrewMember(id).subscribe({
             next: () => {
               this.handleDeleteSuccess(id);
@@ -399,7 +425,7 @@ export class MusiciansCrewComponent implements OnInit {
                 duration: 3000,
                 panelClass: ['snack-bar-error'],
               });
-            }
+            },
           });
         }
       }
@@ -421,16 +447,16 @@ export class MusiciansCrewComponent implements OnInit {
   switchView() {
     // Store current scroll position
     const scrollPosition = document.documentElement.scrollTop;
-    
+
     // Update the data
     this.data = {
       ...this.data,
-      group: !this.data.group
+      group: !this.data.group,
     };
-    
+
     // Reload items with animation
     this.loadItems();
-    
+
     // Restore scroll position after a brief delay
     setTimeout(() => {
       window.scrollTo({ top: scrollPosition });

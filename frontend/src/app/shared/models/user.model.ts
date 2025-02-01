@@ -14,9 +14,11 @@ export interface AuthResponseData {
   token: string;
 }
 
-export type AuthResponse = {
-  code?: number;
-  message?: string;
-  data?: AuthResponseData;
-  error?: string | null;
-} | AuthResponseData;
+export type AuthResponse =
+  | {
+      code?: number;
+      message?: string;
+      data?: AuthResponseData;
+      error?: string | null;
+    }
+  | AuthResponseData;

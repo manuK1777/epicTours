@@ -9,30 +9,28 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { OpenModalCreateArtistService } from '../../services/open-modal-create-artist.service';
 import { HttpClient } from '@angular/common/http';
 import { ArtistsService } from '../../services/artists.service';
-import { Artist } from '../../models/artist.model';
+import { Artist } from '@shared/models/artist.model';
 import { RouterLink, Router } from '@angular/router';
 import { MaterialModule } from '../../material.module';
 
 @Component({
   selector: 'app-artist-list',
   standalone: true,
-  imports: [ 
-    MatButton, 
-    MatTableModule, 
-    MatPaginatorModule, 
-    RouterLink, 
+  imports: [
+    MatButton,
+    MatTableModule,
+    MatPaginatorModule,
+    RouterLink,
     MaterialModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    MatSortModule
+    MatSortModule,
   ],
   templateUrl: './artist-list.component.html',
-  styleUrls: ['./artist-list.component.scss']
+  styleUrls: ['./artist-list.component.scss'],
 })
-
 export class ArtistListComponent implements AfterViewInit {
-
   displayedColumns: string[] = ['id', 'name', 'email', 'webPage', 'contact', 'phone'];
   dataSource = new MatTableDataSource<Artist>([]);
 
@@ -42,14 +40,16 @@ export class ArtistListComponent implements AfterViewInit {
   constructor(
     private openModalCreateArtistService: OpenModalCreateArtistService,
     private http: HttpClient,
-    private artistsService: ArtistsService,  
+    private artistsService: ArtistsService,
     private router: Router
   ) {
     // Set default sort
     this.dataSource.sortingDataAccessor = (item: Artist, property: string) => {
-      switch(property) {
-        case 'name': return item.name.toLowerCase();
-        default: return item[property as keyof Artist];
+      switch (property) {
+        case 'name':
+          return item.name.toLowerCase();
+        default:
+          return item[property as keyof Artist];
       }
     };
   }
@@ -66,9 +66,9 @@ export class ArtistListComponent implements AfterViewInit {
   loadArtists(): void {
     this.artistsService.getArtists().subscribe({
       next: (artists: Artist[]) => {
-        console.log('API Response:', artists); 
+        console.log('API Response:', artists);
         this.dataSource.data = artists;
-        console.log('DataSource:', this.dataSource.data); 
+        console.log('DataSource:', this.dataSource.data);
         // Sort by name by default in descending order
         this.dataSource.sort = this.sort;
         this.dataSource.sort.sort({ id: 'name', start: 'asc', disableClear: false });
@@ -78,7 +78,7 @@ export class ArtistListComponent implements AfterViewInit {
       },
     });
   }
-  
+
   openModalCreateArtist() {
     const dialogRef = this.openModalCreateArtistService.openCreateArtistModal();
 

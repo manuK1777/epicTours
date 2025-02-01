@@ -4,7 +4,7 @@ import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { EventService } from 'src/app/services/event.service';
-import { Event } from 'src/app/models/event.model';
+import { Event } from '@shared/models/event.model';
 import { EventDialogComponent } from 'src/app/modals/event-dialog/event-dialog.component';
 import { MaterialModule } from 'src/app/material.module';
 import { MatDialog } from '@angular/material/dialog';

@@ -7,7 +7,7 @@ import {
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
-import { Location } from 'src/app/models/location.model';
+import { Location } from '@shared/models/location.model';
 import { MaterialModule } from 'src/app/material.module';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';

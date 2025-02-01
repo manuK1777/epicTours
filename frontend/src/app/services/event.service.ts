@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { Event } from '../models/event.model';
+import { Event } from '@shared/models/event.model';
 import { ApiService } from './api.service';
 
 @Injectable({

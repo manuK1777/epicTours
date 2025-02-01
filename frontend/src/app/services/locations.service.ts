@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Location } from '../models/location.model';
+import { Location } from '@shared/models/location.model';
 import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 

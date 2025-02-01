@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MaterialModule } from 'src/app/material.module';
 import { MatDialog } from '@angular/material/dialog';
 import { EventService } from 'src/app/services/event.service';
-import { Event } from 'src/app/models/event.model';
+import { Event } from '@shared/models/event.model';
 import { EventDialogComponent } from 'src/app/modals/event-dialog/event-dialog.component';
 import { CommonModule } from '@angular/common';
 import { provideNativeDateAdapter } from '@angular/material/core';

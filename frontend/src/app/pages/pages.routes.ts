@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { homeComponent } from './home/home.component';
 import { ArtistListComponent } from './artist-list/artist-list.component';
-import { ArtistCardComponent } from './artist-card/artist-card.component';
+import { ArtistCardComponent } from '@components/artist/artist-card/artist-card.component';
 import { ArtistDetailComponent } from './artist-detail/artist-detail.component';
 import { MapComponent } from './map/map.component';
 import { VenuesComponent } from './venues/venues.component';

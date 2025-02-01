@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Crew } from '../models/crew.model';
+import { Crew } from '@shared/models/crew.model';
 import { ApiService } from './api.service';
 
 @Injectable({

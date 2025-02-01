@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { LocationsService } from '../../services/locations.service';
-import { signal, WritableSignal} from '@angular/core';
-import { Location } from '../../models/location.model';
+import { signal, WritableSignal } from '@angular/core';
+import { Location } from '@shared/models/location.model';
 import { MaterialModule } from 'src/app/material.module';
 import { ToolbarComponent } from 'src/app/pages/toolbar/toolbar.component';
 import { MapComponent } from 'src/app/pages/map/map.component';
@@ -15,17 +15,10 @@ import { GeocodingService } from '../../services/geocoding.service';
 @Component({
   selector: 'app-venues',
   standalone: true,
-  imports: [ 
-    MaterialModule, 
-    ToolbarComponent, 
-    MapComponent,
-    VenuesTableComponent,
-    CommonModule,
-  ],
+  imports: [MaterialModule, ToolbarComponent, MapComponent, VenuesTableComponent, CommonModule],
   templateUrl: './venues.component.html',
-  styleUrls: ['./venues.component.scss']
+  styleUrls: ['./venues.component.scss'],
 })
-
 export class VenuesComponent implements OnInit {
   // Signals for managing state
   categoriesSignal = signal<string[]>([]); // Writable signal
@@ -35,8 +28,8 @@ export class VenuesComponent implements OnInit {
   activeView: 'map' | 'table' = 'map';
 
   constructor(
-    private locationsService: LocationsService, 
-    private router: Router, 
+    private locationsService: LocationsService,
+    private router: Router,
     private route: ActivatedRoute,
     private titleService: Title,
     private notificationService: NotificationService,
@@ -63,7 +56,7 @@ export class VenuesComponent implements OnInit {
   private loadCategories(): void {
     this.locationsService.getCategories().subscribe({
       next: (categories) => {
-        console.log('Loaded categories:', categories); 
+        console.log('Loaded categories:', categories);
         if (!Array.isArray(categories)) {
           console.error('Categories is not an array:', categories);
           this.categoriesSignal.set([]);
@@ -81,12 +74,12 @@ export class VenuesComponent implements OnInit {
   refreshVenues(): void {
     const selectedCategories = this.selectedCategoriesSignal();
     console.log('Selected categories for filtering:', selectedCategories);
-  
+
     // If 'all' is selected or no categories selected, get all venues
     if (selectedCategories.includes('__all__') || selectedCategories.length === 0) {
       this.locationsService.getLocations().subscribe({
         next: (response) => {
-          console.log('All venues:', response.data); 
+          console.log('All venues:', response.data);
           this.venuesSignal.set(response?.data || []);
         },
         error: (err) => {
@@ -97,7 +90,7 @@ export class VenuesComponent implements OnInit {
     } else {
       this.locationsService.getLocationsByCategories(selectedCategories).subscribe({
         next: (locations) => {
-          console.log('Filtered venues:', locations); 
+          console.log('Filtered venues:', locations);
           this.venuesSignal.set(locations || []);
         },
         error: (err) => {
@@ -107,7 +100,7 @@ export class VenuesComponent implements OnInit {
       });
     }
   }
-  
+
   // Toggle between map and table views
   switchView(view: 'map' | 'table'): void {
     this.router.navigate([view], { relativeTo: this.route });
@@ -123,23 +116,33 @@ export class VenuesComponent implements OnInit {
         // First try to geocode if needed
         if (!venue.latitude || !venue.longitude) {
           try {
-            const geocodeResult = await new Promise<{ lat: number; lon: number }>((resolve, reject) => {
-              this.geocodingService.geocodeAddress(venue.address).subscribe({
-                next: (result) => resolve(result),
-                error: (error) => reject(error)
-              });
-            });
-            if (geocodeResult && typeof geocodeResult.lat === 'number' && typeof geocodeResult.lon === 'number') {
+            const geocodeResult = await new Promise<{ lat: number; lon: number }>(
+              (resolve, reject) => {
+                this.geocodingService.geocodeAddress(venue.address).subscribe({
+                  next: (result) => resolve(result),
+                  error: (error) => reject(error),
+                });
+              }
+            );
+            if (
+              geocodeResult &&
+              typeof geocodeResult.lat === 'number' &&
+              typeof geocodeResult.lon === 'number'
+            ) {
               venue.latitude = geocodeResult.lat;
               venue.longitude = geocodeResult.lon;
             } else {
               snackBarRef.dismiss();
-              this.notificationService.showError('Invalid geocoding response. Please check the address and try again.');
+              this.notificationService.showError(
+                'Invalid geocoding response. Please check the address and try again.'
+              );
               return;
             }
           } catch (geocodeError) {
             snackBarRef.dismiss();
-            this.notificationService.showError('Failed to geocode address. Please check the address and try again.');
+            this.notificationService.showError(
+              'Failed to geocode address. Please check the address and try again.'
+            );
             console.error('Geocoding error:', geocodeError);
             return;
           }
@@ -151,12 +154,12 @@ export class VenuesComponent implements OnInit {
             const newVenue = await new Promise((resolve, reject) => {
               this.locationsService.addLocation(venue).subscribe({
                 next: (result) => resolve(result),
-                error: (error) => reject(error)
+                error: (error) => reject(error),
               });
             });
             snackBarRef.dismiss();
             this.notificationService.showSuccess('Venue added successfully');
-            
+
             // Refresh the data
             await this.loadCategories();
             this.refreshVenues();
@@ -183,30 +186,40 @@ export class VenuesComponent implements OnInit {
     try {
       // Check if address was changed by comparing with existing venue
       const currentVenues = this.venuesSignal();
-      const existingVenue = currentVenues.find(v => v.id === id);
+      const existingVenue = currentVenues.find((v) => v.id === id);
       const addressChanged = existingVenue && existingVenue.address !== updatedVenue.address;
 
       // If address changed, we need to geocode
       if (addressChanged) {
         try {
-          const geocodeResult = await new Promise<{ lat: number; lon: number }>((resolve, reject) => {
-            this.geocodingService.geocodeAddress(updatedVenue.address).subscribe({
-              next: (result) => resolve(result),
-              error: (error) => reject(error)
-            });
-          });
+          const geocodeResult = await new Promise<{ lat: number; lon: number }>(
+            (resolve, reject) => {
+              this.geocodingService.geocodeAddress(updatedVenue.address).subscribe({
+                next: (result) => resolve(result),
+                error: (error) => reject(error),
+              });
+            }
+          );
 
-          if (geocodeResult && typeof geocodeResult.lat === 'number' && typeof geocodeResult.lon === 'number') {
+          if (
+            geocodeResult &&
+            typeof geocodeResult.lat === 'number' &&
+            typeof geocodeResult.lon === 'number'
+          ) {
             updatedVenue.latitude = geocodeResult.lat;
             updatedVenue.longitude = geocodeResult.lon;
           } else {
             snackBarRef.dismiss();
-            this.notificationService.showError('Invalid geocoding response. Please check the address and try again.');
+            this.notificationService.showError(
+              'Invalid geocoding response. Please check the address and try again.'
+            );
             return;
           }
         } catch (geocodeError) {
           snackBarRef.dismiss();
-          this.notificationService.showError('Failed to geocode address. Please check the address and try again.');
+          this.notificationService.showError(
+            'Failed to geocode address. Please check the address and try again.'
+          );
           console.error('Geocoding error:', geocodeError);
           return;
         }
@@ -217,13 +230,13 @@ export class VenuesComponent implements OnInit {
         await new Promise((resolve, reject) => {
           this.locationsService.updateLocation(id, updatedVenue).subscribe({
             next: (result) => resolve(result),
-            error: (error) => reject(error)
+            error: (error) => reject(error),
           });
         });
 
         snackBarRef.dismiss();
         this.notificationService.showSuccess('Venue updated successfully');
-        
+
         // Refresh the data
         await this.loadCategories();
         this.refreshVenues();
@@ -257,5 +270,4 @@ export class VenuesComponent implements OnInit {
     this.selectedCategoriesSignal.set(selectedCategories); // Update signal
     this.refreshVenues(); // Refresh venues based on updated filters
   }
-  
 }
