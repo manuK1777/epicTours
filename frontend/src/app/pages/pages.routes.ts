@@ -11,6 +11,7 @@ import { ChartsComponent } from './charts/charts.component';
 import { ChartBarComponent } from './chart-bar/chart-bar.component';
 import { ChartLineComponent } from './chart-line/chart-line.component';
 import { AuthGuard } from '../guards/auth.guard';
+import { EventsComponent } from './events/events.component';
 
 export const PagesRoutes: Routes = [
   {
@@ -73,6 +74,16 @@ export const PagesRoutes: Routes = [
         pathMatch: 'full',
       },
     ],
+  },
+  {
+    path: 'events',
+    component: EventsComponent,
+    canActivate: [AuthGuard],
+    data: {
+      title: 'Events',
+      roles: ['admin', 'manager'],
+      urls: [{ title: 'Dashboard', url: '/home' }, { title: 'Events' }],
+    },
   },
   {
     path: 'calendar',

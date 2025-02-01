@@ -20,6 +20,11 @@ export const navItems: NavItem[] = [
     route: 'home/venues',
   },
   {
+    displayName: 'Events',
+    iconName: 'solar:calendar-line-duotone',
+    route: 'home/events',
+  },
+  {
     displayName: 'Calendar',
     iconName: 'solar:calendar-line-duotone',
     route: 'home/calendar',
