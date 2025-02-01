@@ -12,7 +12,7 @@ export const navItems: NavItem[] = [
   {
     displayName: 'Artists',
     iconName: 'tabler:users-group',
-    route: 'home/artist-card',
+    route: 'home/artists',
   },
   {
     displayName: 'Venues',

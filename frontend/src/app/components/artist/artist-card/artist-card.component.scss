@@ -11,6 +11,7 @@
 .search-container {
   display: flex;
   justify-content: center;
+  margin-bottom: 24px;
 
   mat-form-field {
     width: 100%;
@@ -22,25 +23,29 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 24px;
+  padding: 20px;
 }
 
 .artist-card {
-  background: linear-gradient(135deg, darken(#020f1b, 20%), #00a1ff);
+  background: #424242;
   color: white;
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
+  height: 100%;
+  
   &:hover {
-    transform: translateY(-5px) scale(1.05);
+    transform: translateY(-5px) scale(1.02);
     transition: all 0.3s ease;
   }
 
   img {
     height: 200px;
     object-fit: cover;
+    width: 100%;
   }
 
   mat-card-header {
     justify-content: center;
-    padding: 12px;
+    padding: 16px;
   }
 }

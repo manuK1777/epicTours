@@ -318,7 +318,7 @@ export class ArtistDetailComponent implements OnInit {
   }
 
   navigateToArtistList(): void {
-    this.router.navigate(['/home/artist-card']);
+    this.router.navigate(['/home/artists']);
   }
 
   openArtistInfoModal() {

@@ -1,9 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { Artist } from '@shared/models/artist.model';
-import { ArtistsService } from '../../../services/artists.service';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,38 +14,23 @@ import { environment } from '@environments/environment';
   templateUrl: './artist-card.component.html',
   styleUrls: ['./artist-card.component.scss'],
 })
-export class ArtistCardComponent implements OnInit {
-  artists: Artist[] = [];
+export class ArtistCardComponent implements OnChanges {
+  @Input() artists: Artist[] = [];
+  @Output() artistSelected = new EventEmitter<Artist>();
   filteredArtists: Artist[] = [];
   hover = false;
 
-  constructor(
-    private artistsService: ArtistsService,
-    private router: Router
-  ) {}
-
-  ngOnInit(): void {
-    this.loadArtists();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['artists']) {
+      this.filteredArtists = this.artists;
+    }
   }
 
-  loadArtists(): void {
-    this.artistsService.getArtists().subscribe({
-      next: (artists: Artist[]) => {
-        this.artists = artists;
-        this.filteredArtists = artists;
-      },
-      error: (error) => {
-        console.error('Failed to fetch artists', error);
-      },
-    });
+  onSelectArtist(artist: Artist): void {
+    this.artistSelected.emit(artist);
   }
 
-  onSelectArtist(artist: Artist) {
-    const artistSlug = artist.name.toLowerCase().replace(/ /g, '-');
-    this.router.navigate(['/home/artist', artist.id, artistSlug]);
-  }
-
-  applyFilter(event: Event) {
+  applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value.toLowerCase();
     this.filteredArtists = this.artists.filter((artist) =>
       artist.name.toLowerCase().includes(filterValue)
