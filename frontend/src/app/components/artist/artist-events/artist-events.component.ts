@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { MaterialModule } from 'src/app/material.module';
+import { MaterialModule } from '../../../material.module';
 import { CommonModule } from '@angular/common';
-import { ArtistsService } from 'src/app/services/artists.service';
+import { ArtistsService } from '../../../services/artists.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 
