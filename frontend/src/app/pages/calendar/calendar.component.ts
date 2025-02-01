@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
-import { CalendarOptions} from '@fullcalendar/core';
+import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { EventService } from 'src/app/services/event.service';
@@ -12,12 +12,11 @@ import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [ FullCalendarModule, MaterialModule ],
+  imports: [FullCalendarModule, MaterialModule],
   templateUrl: './calendar.component.html',
-  styleUrl: './calendar.component.scss'
+  styleUrl: './calendar.component.scss',
 })
 export class CalendarComponent {
-
   events: Event[] = [];
   calendarOptions: CalendarOptions = {
     initialView: 'dayGridMonth',
@@ -25,17 +24,16 @@ export class CalendarComponent {
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'dayGridMonth,dayGridWeek,dayGridDay',
+      right: 'dayGridMonth,dayGridWeek,dayGridDay,dayGridYear',
     },
-   events: [],
-    dateClick: this.handleDateClick.bind(this), 
+    events: [],
+    dateClick: this.handleDateClick.bind(this),
     eventClick: this.eventClickHandler.bind(this),
   };
-  
-  
-  constructor (
+
+  constructor(
     private eventService: EventService,
-    public dialog: MatDialog,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -54,7 +52,7 @@ export class CalendarComponent {
         this.eventService.createEvent(result.event).subscribe({
           next: () => {
             console.log('Event added successfully');
-            this.loadEvents(); 
+            this.loadEvents();
           },
           error: (err) => {
             console.error('Error adding event:', err);
@@ -63,7 +61,7 @@ export class CalendarComponent {
       }
     });
   }
-  
+
   loadEvents(): void {
     this.eventService.getEvents().subscribe({
       next: (events) => {
@@ -76,17 +74,17 @@ export class CalendarComponent {
       },
     });
   }
-  
+
   private updateCalendarEvents(): void {
-    this.calendarOptions.events = this.events.map(event => ({
+    this.calendarOptions.events = this.events.map((event) => ({
       title: event.title,
-      start: this.convertUTCToLocal(event.start_time), 
-      end: event.end_time ? this.convertUTCToLocal(event.end_time) : undefined, 
+      start: this.convertUTCToLocal(event.start_time),
+      end: event.end_time ? this.convertUTCToLocal(event.end_time) : undefined,
       color: event.color,
-      extendedProps: { ...event }, 
+      extendedProps: { ...event },
     }));
   }
-  
+
   /**
    * Convert a UTC ISO string to local datetime string (YYYY-MM-DDTHH:mm).
    */
@@ -94,7 +92,7 @@ export class CalendarComponent {
     const utcDate = new Date(utcDateTime); // Parse as UTC
     return utcDate.toISOString().slice(0, 16); // Format for datetime-local input
   }
-  
+
   eventClickHandler(eventInfo: any): void {
     const dialogRef = this.dialog.open(EventDialogComponent, {
       width: '400px',
@@ -107,7 +105,7 @@ export class CalendarComponent {
         },
       },
     });
-  
+
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.action === 'edit' && result.event) {
         this.eventService.updateEvent(result.event.id, result.event).subscribe({
@@ -132,6 +130,4 @@ export class CalendarComponent {
       }
     });
   }
-  
-  }
-
+}
