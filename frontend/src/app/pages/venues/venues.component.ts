@@ -8,7 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MapComponent } from 'src/app/components/map/map.component';
 import { VenuesTableComponent } from 'src/app/components/venues/venues-table/venues-table.component';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { NotificationService } from '../../services/notification.service';
 import { GeocodingService } from '../../services/geocoding.service';
@@ -26,7 +26,6 @@ export class VenuesComponent implements OnInit {
   venuesSignal = signal<Location[]>([]); // Writable signal
   selectedCategoriesSignal: WritableSignal<string[]> = signal([]);
   activeViewSignal: WritableSignal<'map' | 'table'> = signal('map');
-  activeView: 'map' | 'table' = 'map';
 
   constructor(
     private locationsService: LocationsService,
@@ -35,22 +34,13 @@ export class VenuesComponent implements OnInit {
     private titleService: Title,
     private notificationService: NotificationService,
     private geocodingService: GeocodingService
-  ) {}
+  ) {
+    this.titleService.setTitle('Venues');
+  }
 
   ngOnInit(): void {
     this.loadCategories();
     this.refreshVenues();
-
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        const currentRoute = this.route.snapshot.firstChild;
-        if (currentRoute?.routeConfig?.path) {
-          this.activeView = currentRoute.routeConfig.path as 'map' | 'table';
-          const title = currentRoute.data?.['title'] || 'Venues';
-          this.titleService.setTitle(title);
-        }
-      }
-    });
   }
 
   // Load categories from the backend
@@ -102,9 +92,9 @@ export class VenuesComponent implements OnInit {
     }
   }
 
-  // Toggle between map and table views
+  // Handle switching between map and table views
   switchView(view: 'map' | 'table'): void {
-    this.router.navigate([view], { relativeTo: this.route });
+    console.log('Switching to view:', view);
     this.activeViewSignal.set(view);
   }
 

@@ -69,7 +69,6 @@ export class VenuesTableComponent implements OnInit, OnChanges {
   dataSource = new MatTableDataSource<Location>([]);
 
   constructor(private dialog: MatDialog) {
-    // Set default sort
     this.dataSource.sortingDataAccessor = (item: Location, property: string): string | number => {
       switch (property) {
         case 'name':
