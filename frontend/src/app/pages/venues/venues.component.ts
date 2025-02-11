@@ -6,7 +6,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { ToolbarComponent } from 'src/app/components/toolbar/toolbar.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MapComponent } from 'src/app/components/map/map.component';
-import { VenuesTableComponent } from 'src/app/pages/venues-table/venues-table.component';
+import { VenuesTableComponent } from 'src/app/components/venues/venues-table/venues-table.component';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { Title } from '@angular/platform-browser';

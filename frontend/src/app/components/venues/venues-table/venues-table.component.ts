@@ -23,7 +23,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { VenueDetailsComponent } from '../../modals/venue-details/venue-details.component';
+import { VenueDetailsComponent } from '../../../modals/venue-details/venue-details.component';
 
 @Component({
   selector: 'app-venues-table',
