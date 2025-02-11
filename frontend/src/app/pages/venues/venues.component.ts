@@ -3,7 +3,7 @@ import { LocationsService } from '../../services/locations.service';
 import { signal, WritableSignal } from '@angular/core';
 import { Location } from '@shared/models/location.model';
 import { MaterialModule } from 'src/app/material.module';
-import { ToolbarComponent } from 'src/app/pages/toolbar/toolbar.component';
+import { ToolbarComponent } from 'src/app/components/toolbar/toolbar.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MapComponent } from 'src/app/components/map/map.component';
 import { VenuesTableComponent } from 'src/app/pages/venues-table/venues-table.component';
