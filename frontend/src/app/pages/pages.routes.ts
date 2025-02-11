@@ -3,7 +3,7 @@ import { HomeComponent } from './home/home.component';
 import { ArtistsComponent } from './artists/artists.component';
 import { ArtistDetailComponent } from './artist-detail/artist-detail.component';
 import { VenuesComponent } from './venues/venues.component';
-import { CalendarComponent } from './calendar/calendar.component';
+import { CalendarComponent } from '../components/calendar/calendar.component';
 import { AuthGuard } from '../guards/auth.guard';
 import { EventsComponent } from './events/events.component';
 
