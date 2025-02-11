@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-
 import { OpenModalVenueService } from './open-modal-venue.service';
+import 'jasmine';
 
 describe('OpenModalVenueService', () => {
   let service: OpenModalVenueService;

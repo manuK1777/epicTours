@@ -6,7 +6,7 @@ import { Chart, ChartConfiguration, registerables } from 'chart.js';
   standalone: true,
   imports: [],
   templateUrl: './chart-bar.component.html',
-  styleUrl: './chart-bar.component.scss'
+  styleUrl: './chart-bar.component.scss',
 })
 export class ChartBarComponent implements OnChanges, OnDestroy {
   @Input() data: { category: string; count: number }[] = [];
@@ -18,21 +18,20 @@ export class ChartBarComponent implements OnChanges, OnDestroy {
 
   ngOnChanges(): void {
     console.log('Chart data on chartBarComp ', this.data);
-    
+
     if (Array.isArray(this.data) && this.data.length > 0) {
       this.renderChart();
     } else {
       console.warn('No data available for Bar Chart');
     }
   }
-  
 
   ngOnDestroy(): void {
     this.destroyChart();
   }
 
   private renderChart(): void {
-   this.destroyChart(); // Destroy any existing chart instance
+    this.destroyChart(); // Destroy any existing chart instance
 
     const categories = this.data.map((item) => item.category);
     const counts = this.data.map((item) => item.count);

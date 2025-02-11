@@ -19,7 +19,7 @@ import { Musician } from '@shared/models/musician.model';
 import { CrewService } from '../../services/crew.service';
 import { Crew } from '@shared/models/crew.model';
 import { ImageService } from '../../services/image.service';
-import { ArtistEventsComponent } from '@components/artist/artist-events/artist-events.component';
+import { ArtistEventsComponent } from '../../components/artist/artist-events/artist-events.component';
 
 export interface Tile {
   color: string;

@@ -6,7 +6,7 @@ import { Chart, ChartConfiguration, registerables } from 'chart.js';
   standalone: true,
   imports: [],
   templateUrl: './chart-line.component.html',
-  styleUrl: './chart-line.component.scss'
+  styleUrl: './chart-line.component.scss',
 })
 export class ChartLineComponent implements OnChanges, OnDestroy {
   @Input() data: { month: string; count: number }[] = [];
@@ -15,7 +15,7 @@ export class ChartLineComponent implements OnChanges, OnDestroy {
   constructor() {
     Chart.register(...registerables); // Register required Chart.js components
   }
-  
+
   ngOnChanges(): void {
     if (Array.isArray(this.data) && this.data.length > 0) {
       this.renderChart();
@@ -23,7 +23,6 @@ export class ChartLineComponent implements OnChanges, OnDestroy {
       console.warn('No data available for Line Chart');
     }
   }
-  
 
   ngOnDestroy(): void {
     this.destroyChart();

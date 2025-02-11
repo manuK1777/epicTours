@@ -25,6 +25,7 @@
     "module": "ES2022",
     "useDefineForClassFields": false,
     "strictPropertyInitialization": false,
+    "types": ["jasmine", "node"],
     "lib": ["ES2022", "dom"]
   },
   "angularCompilerOptions": {
